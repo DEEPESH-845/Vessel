@@ -5,42 +5,41 @@ import { useRouter } from "next/navigation";
 import { useApp } from "@/lib/store";
 import {
   ArrowRight,
+  TrendingUp,
   Shield,
-  Zap,
-  Coins,
   Sparkles,
   ChevronRight,
+  Zap,
 } from "lucide-react";
+import { useEffect } from "react";
 
-/* ─── Animation Variants ─── */
 const stagger = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.1, delayChildren: 0.4 },
+    transition: { staggerChildren: 0.08, delayChildren: 0.2 },
   },
-} as const;
+};
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 40, filter: "blur(10px)" },
+  hidden: { opacity: 0, y: 24, filter: "blur(6px)" },
   show: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { type: "spring" as const, damping: 25, stiffness: 80 },
+    transition: { type: "spring" as const, damping: 28, stiffness: 100 },
   },
 };
 
 const scaleIn = {
-  hidden: { opacity: 0, scale: 0.6 },
+  hidden: { opacity: 0, scale: 0.9 },
   show: {
     opacity: 1,
     scale: 1,
-    transition: { type: "spring" as const, damping: 15, stiffness: 100 },
+    transition: { type: "spring" as const, damping: 20, stiffness: 120 },
   },
 };
 
-/* ─── Feature Data ─── */
 const features = [
   {
     icon: Zap,
@@ -57,7 +56,7 @@ const features = [
     iconColor: "text-primary",
   },
   {
-    icon: Coins,
+    icon: TrendingUp,
     label: "Any Stablecoin",
     desc: "USDC · USDT · DAI & more",
     gradient: "from-accent/20 to-emerald-500/10",
@@ -67,7 +66,13 @@ const features = [
 
 export default function LandingPage() {
   const router = useRouter();
-  const { login } = useApp();
+  const { login, isLoggedIn } = useApp();
+
+  useEffect(() => {
+    if (isLoggedIn) {
+      router.push("/wallet");
+    }
+  }, [isLoggedIn, router]);
 
   const handleLogin = () => {
     login();
@@ -82,9 +87,7 @@ export default function LandingPage() {
         animate="show"
         className="flex flex-col items-center text-center w-full max-w-[380px]"
       >
-        {/* ── Logo with Glow ── */}
         <motion.div variants={scaleIn} className="relative mb-10">
-          {/* Outer glow ring */}
           <motion.div
             className="absolute -inset-4 rounded-[30px] opacity-40"
             style={{
@@ -119,7 +122,6 @@ export default function LandingPage() {
           </motion.div>
         </motion.div>
 
-        {/* ── Title Block ── */}
         <motion.div variants={fadeUp} className="mb-8">
           <h1 className="text-display mb-3">
             <span className="text-gradient">Vessel</span>
@@ -132,7 +134,6 @@ export default function LandingPage() {
           </p>
         </motion.div>
 
-        {/* ── Feature Cards ── */}
         <motion.div
           variants={fadeUp}
           className="w-full space-y-2.5 mb-10"
@@ -171,7 +172,6 @@ export default function LandingPage() {
           ))}
         </motion.div>
 
-        {/* ── Login CTA — Magnetic Button ── */}
         <motion.button
           variants={fadeUp}
           onClick={handleLogin}
@@ -193,7 +193,6 @@ export default function LandingPage() {
             e.currentTarget.style.setProperty("--mouse-y", `${y}%`);
           }}
         >
-          {/* Google Icon */}
           <svg
             width="18"
             height="18"
@@ -223,7 +222,6 @@ export default function LandingPage() {
           <ArrowRight className="w-4 h-4 opacity-70" />
         </motion.button>
 
-        {/* ── Trust Bar ── */}
         <motion.div
           variants={fadeUp}
           className="flex items-center gap-2 mt-6"

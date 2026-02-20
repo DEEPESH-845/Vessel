@@ -5,6 +5,8 @@ node_modules/
 # next.js
 .next/
 **/.next/
+.vscode/
+
 
 # hardhat
 artifacts/
