@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/store";
+import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -74,7 +75,9 @@ export default function RootLayout({
             />
           </div>
 
-          <AppProvider>{children}</AppProvider>
+          <AppProvider>
+            <SmoothScrollProvider>{children}</SmoothScrollProvider>
+          </AppProvider>
         </div>
       </body>
     </html>

@@ -13,7 +13,7 @@ export default function PremiumQuickActions() {
     <div
       className="grid grid-cols-2"
       style={{
-        gap: "16px",
+        gap: "24px",
       }}
     >
       <MagneticActionButton
