@@ -8,10 +8,14 @@ import {
   TrendingUp,
   Shield,
   Sparkles,
-  ChevronRight,
   Zap,
 } from "lucide-react";
 import { useEffect } from "react";
+import Spotlight from "@/components/aceternity/spotlight";
+import TextGenerateEffect from "@/components/aceternity/text-generate-effect";
+import BackgroundBeams from "@/components/aceternity/background-beams";
+import MovingBorder from "@/components/aceternity/moving-border";
+import { BentoGrid, BentoGridItem } from "@/components/aceternity/bento-grid";
 
 const stagger = {
   hidden: { opacity: 0 },
@@ -42,25 +46,22 @@ const scaleIn = {
 
 const features = [
   {
-    icon: Zap,
+    icon: <Zap className="w-5 h-5 text-amber-400" />,
     label: "Zero Gas",
     desc: "Paymaster sponsors every transaction",
     gradient: "from-amber-500/20 to-orange-500/10",
-    iconColor: "text-amber-400",
   },
   {
-    icon: Shield,
+    icon: <Shield className="w-5 h-5 text-primary" />,
     label: "AI-Secured",
     desc: "Bedrock-powered fraud detection",
     gradient: "from-primary/20 to-violet-500/10",
-    iconColor: "text-primary",
   },
   {
-    icon: TrendingUp,
+    icon: <TrendingUp className="w-5 h-5 text-accent" />,
     label: "Any Stablecoin",
     desc: "USDC · USDT · DAI & more",
     gradient: "from-accent/20 to-emerald-500/10",
-    iconColor: "text-accent",
   },
 ] as const;
 
@@ -80,13 +81,28 @@ export default function LandingPage() {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-dvh px-6 pb-8 pt-safe">
+    <div className="relative flex flex-col items-center justify-center min-h-dvh px-6 pb-8 pt-safe overflow-hidden">
+      {/* Aceternity UI Effects */}
+      <Spotlight />
+      <BackgroundBeams />
+
+      {/* Gradient background */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 50%), radial-gradient(circle at 80% 20%, rgba(204, 255, 0, 0.04), transparent 40%)",
+        }}
+        aria-hidden="true"
+      />
+
       <motion.div
         variants={stagger}
         initial="hidden"
         animate="show"
-        className="flex flex-col items-center text-center w-full max-w-[380px]"
+        className="relative z-10 flex flex-col items-center text-center w-full max-w-[380px]"
       >
+        {/* Logo */}
         <motion.div variants={scaleIn} className="relative mb-10">
           <motion.div
             className="absolute -inset-4 rounded-[30px] opacity-40"
@@ -122,106 +138,97 @@ export default function LandingPage() {
           </motion.div>
         </motion.div>
 
+        {/* Hero Text with Text Generate Effect */}
         <motion.div variants={fadeUp} className="mb-8">
           <h1 className="text-display mb-3">
             <span className="text-gradient">Vessel</span>
           </h1>
-          <p className="text-body text-muted-foreground font-light leading-relaxed max-w-[280px] mx-auto">
-            The gasless payment layer for the stablecoin economy.{" "}
-            <span className="text-foreground/60">
-              Zero gas. One tap. Instant.
-            </span>
-          </p>
+          <TextGenerateEffect
+            words="The gasless payment layer for the stablecoin economy. Zero gas. One tap. Instant."
+            className="text-body text-muted-foreground font-light leading-relaxed max-w-[280px] mx-auto"
+            delay={0.5}
+          />
         </motion.div>
 
-        <motion.div
-          variants={fadeUp}
-          className="w-full space-y-2.5 mb-10"
-          role="list"
-        >
-          {features.map((f, i) => (
-            <motion.div
-              key={f.label}
-              role="listitem"
-              className="glass gradient-border flex items-center gap-4 p-4 group cursor-default"
-              initial={{ opacity: 0, x: i % 2 === 0 ? -30 : 30 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{
-                delay: 0.6 + i * 0.12,
-                type: "spring",
-                damping: 20,
-                stiffness: 90,
-              }}
-              whileHover={{ x: 4, transition: { duration: 0.2 } }}
-            >
-              <div
-                className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${f.gradient} flex items-center justify-center flex-shrink-0`}
+        {/* Features with Bento Grid */}
+        <motion.div variants={fadeUp} className="w-full mb-10">
+          <BentoGrid>
+            {features.map((feature, idx) => (
+              <motion.div
+                key={feature.label}
+                initial={{ opacity: 0, x: idx % 2 === 0 ? -30 : 30 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{
+                  delay: 0.8 + idx * 0.12,
+                  type: "spring",
+                  damping: 20,
+                  stiffness: 90,
+                }}
               >
-                <f.icon className={`w-5 h-5 ${f.iconColor}`} />
-              </div>
-              <div className="flex-1 text-left">
-                <p className="text-[13px] font-semibold leading-tight">
-                  {f.label}
-                </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {f.desc}
-                </p>
-              </div>
-              <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/40 group-hover:text-muted-foreground/80 transition-colors" />
-            </motion.div>
-          ))}
+                <BentoGridItem
+                  title={feature.label}
+                  description={feature.desc}
+                  icon={feature.icon}
+                  gradient={feature.gradient}
+                />
+              </motion.div>
+            ))}
+          </BentoGrid>
         </motion.div>
 
-        <motion.button
-          variants={fadeUp}
-          onClick={handleLogin}
-          className="w-full py-[18px] px-6 rounded-2xl text-white font-semibold text-[15px] flex items-center justify-center gap-3 btn-magnetic relative overflow-hidden focus-ring"
-          style={{
-            background: "linear-gradient(135deg, #6366f1, #8b5cf6, #06d6a0)",
-          }}
-          whileHover={{
-            scale: 1.015,
-            boxShadow:
-              "0 0 40px rgba(99,102,241,0.35), 0 12px 40px rgba(0,0,0,0.3)",
-          }}
-          whileTap={{ scale: 0.98 }}
-          onMouseMove={(e) => {
-            const rect = e.currentTarget.getBoundingClientRect();
-            const x = ((e.clientX - rect.left) / rect.width) * 100;
-            const y = ((e.clientY - rect.top) / rect.height) * 100;
-            e.currentTarget.style.setProperty("--mouse-x", `${x}%`);
-            e.currentTarget.style.setProperty("--mouse-y", `${y}%`);
-          }}
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 48 48"
-            fill="none"
-            className="flex-shrink-0"
-            aria-hidden="true"
+        {/* CTA Button with Moving Border */}
+        <motion.div variants={fadeUp} className="w-full">
+          <MovingBorder
+            onClick={handleLogin}
+            duration={3000}
+            containerClassName="w-full"
+            className="w-full py-[18px] px-6 flex items-center justify-center gap-3 cursor-pointer"
           >
-            <path
-              d="M43.6 20.5H42V20.3H24v7.4h11.3C34 32.1 29.5 35.1 24 35.1c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.3-5.3C33.5 5.4 29 3.1 24 3.1 12.4 3.1 3 12.5 3 24.1s9.4 21 21 21c11.6 0 21-9.4 21-21 0-1.2-.1-2.4-.4-3.6z"
-              fill="#FFC107"
-            />
-            <path
-              d="M5.3 14.7l6.1 4.5c1.6-4.2 5.7-7.1 10.6-7.1 3 0 5.8 1.1 7.9 3l5.3-5.3C31.5 6.4 28 4.1 24 4.1c-7.2 0-13.4 4.1-16.7 10.6z"
-              fill="#FF3D00"
-            />
-            <path
-              d="M24 44.1c4.9 0 9.3-1.7 12.8-4.6l-5.9-5c-1.9 1.3-4.3 2.2-6.9 2.2-5.4 0-10-3.6-11.6-8.5l-6.1 4.7C9.5 39.5 16.2 44.1 24 44.1z"
-              fill="#4CAF50"
-            />
-            <path
-              d="M43.6 20.5H42V20.3H24v7.4h11.3C34.8 29.7 34 31.5 32.9 33l5.9 5c-.4.4 5.2-3.8 5.2-14 0-1.2-.1-2.4-.4-3.5z"
-              fill="#1976D2"
-            />
-          </svg>
-          Continue with Google
-          <ArrowRight className="w-4 h-4 opacity-70" />
-        </motion.button>
+            <motion.div
+              className="flex items-center justify-center gap-3 w-full"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 48 48"
+                fill="none"
+                className="flex-shrink-0"
+                aria-hidden="true"
+              >
+                <path
+                  d="M43.6 20.5H42V20.3H24v7.4h11.3C34 32.1 29.5 35.1 24 35.1c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.3-5.3C33.5 5.4 29 3.1 24 3.1 12.4 3.1 3 12.5 3 24.1s9.4 21 21 21c11.6 0 21-9.4 21-21 0-1.2-.1-2.4-.4-3.6z"
+                  fill="#FFC107"
+                />
+                <path
+                  d="M5.3 14.7l6.1 4.5c1.6-4.2 5.7-7.1 10.6-7.1 3 0 5.8 1.1 7.9 3l5.3-5.3C31.5 6.4 28 4.1 24 4.1c-7.2 0-13.4 4.1-16.7 10.6z"
+                  fill="#FF3D00"
+                />
+                <path
+                  d="M24 44.1c4.9 0 9.3-1.7 12.8-4.6l-5.9-5c-1.9 1.3-4.3 2.2-6.9 2.2-5.4 0-10-3.6-11.6-8.5l-6.1 4.7C9.5 39.5 16.2 44.1 24 44.1z"
+                  fill="#4CAF50"
+                />
+                <path
+                  d="M43.6 20.5H42V20.3H24v7.4h11.3C34.8 29.7 34 31.5 32.9 33l5.9 5c-.4.4 5.2-3.8 5.2-14 0-1.2-.1-2.4-.4-3.5z"
+                  fill="#1976D2"
+                />
+              </svg>
+              <span
+                className="font-semibold text-[15px]"
+                style={{
+                  fontFamily: "'Inter', sans-serif",
+                  color: "#FFFFFF",
+                }}
+              >
+                Continue with Google
+              </span>
+              <ArrowRight className="w-4 h-4 opacity-70" />
+            </motion.div>
+          </MovingBorder>
+        </motion.div>
 
+        {/* Footer */}
         <motion.div
           variants={fadeUp}
           className="flex items-center gap-2 mt-6"

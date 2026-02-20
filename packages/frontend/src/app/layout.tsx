@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/store";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
+import PerformanceMonitor from "@/components/performance-monitor";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -26,8 +27,43 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Vessel — Gasless Payments",
-  description: "Zero gas. One tap. Instant stablecoin settlement on Lisk.",
+  title: "Vessel - Gasless Crypto Payments",
+  description: "The gasless payment layer for the stablecoin economy. Zero gas. One tap. Instant.",
+  keywords: ["crypto", "payments", "stablecoin", "gasless", "ERC-4337", "web3", "blockchain", "Lisk"],
+  authors: [{ name: "Vessel Team" }],
+  creator: "Vessel",
+  publisher: "Vessel",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"),
+  openGraph: {
+    title: "Vessel - Gasless Crypto Payments",
+    description: "The gasless payment layer for the stablecoin economy. Zero gas. One tap. Instant.",
+    url: "/",
+    siteName: "Vessel",
+    locale: "en_US",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Vessel - Gasless Crypto Payments",
+    description: "The gasless payment layer for the stablecoin economy. Zero gas. One tap. Instant.",
+    creator: "@vessel",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
@@ -39,9 +75,9 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: "#0f0f0f",
+  maximumScale: 5,
+  userScalable: true,
+  themeColor: "#CCFF00",
 };
 
 export default function RootLayout({
@@ -50,9 +86,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
       <body
         className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} font-sans antialiased bg-[#0f0f0f] text-white selection:bg-primary/30 selection:text-white`}
+        suppressHydrationWarning
       >
         <div className="layout-shell">
           <div
@@ -76,7 +117,10 @@ export default function RootLayout({
           </div>
 
           <AppProvider>
-            <SmoothScrollProvider>{children}</SmoothScrollProvider>
+            <SmoothScrollProvider>
+              {children}
+              <PerformanceMonitor />
+            </SmoothScrollProvider>
           </AppProvider>
         </div>
       </body>
