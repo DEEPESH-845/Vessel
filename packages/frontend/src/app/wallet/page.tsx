@@ -112,6 +112,50 @@ export default function WalletPage() {
 
         {/* Content wrapper */}
         <div className="relative z-10" style={{ padding: "24px" }}>
+          {/* Back button */}
+          <motion.button
+            onClick={() => router.push("/")}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
+            whileHover={{ scale: 1.05, x: -2 }}
+            whileTap={{ scale: 0.95 }}
+            className="mb-6 flex items-center gap-2 group"
+            style={{
+              background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
+              border: "1px solid rgba(39, 39, 42, 0.8)",
+              borderRadius: "16px",
+              padding: "10px 16px",
+              backdropFilter: "blur(20px)",
+              WebkitBackdropFilter: "blur(20px)",
+            }}
+            aria-label="Back to home"
+          >
+            <svg
+              width="16"
+              height="16"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#CCFF00"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              className="transition-transform group-hover:-translate-x-1"
+            >
+              <path d="M19 12H5M12 19l-7-7 7-7" />
+            </svg>
+            <span
+              style={{
+                fontFamily: "'Inter', sans-serif",
+                fontSize: "14px",
+                fontWeight: 600,
+                color: "#FFFFFF",
+              }}
+            >
+              Home
+            </span>
+          </motion.button>
+
           {/* Greeting header */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}

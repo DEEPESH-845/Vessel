@@ -2,7 +2,6 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useApp } from "@/lib/store";
 import {
   ArrowRight,
   TrendingUp,
@@ -10,7 +9,6 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import { useEffect } from "react";
 import Spotlight from "@/components/aceternity/spotlight";
 import TextGenerateEffect from "@/components/aceternity/text-generate-effect";
 import BackgroundBeams from "@/components/aceternity/background-beams";
@@ -67,17 +65,17 @@ const features = [
 
 export default function LandingPage() {
   const router = useRouter();
-  const { login, isLoggedIn } = useApp();
 
-  useEffect(() => {
-    if (isLoggedIn) {
-      router.push("/wallet");
-    }
-  }, [isLoggedIn, router]);
+  // Removed auto-redirect to allow users to return to home page
+  // useEffect(() => {
+  //   if (isLoggedIn) {
+  //     router.push("/wallet");
+  //   }
+  // }, [isLoggedIn, router]);
 
   const handleLogin = () => {
-    login();
-    router.push("/wallet");
+    // Redirect to Auth0 Google login
+    window.location.href = '/api/auth/login?connection=google-oauth2';
   };
 
   return (
@@ -182,7 +180,7 @@ export default function LandingPage() {
             onClick={handleLogin}
             duration={3000}
             containerClassName="w-full"
-            className="w-full py-[18px] px-6 flex items-center justify-center gap-3 cursor-pointer"
+            className="w-full py-4 px-6 flex items-center justify-center gap-3 cursor-pointer"
           >
             <motion.div
               className="flex items-center justify-center gap-3 w-full"

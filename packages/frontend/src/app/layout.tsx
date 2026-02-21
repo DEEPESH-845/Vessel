@@ -4,6 +4,7 @@ import "./globals.css";
 import { AppProvider } from "@/lib/store";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 import PerformanceMonitor from "@/components/performance-monitor";
+import { UserProvider } from "@/components/user-provider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -116,12 +117,14 @@ export default function RootLayout({
             />
           </div>
 
-          <AppProvider>
-            <SmoothScrollProvider>
-              {children}
-              <PerformanceMonitor />
-            </SmoothScrollProvider>
-          </AppProvider>
+          <UserProvider>
+            <AppProvider>
+              <SmoothScrollProvider>
+                {children}
+                <PerformanceMonitor />
+              </SmoothScrollProvider>
+            </AppProvider>
+          </UserProvider>
         </div>
       </body>
     </html>

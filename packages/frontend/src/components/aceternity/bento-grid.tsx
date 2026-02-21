@@ -45,7 +45,7 @@ export function BentoGridItem({
         background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
         border: "1px solid rgba(39, 39, 42, 0.8)",
         borderRadius: "20px",
-        padding: "16px",
+        padding: "20px",
         backdropFilter: "blur(20px)",
         WebkitBackdropFilter: "blur(20px)",
       }}
