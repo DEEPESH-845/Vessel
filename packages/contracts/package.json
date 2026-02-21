@@ -12,7 +12,7 @@
   "type": "commonjs",
   "devDependencies": {
     "@account-abstraction/contracts": "^0.8.0",
-    "@nomicfoundation/hardhat-toolbox": "^2.0.2",
+    "@nomicfoundation/hardhat-toolbox": "^1.0.2",
     "@openzeppelin/contracts": "^5.4.0",
     "dotenv": "^17.2.4",
     "hardhat": "^3.1.9",
@@ -20,8 +20,9 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
-    "eslint": "10.0.1",
+    "eslint": "^10.0.1",
     "eslint-config-next": "0.2.4",
+    "jest": "^30.2.0",
     "viem": "^2.45.3"
   }
 }
