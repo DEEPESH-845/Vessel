@@ -527,7 +527,7 @@ Vessel's architecture is designed for growth:
 ## 📜 License & Resources
 
 **License:** MIT  
-**Built for:** [AWS Global 10,000 AIdeas Competition Hackathon](https://builder.aws.com/connect/events/10000aideas)  
+**Built for:** [AWS Global 10,000 AIdeas Competition ](https://builder.aws.com/connect/events/10000aideas)  
 **Demo:** [vessel-demo.vercel.app](https://vessel-demo.vercel.app) *(coming soon)*  
 **Documentation:** [docs.vessel.app](https://docs.vessel.app) *(coming soon)*
 

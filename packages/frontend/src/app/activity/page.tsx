@@ -9,16 +9,20 @@
 
 'use client';
 
-import { useState, useMemo, useCallback, Suspense, useEffect } from 'react';
+import { useState, useMemo, useCallback, Suspense, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { motion, useScroll, useTransform } from 'framer-motion';
 import ActivityList from '@/components/activity-list';
 import ActivityFilterPanel from '@/components/activity-filter-panel';
 import ActivitySearch from '@/components/activity-search';
 import ActivityExportDialog from '@/components/activity-export-dialog';
+import ParticleField from '@/components/particle-field';
+import ScrollProgress from '@/components/scroll-progress';
+import SkeletonLoader from '@/components/skeleton-loader';
 import { useTransactions } from '@/store';
 import { ActivityFilter, ActivityTransaction } from '@/types/transaction.types';
 import { searchTransactions } from '@/utils/search.utils';
-import { FileDown } from 'lucide-react';
+import { FileDown, ArrowLeft, History } from 'lucide-react';
 
 export default function ActivityPage() {
   const router = useRouter();
@@ -27,6 +31,11 @@ export default function ActivityPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  
+  const { scrollY } = useScroll();
+  const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
+  const backgroundOpacity = useTransform(scrollY, [0, 300], [1, 0.3]);
 
   // Check authentication status
   useEffect(() => {
@@ -167,10 +176,7 @@ export default function ActivityPage() {
   if (isAuthenticated === null) {
     return (
       <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0A0A' }}>
-        <div className="text-center">
-          <div className="w-8 h-8 border-2 border-[#CCFF00] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p style={{ color: '#A1A1AA', fontFamily: "'Inter', sans-serif" }}>Loading...</p>
-        </div>
+        <SkeletonLoader variant="balance" />
       </div>
     );
   }
@@ -178,70 +184,130 @@ export default function ActivityPage() {
   if (!isAuthenticated) return null;
 
   return (
-    <div className="min-h-screen" style={{ background: '#0A0A0A' }}>
-      {/* Header */}
-      <div className="sticky top-0 z-10" style={{ background: '#0A0A0A', borderBottom: '1px solid #27272A' }}>
-        <div className="max-w-4xl mx-auto px-4 py-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1
-                className="text-2xl font-bold"
-                style={{
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  color: '#FFFFFF',
-                }}
-              >
-                Activity
-              </h1>
-              <p
-                className="mt-1 text-sm"
-                style={{
-                  fontFamily: "'Inter', sans-serif",
-                  color: '#A1A1AA',
-                }}
-              >
-                View all your transactions across chains
-              </p>
-            </div>
-            <button
-              onClick={() => setIsExportDialogOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 transition-all hover:opacity-80"
-              style={{
-                background: '#CCFF00',
-                color: '#0A0A0A',
-                fontFamily: "'Inter', sans-serif",
-                fontSize: '14px',
-                fontWeight: 600,
-                borderRadius: '8px',
-              }}
-            >
-              <FileDown size={18} />
-              Export
-            </button>
-          </div>
-        </div>
-      </div>
+    <div 
+      ref={containerRef}
+      className="min-h-screen relative overflow-hidden" 
+      style={{ background: '#0A0A0A' }}
+    >
+      {/* Scroll progress indicator */}
+      <ScrollProgress />
+
+      {/* Animated gradient background */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          y: backgroundY,
+          opacity: backgroundOpacity,
+          background:
+            "radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 50%), radial-gradient(circle at 80% 20%, rgba(204, 255, 0, 0.04), transparent 40%)",
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Enhanced particle field */}
+      <ParticleField count={15} color="rgba(204, 255, 0, 0.15)" />
 
       {/* Content */}
-      <div className="max-w-4xl mx-auto px-4 py-6">
-        {/* Search Input */}
-        <ActivitySearch onSearchChange={handleSearchChange} />
+      <div className="relative z-10">
+        {/* Header */}
+        <div 
+          className="sticky top-0 z-10"
+          style={{ 
+            background: 'rgba(10, 10, 10, 0.9)',
+            backdropFilter: 'blur(20px)',
+            WebkitBackdropFilter: 'blur(20px)',
+            borderBottom: '1px solid rgba(39, 39, 42, 0.8)',
+          }}
+        >
+          <div className="max-w-4xl mx-auto px-6 py-5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                {/* Back button */}
+                <motion.button
+                  onClick={() => router.push('/wallet')}
+                  whileHover={{ scale: 1.05, x: -2 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="w-10 h-10 rounded-xl flex items-center justify-center"
+                  style={{
+                    background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
+                    border: "1px solid rgba(39, 39, 42, 0.8)",
+                  }}
+                  aria-label="Back to wallet"
+                >
+                  <ArrowLeft className="w-4 h-4 text-[#CCFF00]" />
+                </motion.button>
+                
+                <div>
+                  <h1
+                    style={{
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      fontSize: "clamp(20px, 4vw, 24px)",
+                      fontWeight: 700,
+                      color: '#FFFFFF',
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    Activity
+                  </h1>
+                  <p
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "14px",
+                      color: '#71717A',
+                    }}
+                  >
+                    View all your transactions across chains
+                  </p>
+                </div>
+              </div>
+              
+              <motion.button
+                onClick={() => setIsExportDialogOpen(true)}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center gap-2 px-4 py-2.5 transition-all"
+                style={{
+                  background: "linear-gradient(135deg, #CCFF00, #B3E600)",
+                  color: '#0A0A0A',
+                  fontFamily: "'Inter', sans-serif",
+                  fontSize: '14px',
+                  fontWeight: 600,
+                  borderRadius: '12px',
+                  boxShadow: '0 4px 12px rgba(204, 255, 0, 0.2)',
+                }}
+              >
+                <FileDown size={18} />
+                Export
+              </motion.button>
+            </div>
+          </div>
+        </div>
 
-        {/* Filter Panel */}
-        <Suspense fallback={<div className="h-12" />}>
-          <ActivityFilterPanel
-            onFilterChange={setActiveFilters}
-            availableChains={availableChains}
-            availableTokens={availableTokens}
+        {/* Content Area */}
+        <div className="max-w-4xl mx-auto px-6 py-6">
+          {/* Search Input */}
+          <div className="mb-4">
+            <ActivitySearch onSearchChange={handleSearchChange} />
+          </div>
+
+          {/* Filter Panel */}
+          <div className="mb-6">
+            <Suspense fallback={<div className="h-12" />}>
+              <ActivityFilterPanel
+                onFilterChange={setActiveFilters}
+                availableChains={availableChains}
+                availableTokens={availableTokens}
+              />
+            </Suspense>
+          </div>
+
+          {/* Transaction List */}
+          <ActivityList 
+            transactions={filteredTransactions} 
+            isLoading={isLoading}
+            searchQuery={searchQuery}
           />
-        </Suspense>
-
-        {/* Transaction List */}
-        <ActivityList 
-          transactions={filteredTransactions} 
-          isLoading={isLoading}
-          searchQuery={searchQuery}
-        />
+        </div>
       </div>
 
       {/* Export Dialog */}
