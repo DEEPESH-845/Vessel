@@ -527,13 +527,13 @@ Vessel's architecture is designed for growth:
 ## 📜 License & Resources
 
 **License:** MIT  
-**Built for:** [Lisk x AWS AI Hackathon](https://lisk.com)  
+**Built for:** [AWS Global 10,000 AIdeas Competition Hackathon](https://builder.aws.com/connect/events/10000aideas)  
 **Demo:** [vessel-demo.vercel.app](https://vessel-demo.vercel.app) *(coming soon)*  
 **Documentation:** [docs.vessel.app](https://docs.vessel.app) *(coming soon)*
 
 ---
 
-**Built with ❤️ by the Vessel Team**
+**Built with ❤️ by Deepesh Kakkar**
 
 *Making stablecoin payments as easy as scanning a QR code.*
 
