@@ -19,7 +19,7 @@
 
 </div>
 
-<img src="assets/1.png" />
+<img src="assets/1.png" width="100%" height="70%"/>
 
 
 
@@ -64,7 +64,7 @@ Cross-border stablecoin payments should be instant and frictionless. Instead, th
 
 **The result:** Merchants want to accept crypto, but the UX doesn't match traditional payments. Crypto payments remain a niche solution instead of mainstream infrastructure.
 
-<img src="assets/2.png" width="100%"/>
+<img src="assets/2.png" width="100%" height="100%"/>
 
 
 ## 🚀 The Breakthrough — Vessel
@@ -377,7 +377,6 @@ Vessel is built with **enterprise-grade security** from the ground up.
 - **Formal verification** of critical invariants (gas budget never goes negative, authorization tokens are single-use)
 - **Testnet deployment** with bug bounty program before mainnet launch
 
-<img src="assets/6.png" width="100%" />
 
 ## 📊 Business Impact & KPIs
 
