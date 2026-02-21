@@ -5,14 +5,30 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/Pausable.sol";
+
+/**
+ * @title ILPToken
+ * @dev Liquidity Provider Token Interface - compatible with ERC20
+ */
+interface ILPToken is IERC20 {
+    function mint(address to, uint256 amount) external;
+    function burnFrom(address account, uint256 amount) external;
+}
 
 /**
  * @title StableSwapAMM
  * @dev Optimized AMM for stablecoin swaps with low slippage
  * Based on Curve Finance's StableSwap algorithm with amplification factor
  */
-contract StableSwapAMM is Ownable, Pausable {
+contract StableSwapAMM is Ownable {
+    
+    // Custom pause state
+    bool public isPaused = false;
+    
+    modifier whenNotPaused() {
+        require(!isPaused, "StableSwapAMM: paused");
+        _;
+    }
     using SafeERC20 for IERC20;
 
     // ============ Constants ============
@@ -28,7 +44,7 @@ contract StableSwapAMM is Ownable, Pausable {
     address[N_COINS] public coins;
     
     // Pool token
-    ERC20 public lpToken;
+    ILPToken public lpToken;
     string public lpTokenName;
     string public lpTokenSymbol;
     
@@ -47,7 +63,7 @@ contract StableSwapAMM is Ownable, Pausable {
     
     // Cumulative rates (for tracking exchange rates over time)
     uint256[N_COINS] public rates;
-    uint256 public rateMultipliers[N_COINS];
+    uint256[N_COINS] public rateMultipliers;
     
     // Liquidity tracking
     uint256 public totalSupply;
@@ -80,13 +96,6 @@ contract StableSwapAMM is Ownable, Pausable {
     event StopRampA(uint256 currentA);
     event FeeUpdated(uint256 newFee);
     event AdminFeeUpdated(uint256 newAdminFee);
-
-    // ============ Modifiers ============
-    
-    modifier whenNotPaused() {
-        require(!paused(), "StableSwapAMM: paused");
-        _;
-    }
 
     // ============ Constructor ============
     
@@ -138,8 +147,8 @@ contract StableSwapAMM is Ownable, Pausable {
      * @return Actual amount received
      */
     function exchange(
-        int128 i,
-        int128 j,
+        uint256 i,
+        uint256 j,
         uint256 dx,
         uint256 minDy
     ) external whenNotPaused returns (uint256) {
@@ -179,7 +188,7 @@ contract StableSwapAMM is Ownable, Pausable {
      * @param dx Amount to sell
      * @return Expected amount received
      */
-    function get_dy(int128 i, int128 j, uint256 dx) external view returns (uint256) {
+    function get_dy(uint256 i, uint256 j, uint256 dx) external view returns (uint256) {
         uint256[N_COINS] memory rates_;
         for (uint256 k = 0; k < N_COINS; k++) {
             rates_[k] = rates[k];
@@ -191,17 +200,17 @@ contract StableSwapAMM is Ownable, Pausable {
      * @dev Internal function to calculate exchange output
      */
     function _get_dy(
-        int128 i,
-        int128 j,
+        uint256 i,
+        uint256 j,
         uint256 dx,
         uint256[N_COINS] memory rates_
     ) internal view returns (uint256) {
         uint256[N_COINS] memory xp = _xp_mem(rates_);
         
-        uint256 x = xp[uint256(i)] + (dx * rates_[uint256(i)] / PRECISION);
+        uint256 x = xp[i] + (dx * rates_[i] / PRECISION);
         uint256 y = _get_y(i, j, x, xp);
         
-        uint256 dy = (xp[uint256(j)] - y) * PRECISION / rates_[uint256(j)];
+        uint256 dy = (xp[j] - y) * PRECISION / rates_[j];
         
         // Apply fee
         uint256 feeAmount = (dy * fee) / 1e10;
@@ -212,8 +221,8 @@ contract StableSwapAMM is Ownable, Pausable {
      * @dev Calculate new y given x
      */
     function _get_y(
-        int128 i,
-        int128 j,
+        uint256 i,
+        uint256 j,
         uint256 x,
         uint256[N_COINS] memory xp
     ) internal view returns (uint256) {
@@ -226,10 +235,10 @@ contract StableSwapAMM is Ownable, Pausable {
         uint256 S_x = 0;
         
         for (uint256 k = 0; k < N_COINS; k++) {
-            if (k == uint256(i)) {
+            if (k == i) {
                 S_ += xp[k];
                 S_x += xp[k] * x;
-            } else if (k != uint256(j)) {
+            } else if (k != j) {
                 S_ += xp[k];
                 S_x += xp[k] * xp[k];
             } else {
@@ -588,11 +597,11 @@ contract StableSwapAMM is Ownable, Pausable {
     // ============ Pause Functions ============
     
     function pause() external onlyOwner {
-        _pause();
+        isPaused = true;
     }
 
     function unpause() external onlyOwner {
-        _unpause();
+        isPaused = false;
     }
 }
 
@@ -600,7 +609,7 @@ contract StableSwapAMM is Ownable, Pausable {
  * @title LPToken
  * @dev Liquidity Provider Token
  */
-contract LPToken is ERC20 {
+contract LPToken is ERC20, ILPToken {
     address public minter;
     address public swapPool;
     

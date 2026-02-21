@@ -103,7 +103,7 @@ contract GelatoRelayHelper is Ownable, ReentrancyGuard {
         require(_endTime > _startTime, "GelatoRelayHelper: invalid time range");
         
         // Approve tokens for execution
-        IERC20(_inputToken).safeApprove(address(this), _amount);
+        IERC20(_inputToken).forceApprove(address(this), _amount);
         
         taskConfigs[_taskId] = TaskConfig({
             creator: msg.sender,
@@ -139,7 +139,7 @@ contract GelatoRelayHelper is Ownable, ReentrancyGuard {
         
         // Revoke token approval
         if (config.amount > 0) {
-            IERC20(config.inputToken).safeApprove(address(this), 0);
+            IERC20(config.inputToken).forceApprove(address(this), 0);
         }
         
         emit TaskCancelled(_taskId);
@@ -150,7 +150,7 @@ contract GelatoRelayHelper is Ownable, ReentrancyGuard {
      */
     function executeTask(
         bytes32 _taskId,
-        address _ executor,
+        address _executor,
         uint256 _fee
     ) external nonReentrant returns (bool) {
         require(msg.sender == gelatoResolver, "GelatoRelayHelper: not gelato");

@@ -21,7 +21,7 @@ import { PackedUserOperation } from "@account-abstraction/contracts/interfaces/P
  * - Rate limiting
  * - Whitelist support for privileged users
  */
-contract VesselPaymaster is BasePaymaster, Ownable, Pausable {
+contract VesselPaymaster is BasePaymaster, Pausable {
     using ECDSA for bytes32;
     using MessageHashUtils for bytes32;
 
@@ -69,22 +69,24 @@ contract VesselPaymaster is BasePaymaster, Ownable, Pausable {
 
     // ============ Modifiers ============
     
-    modifier whenNotPaused() {
+    modifier whenNotPausedCustom() {
         require(!isPaused, "VesselPaymaster: contract is paused");
         _;
     }
     
-    modifier whenPaused() {
+    modifier whenPausedCustom() {
         require(isPaused, "VesselPaymaster: contract is not paused");
         _;
     }
 
     // ============ Constructor ============
     
-    constructor(IEntryPoint _entryPoint, address _verifyingSigner, address _owner) 
+    constructor(IEntryPoint _entryPoint, address _verifyingSigner) 
         BasePaymaster(_entryPoint) 
-        Ownable(_owner)
     {
+        // Set owner after construction via Ownable
+        _transferOwnership(msg.sender);
+        
         verifyingSigner = _verifyingSigner;
         
         // Set default limits
@@ -105,7 +107,7 @@ contract VesselPaymaster is BasePaymaster, Ownable, Pausable {
     /**
      * @dev Emergency pause - stops all paymaster operations
      */
-    function emergencyPause(string calldata reason) external onlyOwner whenNotPaused {
+    function emergencyPause(string calldata reason) external onlyOwner whenNotPausedCustom {
         isPaused = true;
         emit EmergencyPause(msg.sender, reason);
     }
@@ -113,7 +115,7 @@ contract VesselPaymaster is BasePaymaster, Ownable, Pausable {
     /**
      * @dev Emergency unpause
      */
-    function emergencyUnpause() external onlyOwner whenPaused {
+    function emergencyUnpause() external onlyOwner whenPausedCustom {
         isPaused = false;
         emit EmergencyUnpause(msg.sender);
     }
@@ -262,7 +264,7 @@ contract VesselPaymaster is BasePaymaster, Ownable, Pausable {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         uint256 maxCost
-    ) internal view override whenNotPaused returns (bytes memory context, uint256 validationData) {
+    ) internal view override whenNotPausedCustom returns (bytes memory context, uint256 validationData) {
         // First do basic validation (signature check)
         bytes memory validationContext = _validateSignature(userOp, userOpHash);
         
@@ -319,7 +321,7 @@ contract VesselPaymaster is BasePaymaster, Ownable, Pausable {
         PostOpMode mode,
         bytes calldata context,
         uint256 actualGasCost
-    ) internal override {
+    ) internal virtual {
         // Decode context to get sender
         if (context.length > 0) {
             address sender;
@@ -397,13 +399,6 @@ contract VesselPaymaster is BasePaymaster, Ownable, Pausable {
     }
 
     // ============ Utility Functions ============
-
-    /**
-     * @dev Deposit funds to EntryPoint for gas sponsorship
-     */
-    function deposit() external payable onlyOwner {
-        entryPoint.depositTo{ value: msg.value }(address(this));
-    }
 
     /**
      * @dev Withdraw deposited funds
