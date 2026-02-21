@@ -9,7 +9,7 @@
 
 'use client';
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { ActivityTransaction } from '@/types/transaction.types';
 import { ChevronDown, ChevronUp, Copy, ExternalLink } from 'lucide-react';
 
@@ -51,36 +51,40 @@ export default function ActivityTransactionCard({ transaction, searchQuery = '' 
   };
 
   // Format address for display (0x1234...5678) with optional highlighting
-  const formatAddress = (address: string, highlight: boolean = false) => {
+  const formatAddress = (address: string) => {
     if (!address || address.length < 10) return address;
-    const formatted = `${address.slice(0, 6)}...${address.slice(-4)}`;
-    
-    if (highlight && searchQuery) {
-      const lowerAddress = address.toLowerCase();
-      const lowerQuery = searchQuery.toLowerCase();
-      if (lowerAddress.includes(lowerQuery)) {
-        return `<span style="background: #CCFF0030; color: #CCFF00; padding: 0 2px; border-radius: 2px;">${formatted}</span>`;
-      }
-    }
-    
-    return formatted;
+    return `${address.slice(0, 6)}...${address.slice(-4)}`;
   };
 
-  // Highlight text if it matches search query
-  const highlightText = (text: string) => {
-    if (!searchQuery) return text;
+  // Check if text should be highlighted
+  const shouldHighlight = (text: string) => {
+    if (!searchQuery) return false;
+    return text.toLowerCase().includes(searchQuery.toLowerCase());
+  };
+
+  // Render highlighted text safely
+  const renderHighlightedText = (text: string) => {
+    if (!searchQuery) return <span>{text}</span>;
     
     const lowerText = text.toLowerCase();
     const lowerQuery = searchQuery.toLowerCase();
     const index = lowerText.indexOf(lowerQuery);
     
-    if (index === -1) return text;
+    if (index === -1) return <span>{text}</span>;
     
     const before = text.slice(0, index);
     const match = text.slice(index, index + searchQuery.length);
     const after = text.slice(index + searchQuery.length);
     
-    return `${before}<span style="background: #CCFF0030; color: #CCFF00; padding: 0 2px; border-radius: 2px;">${match}</span>${after}`;
+    return (
+      <span>
+        {before}
+        <span style={{ background: '#CCFF0030', color: '#CCFF00', padding: '0 2px', borderRadius: '2px' }}>
+          {match}
+        </span>
+        {after}
+      </span>
+    );
   };
 
   // Copy to clipboard
@@ -189,10 +193,22 @@ export default function ActivityTransactionCard({ transaction, searchQuery = '' 
               }}
             >
               <span style={{ color: '#A1A1AA' }}>From: </span>
-              <span dangerouslySetInnerHTML={{ __html: formatAddress(transaction.from, true) }} />
+              {shouldHighlight(transaction.from) ? (
+                <span style={{ background: '#CCFF0030', color: '#CCFF00', padding: '0 2px', borderRadius: '2px' }}>
+                  {formatAddress(transaction.from)}
+                </span>
+              ) : (
+                <span>{formatAddress(transaction.from)}</span>
+              )}
               <span style={{ color: '#A1A1AA', margin: '0 8px' }}>→</span>
               <span style={{ color: '#A1A1AA' }}>To: </span>
-              <span dangerouslySetInnerHTML={{ __html: formatAddress(transaction.to, true) }} />
+              {shouldHighlight(transaction.to) ? (
+                <span style={{ background: '#CCFF0030', color: '#CCFF00', padding: '0 2px', borderRadius: '2px' }}>
+                  {formatAddress(transaction.to)}
+                </span>
+              ) : (
+                <span>{formatAddress(transaction.to)}</span>
+              )}
             </div>
 
             {/* Timestamp */}
@@ -278,8 +294,9 @@ export default function ActivityTransactionCard({ transaction, searchQuery = '' 
                   color: '#FFFFFF',
                   wordBreak: 'break-all',
                 }}
-                dangerouslySetInnerHTML={{ __html: highlightText(transaction.hash) }}
-              />
+              >
+                {renderHighlightedText(transaction.hash)}
+              </code>
               <button
                 onClick={() => copyToClipboard(transaction.hash, 'hash')}
                 className="p-1 hover:bg-opacity-80 transition-colors"
@@ -373,8 +390,9 @@ export default function ActivityTransactionCard({ transaction, searchQuery = '' 
                   color: '#FFFFFF',
                   wordBreak: 'break-all',
                 }}
-                dangerouslySetInnerHTML={{ __html: highlightText(transaction.from) }}
-              />
+              >
+                {renderHighlightedText(transaction.from)}
+              </code>
               <button
                 onClick={() => copyToClipboard(transaction.from, 'from')}
                 className="p-1 hover:bg-opacity-80 transition-colors"
@@ -403,8 +421,9 @@ export default function ActivityTransactionCard({ transaction, searchQuery = '' 
                   color: '#FFFFFF',
                   wordBreak: 'break-all',
                 }}
-                dangerouslySetInnerHTML={{ __html: highlightText(transaction.to) }}
-              />
+              >
+                {renderHighlightedText(transaction.to)}
+              </code>
               <button
                 onClick={() => copyToClipboard(transaction.to, 'to')}
                 className="p-1 hover:bg-opacity-80 transition-colors"
