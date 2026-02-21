@@ -19,7 +19,10 @@
 
 </div>
 
----
+<img src="assets/1.png" width="100%" height="60%"/>
+
+
+
 
 ## 🏆 Why This Wins
 
@@ -61,7 +64,8 @@ Cross-border stablecoin payments should be instant and frictionless. Instead, th
 
 **The result:** Merchants want to accept crypto, but the UX doesn't match traditional payments. Crypto payments remain a niche solution instead of mainstream infrastructure.
 
----
+<img src="assets/2.png" width="100%" height="10%"/>
+
 
 ## 🚀 The Breakthrough — Vessel
 
@@ -87,7 +91,7 @@ Backend-signed paymaster authorization, AWS KMS key management, IAM isolation, c
 
 **Result:** Crypto payments that work like scanning a QR code at a coffee shop—instant, predictable, and secure.
 
----
+<img src="assets/3.png" />
 
 ## 🏗 System Architecture
 
@@ -190,7 +194,7 @@ Intelligent routing across multiple liquidity pools. Selects optimal swap paths 
 **Kiro AI**  
 Accelerates infrastructure development with AI-generated Terraform/SAM templates, Lambda function scaffolding, and Bedrock agent prompt generation. Reduced development time by 40%.
 
----
+
 
 ## ⚡ End-to-End Payment Flow
 
@@ -232,7 +236,7 @@ Accelerates infrastructure development with AI-generated Terraform/SAM templates
 11. **Merchant receives settlement**  
     Funds available immediately in preferred stablecoin. Payment complete.
 
----
+<img src="assets/4.png" />
 
 ## 🤖 AI Intelligence Layer
 
@@ -292,7 +296,7 @@ Adjusts routing as market conditions change throughout the day. Learns from hist
 
 **Impact:** Reduced development time by 40%. Freed engineering team to focus on business logic instead of infrastructure boilerplate.
 
----
+<img src="assets/5.png" />
 
 ## 🔐 Security & Trust Model
 
