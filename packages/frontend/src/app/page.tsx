@@ -65,18 +65,75 @@ const features = [
 
 export default function LandingPage() {
   const router = useRouter();
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Removed auto-redirect to allow users to return to home page
-  // useEffect(() => {
-  //   if (isLoggedIn) {
-  //     router.push("/wallet");
-  //   }
-  // }, [isLoggedIn, router]);
+  // Check if user is already authenticated and auto-redirect
+  useEffect(() => {
+    const checkAuthAndRedirect = async () => {
+      try {
+        // Quick check: if has_logged_in cookie exists, check session
+        const hasLoggedIn = document.cookie.includes('has_logged_in=true');
+        
+        if (hasLoggedIn) {
+          // Verify session is still valid
+          const response = await fetch('/api/auth/me');
+          const data = await response.json();
+          
+          if (data.user) {
+            // User is authenticated, redirect to wallet
+            router.push('/wallet');
+            return;
+          }
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+      } finally {
+        setIsCheckingAuth(false);
+      }
+    };
+
+    checkAuthAndRedirect();
+  }, [router]);
 
   const handleLogin = () => {
     // Redirect to Auth0 Google login
     window.location.href = '/api/auth/login?connection=google-oauth2';
   };
+
+  // Show loading state while checking authentication
+  if (isCheckingAuth) {
+    return (
+      <div className="relative flex items-center justify-center min-h-dvh" style={{ background: "#0A0A0A" }}>
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-center"
+        >
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+            className="w-12 h-12 mx-auto mb-4"
+          >
+            <svg
+              width="48"
+              height="48"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="#CCFF00"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
+            </svg>
+          </motion.div>
+          <p style={{ color: '#71717A', fontFamily: "'Inter', sans-serif" }}>
+            Checking authentication...
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-dvh px-6 pb-8 pt-safe overflow-hidden">

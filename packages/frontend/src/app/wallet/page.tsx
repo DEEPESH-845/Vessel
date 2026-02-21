@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useApp } from "@/lib/store";
 import { TOTAL_BALANCE, DEFAULT_TRANSACTIONS } from "@/lib/mock-data";
 import BottomNav from "@/components/bottom-nav";
 import ErrorBoundary from "@/components/error-boundary";
@@ -18,23 +17,44 @@ import { useHapticFeedback } from "@/hooks/use-haptic-feedback";
 
 export default function WalletPage() {
   const router = useRouter();
-  const { isLoggedIn } = useApp();
   const { scrollY } = useScroll();
   const containerRef = useRef<HTMLDivElement>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [user, setUser] = useState<any>(null);
   const { impact, notification } = useHapticFeedback();
 
   // Parallax effect for background
   const backgroundY = useTransform(scrollY, [0, 500], [0, 150]);
   const backgroundOpacity = useTransform(scrollY, [0, 300], [1, 0.3]);
 
+  // Check authentication status
   useEffect(() => {
-    if (!isLoggedIn) router.replace("/");
-  }, [isLoggedIn, router]);
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        
+        if (data.user) {
+          setIsAuthenticated(true);
+          setUser(data.user);
+        } else {
+          setIsAuthenticated(false);
+          router.replace('/');
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        setIsAuthenticated(false);
+        router.replace('/');
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   // GSAP scroll animations (only in browser)
   useEffect(() => {
-    if (!containerRef.current || typeof window === "undefined") return;
+    if (!containerRef.current || typeof window === "undefined" || !isAuthenticated) return;
 
     // Dynamically import GSAP only in browser
     import("gsap").then(({ gsap }) => {
@@ -62,7 +82,7 @@ export default function WalletPage() {
         return () => ctx.revert();
       });
     });
-  }, [isLoggedIn]);
+  }, [isAuthenticated]);
 
   // Handle pull-to-refresh
   const handleRefresh = async () => {
@@ -76,12 +96,24 @@ export default function WalletPage() {
     setIsLoading(false);
   };
 
-  if (!isLoggedIn) return null;
+  if (isAuthenticated === null) {
+    // Loading state while checking authentication
+    return (
+      <div className="flex items-center justify-center min-h-dvh" style={{ background: "#0A0A0A" }}>
+        <SkeletonLoader variant="balance" />
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return null;
 
   // Get current time for greeting
   const hour = new Date().getHours();
   const greeting =
     hour < 12 ? "Good morning" : hour < 18 ? "Good afternoon" : "Good evening";
+  
+  // Get user name from Auth0 session
+  const userName = user?.name || user?.email?.split('@')[0] || 'there';
 
   return (
     <PullToRefresh onRefresh={handleRefresh}>
@@ -177,7 +209,7 @@ export default function WalletPage() {
               }}
               transition={{ duration: 5, repeat: Infinity, ease: "linear" }}
             >
-              {greeting}
+              {greeting}, {userName}
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}

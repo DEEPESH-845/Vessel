@@ -4,11 +4,31 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { auth0 } from '@/lib/auth0';
+import { jwtVerify } from 'jose';
+
+async function getSession(request: NextRequest) {
+  try {
+    const token = request.cookies.get('auth_session')?.value;
+    
+    if (!token) {
+      return null;
+    }
+    
+    const secret = new TextEncoder().encode(process.env.AUTH0_SECRET);
+    const { payload } = await jwtVerify(token, secret);
+    
+    return {
+      user: payload.user as any,
+      accessToken: payload.accessToken,
+    };
+  } catch (error) {
+    return null;
+  }
+}
 
 export async function GET(request: NextRequest) {
   try {
-    const session = await auth0.getSession(request);
+    const session = await getSession(request);
 
     if (!session || !session.user) {
       return NextResponse.json(
@@ -22,11 +42,11 @@ export async function GET(request: NextRequest) {
       id: session.user.sub,
       email: session.user.email,
       socialProvider: getSocialProvider(session.user.sub),
-      walletAddress: (session.user as any).walletAddress,
-      walletType: (session.user as any).walletType,
-      createdAt: (session.user as any).created_at || new Date(),
+      walletAddress: session.user.walletAddress,
+      walletType: session.user.walletType,
+      createdAt: session.user.created_at || new Date(),
       lastLoginAt: new Date(),
-      preferences: (session.user as any).preferences || getDefaultPreferences(),
+      preferences: session.user.preferences || getDefaultPreferences(),
     };
 
     return NextResponse.json(userProfile);
@@ -41,7 +61,7 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
-    const session = await auth0.getSession(request);
+    const session = await getSession(request);
 
     if (!session || !session.user) {
       return NextResponse.json(

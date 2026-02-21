@@ -24,7 +24,7 @@ export default function PullToRefresh({ onRefresh, children }: PullToRefreshProp
   const opacity = useTransform(y, [0, 50, 100], [0, 0.5, 1]);
   const scale = useTransform(y, [0, 100], [0.5, 1]);
 
-  const handleDragEnd = useCallback(async (_: any, info: PanInfo) => {
+  const handleDragEnd = useCallback(async (_event: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) => {
     // Trigger refresh if pulled down more than 100px
     if (info.offset.y > 100 && !isRefreshing) {
       setIsRefreshing(true);
