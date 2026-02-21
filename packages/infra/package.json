@@ -14,16 +14,16 @@
     "@types/jest": "^30",
     "@types/node": "^24.10.1",
     "aws-cdk": "2.1106.0",
-    "jest": "^25.0.0",
-    "ts-jest": "^29",
+    "jest": "^27.5.1",
+    "ts-jest": "^27.0.3",
     "ts-node": "^10.9.2",
     "typescript": "~5.9.3"
   },
   "dependencies": {
-    "@nomicfoundation/hardhat-toolbox": "2.0.2",
+    "@nomicfoundation/hardhat-toolbox": "^1.0.2",
     "aws-cdk-lib": "^2.238.0",
     "constructs": "^10.0.0",
-    "eslint": "10.0.1",
+    "eslint": "^10.0.1",
     "eslint-config-next": "0.2.4",
     "hardhat": "3.1.9"
   }
