@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
+import { useState, useEffect } from "react";
 import {
   ArrowRight,
   TrendingUp,
