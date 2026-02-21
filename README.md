@@ -19,7 +19,7 @@
 
 </div>
 
-<img src="assets/1.png" width="100%" height="70%"/>
+<img src="assets/1.svg" width="100%" height="70%"/>
 
 
 
@@ -64,8 +64,9 @@ Cross-border stablecoin payments should be instant and frictionless. Instead, th
 
 **The result:** Merchants want to accept crypto, but the UX doesn't match traditional payments. Crypto payments remain a niche solution instead of mainstream infrastructure.
 
-<img src="assets/2.png" width="100%" height="100%"/>
-
+<p align="center">
+<img src="assets/2.svg" />
+</p>
 
 ## 🚀 The Breakthrough — Vessel
 
@@ -91,7 +92,7 @@ Backend-signed paymaster authorization, AWS KMS key management, IAM isolation, c
 
 **Result:** Crypto payments that work like scanning a QR code at a coffee shop—instant, predictable, and secure.
 
-<img src="assets/3.png" />
+<img src="assets/3.svg" />
 
 ## 🏗 System Architecture
 
@@ -179,7 +180,7 @@ Hosts QR code payment pages and frontend UI with global CDN distribution (<50ms 
 **CloudWatch + CloudTrail**  
 Real-time monitoring dashboards and immutable audit logs. Tracks payment success rate, gas consumption, AI model latency, and fraud detection accuracy. Compliance-ready for SOC 2, GDPR, and PCI-DSS.
 
-
+<img src="assets/10.svg" />
 
 ## ⚡ End-to-End Payment Flow
 
@@ -377,6 +378,7 @@ Vessel is built with **enterprise-grade security** from the ground up.
 - **Formal verification** of critical invariants (gas budget never goes negative, authorization tokens are single-use)
 - **Testnet deployment** with bug bounty program before mainnet launch
 
+<img src="assets/11.svg" />
 
 ## 📊 Business Impact & KPIs
 
@@ -465,7 +467,7 @@ Vessel is being built in **four structured phases**:
 🚀 Bug bounty program  
 🚀 Monitor KPIs and iterate
 
----
+<img src="assets/8.png" />
 
 ## 🌍 Why Vessel Matters Now
 
@@ -495,7 +497,7 @@ Crypto payments have a **67% abandonment rate** because users must manage gas to
 
 Vessel isn't just a better wallet—it's **payment infrastructure** that makes crypto work like cash for merchants.
 
----
+<img src="assets/9.png" />
 
 ## 🧠 Future Expansion
 
