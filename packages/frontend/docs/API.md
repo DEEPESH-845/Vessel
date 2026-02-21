@@ -368,6 +368,111 @@ GET /api/gas/estimate?chainId=1&gasLimit=21000
 
 ---
 
+## Payments
+
+### Create Payment
+
+```http
+POST /api/payment
+```
+
+**Body:**
+```json
+{
+  "paymentId": "uuid",
+  "merchantId": "merchant-uuid",
+  "payer": "0x...",
+  "token": "0x...",
+  "amount": "1000000",
+  "metadata": "Order #123"
+}
+```
+
+**Response:**
+```json
+{
+  "success": true,
+  "data": {
+    "paymentId": "uuid",
+    "feeAmount": "1000",
+    "netAmount": "900000",
+    "status": "pending"
+  }
+}
+```
+
+### Get Payment
+
+```http
+GET /api/payment/:paymentId
+```
+
+---
+
+## Merchants
+
+### Register Merchant
+
+```http
+POST /api/merchant
+```
+
+**Body:**
+```json
+{
+  "merchantId": "uuid",
+  "settlementToken": "0x...",
+  "feeBps": 250
+}
+```
+
+### Get Merchant
+
+```http
+GET /api/merchant/:merchantId
+```
+
+---
+
+## AI Routes
+
+### Get Optimal Route
+
+```http
+POST /api/ai/route
+```
+
+**Body:**
+```json
+{
+  "fromToken": "0x...",
+  "toToken": "0x...",
+  "amount": "1000000",
+  "maxSlippage": 0.5,
+  "gasPrice": "20"
+}
+```
+
+### Fraud Score
+
+```http
+POST /api/ai/fraud-score
+```
+
+**Body:**
+```json
+{
+  "amount": 1000,
+  "address": "0x...",
+  "velocity": 5,
+  "avgAmount": 100,
+  "countryRisk": 20,
+  "sessionAge": 30
+}
+```
+
+---
+
 ## Error Responses
 
 All errors follow this format:

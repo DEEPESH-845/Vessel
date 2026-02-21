@@ -1,6 +1,6 @@
 /**
  * RPC Provider Configuration
- * Configures RPC providers for Ethereum, Polygon, Arbitrum, Base
+ * Configures RPC providers for Ethereum, Polygon, Arbitrum, Base, Lisk
  * Requirements: FR-11.1, NFR-1.4
  */
 
@@ -19,6 +19,7 @@ export interface ChainConfig {
     decimals: number;
   };
   blockExplorerUrl: string;
+  isTestnet?: boolean;
 }
 
 /**
@@ -84,6 +85,37 @@ export const CHAIN_CONFIGS: Record<number, ChainConfig> = {
       decimals: 18,
     },
     blockExplorerUrl: 'https://basescan.org',
+  },
+  // Lisk Mainnet
+  1135: {
+    chainId: 1135,
+    name: 'Lisk',
+    rpcUrls: [
+      'https://rpc.lisk.com',
+      'https://lisk-rpc.altcoin.io',
+    ],
+    nativeCurrency: {
+      name: 'Lisk',
+      symbol: 'LSK',
+      decimals: 18,
+    },
+    blockExplorerUrl: 'https://lisk.com',
+  },
+  // Lisk Sepolia Testnet
+  4202: {
+    chainId: 4202,
+    name: 'Lisk Sepolia',
+    rpcUrls: [
+      'https://rpc.sepolia.lisk.com',
+      'https://lisk-sepolia-rpc.altcoin.io',
+    ],
+    nativeCurrency: {
+      name: 'Lisk',
+      symbol: 'LSK',
+      decimals: 18,
+    },
+    blockExplorerUrl: 'https://sepolia.lisk.com',
+    isTestnet: true,
   },
 };
 
