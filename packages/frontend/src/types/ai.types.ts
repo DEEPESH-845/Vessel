@@ -21,8 +21,8 @@ export interface IntentParameters {
   recipient?: string;
   amount?: string;
   token?: string;
-  fromChain?: number;
-  toChain?: number;
+  fromChain?: number | string;
+  toChain?: number | string;
   protocol?: string;
 }
 
@@ -31,11 +31,12 @@ export interface IntentParameters {
  * Proactive suggestions from AI assistant
  */
 export interface ActionSuggestion {
+  type?: string;
   title: string;
   description: string;
-  action: () => Promise<void>;
-  priority: number;
-  category: 'optimization' | 'security' | 'opportunity';
+  action: { type: string; params?: Record<string, unknown> } | (() => Promise<void>);
+  priority: 'low' | 'medium' | 'high';
+  category?: 'optimization' | 'security' | 'opportunity';
   estimatedSavings?: string;
   riskLevel?: 'low' | 'medium' | 'high';
 }

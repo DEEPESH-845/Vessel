@@ -149,11 +149,14 @@ export class ENSResolverService {
     let name: string | null = null;
 
     // Determine if input is address or name
-    if (ethers.isAddress(addressOrName)) {
+    const isAddress = ethers.isAddress(addressOrName);
+    
+    if (isAddress) {
       address = ethers.getAddress(addressOrName);
       name = await this.lookupAddress(address, chainId);
     } else {
-      name = addressOrName.toLowerCase().trim();
+      const inputName = addressOrName as string;
+      name = inputName.toLowerCase().trim();
       const resolved = await this.resolveName(name, chainId);
       if (!resolved) {
         throw new Error(`Could not resolve ENS name: ${name}`);
@@ -225,8 +228,9 @@ export class ENSResolverService {
       const resolver = await provider.getResolver(name);
       if (!resolver) return null;
 
-      const avatar = await resolver.getAvatar();
-      return avatar?.url || null;
+      // In ethers v6, getAvatar returns a string directly
+      const avatar = await resolver.getAvatar() as string | null;
+      return avatar || null;
     } catch {
       return null;
     }

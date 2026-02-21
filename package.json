@@ -6,6 +6,21 @@
         "packages/*"
     ],
     "scripts": {
-        "test": "npm run test --workspaces"
+        "dev": "npm run dev --workspace=packages/frontend",
+        "build": "npm run build --workspaces --if-present",
+        "build:frontend": "npm run build --workspace=packages/frontend",
+        "build:backend": "npm run build --workspace=packages/backend",
+        "build:contracts": "npm run compile --workspace=packages/contracts",
+        "lint": "npm run lint --workspaces --if-present",
+        "test": "npm run test --workspaces --if-present",
+        "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist packages/contracts/cache packages/contracts/artifacts",
+        "compile": "npm run compile --workspace=packages/contracts",
+        "deploy:contracts:local": "npm run deploy:local --workspace=packages/contracts",
+        "deploy:contracts:testnet": "npm run deploy:testnet --workspace=packages/contracts",
+        "deploy:contracts:mainnet": "npm run deploy:mainnet --workspace=packages/contracts",
+        "deploy:infra": "npm run build:backend && npm run deploy --workspace=packages/infra",
+        "deploy:frontend": "npm run build:frontend",
+        "deploy": "npm run compile && npm run deploy:infra && npm run deploy:frontend",
+        "typecheck": "npm run typecheck --workspaces --if-present"
     }
 }

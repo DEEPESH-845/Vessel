@@ -28,8 +28,16 @@ export default function MovingBorder({
   onClick,
 }: MovingBorderProps) {
   return (
-    <button
+    <div
+      role="button"
+      tabIndex={0}
       onClick={onClick}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onClick?.();
+        }
+      }}
       className={`relative p-[1px] overflow-hidden ${containerClassName}`}
       style={{
         borderRadius: "16px",
@@ -58,6 +66,6 @@ export default function MovingBorder({
       >
         {children}
       </div>
-    </button>
+    </div>
   );
 }

@@ -124,7 +124,8 @@ export class AIAssistantService {
       return {
         intent: {
           type: 'send',
-          params: {
+          confidence: 0.9,
+          parameters: {
             amount,
             token,
             recipient,
@@ -145,10 +146,11 @@ export class AIAssistantService {
       return {
         intent: {
           type: 'swap',
-          params: {
+          confidence: 0.9,
+          parameters: {
             amount,
-            fromToken,
-            toToken,
+            token: fromToken,
+            toChain: toToken,
           },
         },
         confidence: 0.9,
@@ -166,7 +168,8 @@ export class AIAssistantService {
       return {
         intent: {
           type: 'bridge',
-          params: {
+          confidence: 0.85,
+          parameters: {
             amount,
             token,
             toChain,
@@ -248,7 +251,8 @@ Only include relevant params for the intent type. Be strict with validation.`;
       return {
         intent: {
           type: parsed.type,
-          params: parsed.params || {},
+          confidence: parsed.confidence || 0.5,
+          parameters: parsed.params || {},
         },
         confidence: parsed.confidence || 0.5,
         missingParams,

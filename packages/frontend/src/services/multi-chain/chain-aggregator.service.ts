@@ -269,14 +269,55 @@ function createDeFiAsset(
 
 /**
  * Get pending transactions for an address on a chain
+ * This queries the local transaction store and optionally the RPC mempool
  */
 async function getPendingTransactions(
   address: string,
   chainId: number
 ): Promise<PendingTransaction[]> {
-  // TODO: Implement pending transaction fetching
-  // This would query the mempool or track submitted transactions
-  return [];
+  try {
+    // Import the transaction store dynamically to avoid circular dependencies
+    const { useTransactionStore } = await import('@/store/transactions.slice');
+    
+    // Get pending transactions from the store
+    const state = useTransactionStore.getState();
+    
+    // Check both regular transactions (with pending status) and explicitly pending transactions
+    const regularPending = state.transactions.filter(
+      (tx) => 
+        tx.status === 'pending' && 
+        tx.chainId === chainId &&
+        tx.from.toLowerCase() === address.toLowerCase()
+    );
+    
+    const explicitPending = state.pendingTransactions.filter(
+      (tx) => 
+        tx.chainId === chainId &&
+        tx.from.toLowerCase() === address.toLowerCase()
+    );
+
+    // Convert regular transactions to PendingTransaction format
+    const regularConverted = regularPending.map((tx) => ({
+      hash: tx.hash,
+      type: tx.type,
+      status: tx.status as 'pending' | 'confirming',
+      from: tx.from,
+      to: tx.to,
+      value: tx.value,
+      token: tx.token || '',
+      chainId: tx.chainId,
+      submittedAt: tx.timestamp,
+      cancellable: true,
+      chain: tx.chainId,
+    }));
+
+    // Combine both sources
+    return [...regularConverted, ...explicitPending];
+  } catch (error) {
+    console.error('Error fetching pending transactions:', error);
+    // Return empty array if store is not available
+    return [];
+  }
 }
 
 /**

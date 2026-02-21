@@ -8,7 +8,16 @@
     "build": "tsc",
     "watch": "tsc -w",
     "test": "jest",
-    "cdk": "cdk"
+    "cdk": "cdk",
+    "synth": "cdk synth",
+    "diff": "cdk diff",
+    "deploy": "cdk deploy --all --require-approval never",
+    "deploy:preview": "cdk deploy --all --require-approval never --no-rollback",
+    "destroy": "cdk destroy --all --require-approval never",
+    "bootstrap": "cdk bootstrap",
+    "list": "cdk list",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf cdk.out dist lib/*.d.ts lib/*.js bin/*.d.ts bin/*.js"
   },
   "devDependencies": {
     "@types/jest": "^30",

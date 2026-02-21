@@ -105,7 +105,7 @@ export class PaymentLinkService {
       token: params.token,
       acceptedTokens: params.acceptedTokens,
       recipientAddress: ethers.getAddress(params.recipientAddress),
-      description: params.description,
+      description: params.description || '',
       expiresAt: params.expiresAt,
       maxUses: params.maxUses,
       currentUses: 0,

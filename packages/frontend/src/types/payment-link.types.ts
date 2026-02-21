@@ -9,17 +9,20 @@
  */
 export interface PaymentLink {
   id: string;
-  creatorAddress: string;
+  creatorAddress?: string;
   amount: string;
-  currency: 'USD' | 'EUR' | 'GBP';
+  token: string;
+  currency?: 'USD' | 'EUR' | 'GBP';
   acceptedTokens: string[];
   autoConvertTo?: string;
   description: string;
+  recipientAddress?: string;
   expiresAt?: Date;
   maxUses?: number;
   currentUses: number;
-  status: 'active' | 'expired' | 'completed';
+  status: 'active' | 'expired' | 'completed' | 'inactive';
   createdAt: Date;
+  branding?: PaymentLinkBranding;
 }
 
 export interface PaymentLinkConfig {
@@ -58,13 +61,16 @@ export interface PayerInfo {
 export interface Payment {
   id: string;
   linkId: string;
-  payerAddress: string;
+  senderAddress?: string;
+  payerAddress?: string;
   token: string;
   amount: string;
   convertedAmount?: string;
   txHash: string;
   chainId: number;
-  paidAt: Date;
+  status?: 'pending' | 'confirmed' | 'failed';
+  createdAt?: Date;
+  paidAt?: Date;
   payerInfo?: PayerInfo;
 }
 

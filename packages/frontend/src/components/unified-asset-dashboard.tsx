@@ -117,29 +117,73 @@ export default function UnifiedAssetDashboard({
   // Calculate chain breakdown
   const chainBreakdown = calculateChainBreakdown(dashboard);
 
-  // Handle send action
+  // Handle send action - Navigate to pay page with asset pre-filled
   const handleSend = (asset: UnifiedAsset) => {
-    // TODO: Implement send flow
+    const params = new URLSearchParams({
+      asset: asset.metadata.address || 'native',
+      chain: asset.chainId.toString(),
+      amount: asset.metadata.balance || '0',
+    });
+    window.location.href = `/pay?${params.toString()}`;
   };
 
-  // Handle swap action
+  // Handle swap action - Navigate to swap page (would integrate with DEX)
   const handleSwap = (asset: UnifiedAsset) => {
-    // TODO: Implement swap flow
+    const params = new URLSearchParams({
+      fromAsset: asset.metadata.address || 'native',
+      fromChain: asset.chainId.toString(),
+    });
+    window.location.href = `/swap?${params.toString()}`;
   };
 
-  // Handle claim rewards
-  const handleClaim = (position: UnifiedAsset) => {
-    // TODO: Implement claim flow
+  // Handle claim rewards - Would trigger claim transaction
+  const handleClaim = async (position: UnifiedAsset) => {
+    try {
+      // In production, this would:
+      // 1. Build the claim transaction for the specific DeFi protocol
+      // 2. Submit via meta-transaction service
+      // 3. Show pending state
+      console.log('Claiming rewards for position:', position);
+      alert(`Claiming ${position.metadata.claimable || '0'} ${position.metadata.deposited ? 'rewards' : 'tokens'} from ${position.metadata.protocol}`);
+    } catch (error) {
+      console.error('Failed to claim rewards:', error);
+      alert('Failed to claim rewards. Please try again.');
+    }
   };
 
-  // Handle view protocol
+  // Handle view protocol - Navigate to protocol dashboard
   const handleViewProtocol = (position: UnifiedAsset) => {
-    // TODO: Implement protocol dashboard navigation
+    const protocol = position.metadata.protocol?.toLowerCase() || '';
+    // Map protocol names to their dashboard URLs
+    const protocolUrls: Record<string, string> = {
+      aave: 'https://app.aave.com',
+      compound: 'https://app.compound.finance',
+      uniswap: 'https://app.uniswap.org',
+      'uniswap v3': 'https://app.uniswap.org',
+    };
+    
+    const dashboardUrl = protocolUrls[protocol];
+    if (dashboardUrl) {
+      window.open(dashboardUrl, '_blank');
+    } else {
+      // Fallback to generic DeFi positions page
+      window.location.href = '/wallet?tab=defi';
+    }
   };
 
-  // Handle cancel transaction
-  const handleCancelTransaction = (hash: string) => {
-    // TODO: Implement transaction cancellation
+  // Handle cancel transaction - Would send replacement transaction with higher gas
+  const handleCancelTransaction = async (hash: string) => {
+    try {
+      // In production, this would:
+      // 1. Query the pending transaction details
+      // 2. Send a replacement transaction with same nonce but higher gas
+      // 3. This effectively cancels the original transaction
+      console.log('Cancelling transaction:', hash);
+      alert('Transaction cancellation would replace the transaction with a higher gas fee. This feature requires wallet connection.');
+    } catch (error) {
+      console.error('Failed to cancel transaction:', error);
+      alert('Failed to cancel transaction. Please try again.');
+    }
   };
 
   return (
