@@ -137,7 +137,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 5. Implement session key management
 
-- [~] 5.1 Create session key service and smart contract integration
+- [x] 5.1 Create session key service and smart contract integration
   - Implement `SessionKeyService` with key generation
   - Create session key permission validation logic
   - Implement session key registration with smart contract wallet
@@ -145,7 +145,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Create session key storage in IndexedDB
   - _Requirements: FR-6.1, FR-6.4_
 
-- [~] 5.2 Build session key management UI
+- [x] 5.2 Build session key management UI
   - Create `SessionKeyManagement` component
   - Display active session keys with details
   - Show remaining spending limit and expiration
@@ -153,7 +153,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Add session key creation dialog with permission configuration
   - _Requirements: FR-6.3_
 
-- [~] 5.3 Implement transaction signing with session keys
+- [x] 5.3 Implement transaction signing with session keys
   - Add session key validation before signing
   - Check spending limits and time limits
   - Verify contract/function permissions
@@ -161,17 +161,17 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Implement automatic revocation on expiry
   - _Requirements: FR-6.2_
 
-- [~] 5.4 Write property test for session key permissions
+- [ ] 5.4 Write property test for session key permissions
   - **Property 3: Session keys must not exceed spending limits**
   - **Validates: Requirements FR-6.2, FR-6.4**
 
-- [~] 5.5 Write property test for session key expiration
+- [ ] 5.5 Write property test for session key expiration
   - **Property 4: Expired session keys must be rejected**
   - **Validates: Requirements FR-6.2, FR-6.4**
 
 ### 6. Integrate ENS resolution and caching
 
-- [~] 6.1 Create ENS resolver service
+- [x] 6.1 Create ENS resolver service
   - Implement `ENSResolverService` with forward resolution
   - Implement reverse ENS lookup
   - Add support for alternative name services (Unstoppable Domains, Lens)
@@ -180,27 +180,27 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - _Requirements: FR-7.1, FR-7.2, FR-7.4_
 
 
-- [~] 6.2 Create ENS display components
+- [x] 6.2 Create ENS display components
   - Create `ENSAvatar` component with fallback to identicon
   - Create `ENSNameDisplay` component with address fallback
   - Implement ENS profile display with text records
   - Add loading states during resolution
   - _Requirements: FR-7.3_
 
-- [~] 6.3 Integrate ENS throughout the application
+- [x] 6.3 Integrate ENS throughout the application
   - Replace address displays with ENS names where available
   - Add ENS resolution to contact forms
   - Integrate ENS in transaction flows
   - Add ENS to activity page transaction cards
   - _Requirements: FR-7.1, FR-7.2_
 
-- [~] 6.4 Write property test for ENS resolution consistency
+- [ ] 6.4 Write property test for ENS resolution consistency
   - **Property 5: Forward and reverse ENS resolution must be consistent**
   - **Validates: Requirements FR-7.1, FR-7.2**
 
 ### 7. Create contact list functionality
 
-- [~] 7.1 Implement contact service and API integration
+- [x] 7.1 Implement contact service and API integration
   - Create `ContactService` with CRUD operations
   - Implement backend API client for contacts
   - Add contact validation (address format, uniqueness)
@@ -208,7 +208,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Add automatic ENS resolution for contacts
   - _Requirements: FR-8.1, FR-8.4_
 
-- [~] 7.2 Build contact management UI
+- [x] 7.2 Build contact management UI
   - Create `ContactList` component with search and filtering
   - Create `ContactCard` component with avatar and details
   - Implement `ContactFormDialog` for add/edit
@@ -216,7 +216,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Implement contact deletion with confirmation
   - _Requirements: FR-8.1, FR-8.2_
 
-- [~] 7.3 Add contact usage tracking
+- [x] 7.3 Add contact usage tracking
   - Track "last used" timestamp on transactions
   - Track transaction count per contact
   - Track total volume sent to contact
@@ -224,7 +224,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Show recent contacts in send flow
   - _Requirements: FR-8.3_
 
-- [~] 7.4 Create contact selector component
+- [x] 7.4 Create contact selector component
   - Implement `ContactSelector` with autocomplete
   - Show contact suggestions based on usage
   - Display contact avatars and ENS names
@@ -232,7 +232,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - _Requirements: FR-8.4_
 
 
-- [~] 7.5 Write unit tests for contact service
+- [ ] 7.5 Write unit tests for contact service
   - Test CRUD operations
   - Test contact validation
   - Test usage tracking
@@ -309,7 +309,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 9. Implement meta-transactions with relayer integration
 
-- [~] 9.1 Create meta-transaction service
+- [x] 9.1 Create meta-transaction service
   - Implement `MetaTransactionService` with EIP-712 signing
   - Create relayer client for transaction submission
   - Implement relayer selection based on gas price
@@ -317,7 +317,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Implement fallback to alternative relayers
   - _Requirements: FR-4.1, FR-4.2_
 
-- [~] 9.2 Add meta-transaction status tracking
+- [x] 9.2 Add meta-transaction status tracking
   - Implement WebSocket connection for real-time updates
   - Track relayer submission status
   - Track on-chain confirmation status
@@ -325,7 +325,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Send notifications on confirmation
   - _Requirements: FR-4.3_
 
-- [~] 9.3 Write unit tests for meta-transaction service
+- [ ] 9.3 Write unit tests for meta-transaction service
   - Test EIP-712 signature generation
   - Test relayer submission
   - Test failure handling and retries
@@ -333,7 +333,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 10. Build paymaster integration for gas abstraction
 
-- [~] 10.1 Create paymaster service
+- [x] 10.1 Create paymaster service
   - Implement `PaymasterService` with ERC-4337 integration
   - Create gas estimation in stablecoin
   - Implement token approval for paymaster
@@ -342,7 +342,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - _Requirements: FR-5.1, FR-5.3_
 
 
-- [~] 10.2 Build gas payment UI
+- [x] 10.2 Build gas payment UI
   - Add gas payment method selector (native vs stablecoin)
   - Display gas cost in both native token and stablecoin
   - Show exchange rate and slippage
@@ -350,11 +350,11 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Update estimates every 15 seconds
   - _Requirements: FR-5.2_
 
-- [~] 10.3 Write property test for gas payment conservation
+- [ ] 10.3 Write property test for gas payment conservation
   - **Property 7: Stablecoin gas payment must respect exchange rate and slippage**
   - **Validates: Requirements FR-5.1, FR-5.2**
 
-- [~] 10.4 Write unit tests for paymaster service
+- [ ] 10.4 Write unit tests for paymaster service
   - Test gas estimation accuracy
   - Test token approval flow
   - Test UserOperation construction
@@ -362,7 +362,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 11. Create payment link system
 
-- [~] 11.1 Implement payment link service and backend API
+- [x] 11.1 Implement payment link service and backend API
   - Create `PaymentLinkService` with CRUD operations
   - Implement backend API endpoints for payment links
   - Add payment link validation (expiry, max uses)
@@ -370,7 +370,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Add auto-conversion to preferred stablecoin
   - _Requirements: FR-12.1, FR-12.2_
 
-- [~] 11.2 Build payment link creator UI
+- [x] 11.2 Build payment link creator UI
   - Create `PaymentLinkCreator` component
   - Add amount and currency selection
   - Implement accepted tokens multi-select
@@ -380,7 +380,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Generate shareable URL with copy button
   - _Requirements: FR-12.1, FR-12.2_
 
-- [~] 11.3 Create payment link payment page
+- [x] 11.3 Create payment link payment page
   - Create `/app/pay/[linkId]/page.tsx` route
   - Display payment amount and description
   - Show accepted tokens with current rates
@@ -390,7 +390,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Show payment confirmation and redirect
   - _Requirements: FR-12.3_
 
-- [~] 11.4 Build payment link management interface
+- [x] 11.4 Build payment link management interface
   - Create `PaymentLinksList` component
   - Display payment status (active, expired, completed)
   - Show payment count and total received
@@ -400,7 +400,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - _Requirements: FR-12.4_
 
 
-- [~] 11.5 Add payment notifications
+- [x] 11.5 Add payment notifications
   - Implement email notifications for payments
   - Add push notifications for payments
   - Display in-app notification badge
@@ -408,11 +408,11 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Add notification preferences
   - _Requirements: FR-12.5_
 
-- [~] 11.6 Write property test for payment link constraints
+- [ ] 11.6 Write property test for payment link constraints
   - **Property 8: Payment links must not exceed max uses**
   - **Validates: Requirements FR-12.1, FR-12.3**
 
-- [~] 11.7 Write integration tests for payment links
+- [ ] 11.7 Write integration tests for payment links
   - Test payment link creation
   - Test payment processing
   - Test expiration handling
@@ -420,7 +420,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 12. Integrate fiat on-ramp and off-ramp providers
 
-- [~] 12.1 Create fiat provider integration service
+- [x] 12.1 Create fiat provider integration service
   - Implement `FiatService` with provider aggregation
   - Integrate Moonpay SDK for on-ramp
   - Integrate Transak SDK for on-ramp
@@ -429,7 +429,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Add KYC status tracking
   - _Requirements: FR-10.1, FR-10.3, FR-10.4_
 
-- [~] 12.2 Build on-ramp UI
+- [x] 12.2 Build on-ramp UI
   - Create `OnRampWidget` component
   - Display provider comparison (fees, limits, ratings)
   - Embed provider widget in modal
@@ -438,7 +438,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Show completion notification
   - _Requirements: FR-10.1, FR-10.3_
 
-- [~] 12.3 Build off-ramp UI
+- [x] 12.3 Build off-ramp UI
   - Create `OffRampForm` component
   - Collect bank account information
   - Display withdrawal fees and exchange rates
@@ -447,7 +447,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Track withdrawal status
   - _Requirements: FR-10.2_
 
-- [~] 12.4 Write unit tests for fiat service
+- [ ] 12.4 Write unit tests for fiat service
   - Test provider selection logic
   - Test KYC status tracking
   - Test transaction status updates
@@ -455,7 +455,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 13. Implement transaction timeline animations
 
-- [~] 13.1 Create transaction timeline component
+- [x] 13.1 Create transaction timeline component
   - Create `TransactionTimeline` component with Framer Motion
   - Define timeline stages (signing, broadcasting, confirming, completed)
   - Implement stage transition animations
@@ -465,7 +465,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - _Requirements: FR-14.1_
 
 
-- [~] 13.2 Add visual feedback and animations
+- [x] 13.2 Add visual feedback and animations
   - Implement color-coded stage indicators
   - Add particle effects for completed stages
   - Implement haptic feedback on mobile
@@ -474,7 +474,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Support reduced motion preferences
   - _Requirements: FR-14.2, NFR-1.3_
 
-- [~] 13.3 Create cross-chain transaction timeline
+- [x] 13.3 Create cross-chain transaction timeline
   - Extend timeline for cross-chain transactions
   - Show source chain transaction stages
   - Show bridge processing stage
@@ -483,7 +483,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Display total elapsed time
   - _Requirements: FR-14.3_
 
-- [~] 13.4 Write unit tests for timeline component
+- [ ] 13.4 Write unit tests for timeline component
   - Test stage transitions
   - Test animation triggers
   - Test reduced motion support
@@ -496,7 +496,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 14. Build multi-chain routing with bridge aggregators
 
-- [~] 14.1 Create multi-chain router service
+- [x] 14.1 Create multi-chain router service
   - Implement `MultiChainRouter` with Socket integration
   - Integrate LI.FI SDK for cross-chain routing
   - Implement route discovery across multiple bridges
@@ -504,7 +504,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Rank routes based on user priority (cost/speed/security)
   - _Requirements: FR-9.1_
 
-- [~] 14.2 Build route selection UI
+- [x] 14.2 Build route selection UI
   - Create `BridgeSelector` component
   - Display route options with cost, time, security
   - Highlight recommended route
@@ -513,7 +513,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Add route comparison view
   - _Requirements: FR-9.2_
 
-- [~] 14.3 Implement route execution
+- [x] 14.3 Implement route execution
   - Execute token approval for bridge
   - Submit bridge transaction on source chain
   - Track bridge transaction status
@@ -523,7 +523,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - _Requirements: FR-9.3_
 
 
-- [~] 14.4 Add route progress tracking
+- [x] 14.4 Add route progress tracking
   - Show current step in multi-step route
   - Display estimated time remaining
   - Update progress in real-time
@@ -532,11 +532,11 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Notify user when transfer completes
   - _Requirements: FR-9.4_
 
-- [~] 14.5 Write property test for route validity
+- [ ] 14.5 Write property test for route validity
   - **Property 9: All routes must have valid bridge steps with non-negative fees**
   - **Validates: Requirements FR-9.1**
 
-- [~] 14.6 Write integration tests for multi-chain routing
+- [ ] 14.6 Write integration tests for multi-chain routing
   - Test route discovery
   - Test route execution
   - Test failure handling
@@ -544,7 +544,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 15. Implement cross-chain transfer map animation
 
-- [~] 15.1 Create cross-chain map component
+- [x] 15.1 Create cross-chain map component
   - Create `CrossChainMap` component with SVG
   - Position chain nodes in logical layout
   - Display chain logos and names
@@ -552,7 +552,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Make map responsive to screen size
   - _Requirements: FR-17.1_
 
-- [~] 15.2 Implement transfer animation with GSAP
+- [x] 15.2 Implement transfer animation with GSAP
   - Create particle animation along transfer path
   - Implement path drawing between chains
   - Add pulse effects on source and destination chains
@@ -560,7 +560,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Optimize animation for 60fps
   - _Requirements: FR-17.2_
 
-- [~] 15.3 Add interactive map features
+- [x] 15.3 Add interactive map features
   - Implement chain click to view details
   - Add hover tooltips with chain info
   - Display active transfer count per chain
@@ -568,7 +568,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Add chain visibility toggle
   - _Requirements: FR-17.3_
 
-- [~] 15.4 Write unit tests for map component
+- [ ] 15.4 Write unit tests for map component
   - Test chain positioning
   - Test animation triggers
   - Test interactive features
@@ -576,7 +576,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 16. Integrate AI payment assistant
 
-- [~] 16.1 Create AI intent parser service
+- [x] 16.1 Create AI intent parser service
   - Implement `IntentParserService` with OpenAI integration
   - Create prompt templates for transaction parsing
   - Implement entity extraction from user input
@@ -586,7 +586,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - _Requirements: FR-13.1, FR-13.2_
 
 
-- [~] 16.2 Build AI assistant chat interface
+- [x] 16.2 Build AI assistant chat interface
   - Create `AIAssistantChat` component
   - Implement chat message display with history
   - Add typing indicator for AI responses
@@ -595,7 +595,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Add quick action buttons for common intents
   - _Requirements: FR-13.5_
 
-- [~] 16.3 Implement transaction suggestions
+- [x] 16.3 Implement transaction suggestions
   - Create `SuggestionEngine` for proactive suggestions
   - Suggest gas optimization opportunities
   - Recommend better bridge routes
@@ -604,7 +604,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Provide educational tips
   - _Requirements: FR-13.3_
 
-- [~] 16.4 Add transaction explanation feature
+- [x] 16.4 Add transaction explanation feature
   - Implement transaction decoding for contract interactions
   - Generate human-readable descriptions
   - Show expected balance changes
@@ -612,11 +612,11 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Provide links to learn more
   - _Requirements: FR-13.4_
 
-- [~] 16.5 Write property test for AI intent confidence
+- [ ] 16.5 Write property test for AI intent confidence
   - **Property 10: High confidence intents must have all required parameters**
   - **Validates: Requirements FR-13.1, FR-13.2**
 
-- [~] 16.6 Write unit tests for AI service
+- [ ] 16.6 Write unit tests for AI service
   - Test intent parsing with various inputs
   - Test prompt injection prevention
   - Test suggestion generation
@@ -624,7 +624,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 17. Create visual gas estimator slider
 
-- [~] 17.1 Build gas estimator service
+- [x] 17.1 Build gas estimator service
   - Create `GasEstimatorService` with gas price fetching
   - Implement EIP-1559 base fee + priority fee calculation
   - Calculate confirmation time estimates
@@ -633,7 +633,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Update gas prices every 15 seconds
   - _Requirements: FR-15.1_
 
-- [~] 17.2 Create gas slider component
+- [x] 17.2 Create gas slider component
   - Create `GasEstimatorSlider` component
   - Implement interactive slider with Framer Motion
   - Add color gradient from green (slow) to red (fast)
@@ -643,7 +643,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - _Requirements: FR-15.2_
 
 
-- [~] 17.3 Add gas price visualization
+- [x] 17.3 Add gas price visualization
   - Create cost vs. speed chart
   - Display network congestion indicator
   - Show probability of confirmation
@@ -652,7 +652,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Explain gas price components
   - _Requirements: FR-15.3_
 
-- [~] 17.4 Write unit tests for gas estimator
+- [ ] 17.4 Write unit tests for gas estimator
   - Test gas price calculation
   - Test confirmation time estimation
   - Test cost calculation
@@ -660,7 +660,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 18. Build address identity cards
 
-- [~] 18.1 Create address identity service
+- [x] 18.1 Create address identity service
   - Implement `AddressIdentityService` with ENS integration
   - Fetch address labels from Etherscan
   - Query reputation scores
@@ -669,7 +669,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Implement caching for identity data
   - _Requirements: FR-16.1_
 
-- [~] 18.2 Build identity card component
+- [x] 18.2 Build identity card component
   - Create `AddressIdentityCard` component
   - Display avatar or identicon
   - Show ENS name prominently
@@ -679,7 +679,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Indicate if address is contract
   - _Requirements: FR-16.2_
 
-- [~] 18.3 Implement reputation system
+- [x] 18.3 Implement reputation system
   - Calculate reputation score based on transaction count
   - Factor in account age
   - Factor in social verifications
@@ -688,7 +688,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Show reputation score (0-100)
   - _Requirements: FR-16.3_
 
-- [~] 18.4 Add risk indicators
+- [x] 18.4 Add risk indicators
   - Warn about new addresses (< 7 days old)
   - Flag addresses with suspicious activity
   - Highlight addresses on blacklists
@@ -696,7 +696,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Display risk level (low, medium, high)
   - _Requirements: FR-16.4_
 
-- [~] 18.5 Write unit tests for identity service
+- [ ] 18.5 Write unit tests for identity service
   - Test identity resolution
   - Test reputation calculation
   - Test risk assessment
@@ -710,7 +710,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 19. Implement wallet recovery system
 
-- [~] 19.1 Create MPC recovery service
+- [x] 19.1 Create MPC recovery service
   - Implement `MPCRecoveryService` with key share retrieval
   - Reconstruct private key from threshold shares (2-of-3)
   - Handle provider unavailability with fallbacks
@@ -718,7 +718,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Implement recovery progress tracking
   - _Requirements: FR-3.2_
 
-- [~] 19.2 Create social recovery service
+- [x] 19.2 Create social recovery service
   - Implement `SocialRecoveryService` with guardian management
   - Collect guardian signatures for recovery
   - Implement 48-hour timelock before execution
@@ -727,7 +727,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Update wallet ownership on-chain
   - _Requirements: FR-3.3_
 
-- [~] 19.3 Build recovery UI
+- [x] 19.3 Build recovery UI
   - Create recovery initiation page at `/wallet/recovery`
   - Implement `RecoveryMethodSelector` component
   - Create `GuardianSetup` component for adding guardians
@@ -736,11 +736,11 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Show recovery status and notifications
   - _Requirements: FR-3.1, FR-3.4_
 
-- [~] 19.4 Write property test for social recovery threshold
+- [ ] 19.4 Write property test for social recovery threshold
   - **Property 11: Social recovery must require threshold guardian signatures**
   - **Validates: Requirements FR-3.3**
 
-- [~] 19.5 Write integration tests for recovery
+- [ ] 19.5 Write integration tests for recovery
   - Test MPC recovery flow
   - Test social recovery flow
   - Test recovery cancellation
@@ -748,7 +748,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 20. Comprehensive testing and optimization
 
-- [~] 20.1 Write property-based tests for critical logic
+- [ ] 20.1 Write property-based tests for critical logic
   - **Property 12: Transaction status must follow valid state machine**
   - **Validates: Requirements FR-1.1, FR-11.7**
   - Test balance conservation across transactions
@@ -757,7 +757,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Test cross-chain route validity
   - _Requirements: All FRs_
 
-- [~] 20.2 Write integration tests for user flows
+- [ ] 20.2 Write integration tests for user flows
   - Test complete social login → wallet creation → first transaction flow
   - Test cross-chain transfer with bridge execution
   - Test payment link creation → payment → auto-conversion
@@ -766,7 +766,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - _Requirements: All FRs_
 
 
-- [~] 20.3 Performance optimization
+- [ ] 20.3 Performance optimization
   - Optimize multi-chain data fetching with request batching
   - Implement ENS resolution caching with LRU cache
   - Add virtual scrolling for large transaction lists
@@ -776,7 +776,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Optimize bundle size with tree shaking
   - _Requirements: NFR-1.1, NFR-1.2, NFR-1.3, NFR-1.4_
 
-- [~] 20.4 Security hardening
+- [ ] 20.4 Security hardening
   - Implement transaction safety verification
   - Add spending limits and velocity checks
   - Implement rate limiting for sensitive operations
@@ -786,7 +786,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Conduct security audit of key management
   - _Requirements: NFR-2.1, NFR-2.2, NFR-2.3, NFR-2.4, NFR-2.5_
 
-- [~] 20.5 Accessibility improvements
+- [ ] 20.5 Accessibility improvements
   - Ensure WCAG 2.1 Level AA compliance
   - Add keyboard navigation support
   - Implement screen reader support
@@ -795,7 +795,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Provide text alternatives for images
   - _Requirements: NFR-5.2_
 
-- [~] 20.6 Error handling and resilience
+- [ ] 20.6 Error handling and resilience
   - Implement user-friendly error messages
   - Add comprehensive error logging
   - Implement retry logic for transient failures
@@ -806,7 +806,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
 
 ### 21. Documentation and deployment preparation
 
-- [~] 21.1 Create component documentation
+- [ ] 21.1 Create component documentation
   - Document all public component props and usage
   - Add Storybook stories for key components
   - Document service APIs and methods
@@ -814,7 +814,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Document state management patterns
   - _Requirements: NFR-6.2_
 
-- [~] 21.2 Set up monitoring and analytics
+- [ ] 21.2 Set up monitoring and analytics
   - Integrate Sentry for error tracking
   - Set up Google Analytics for user analytics
   - Implement performance monitoring
@@ -823,7 +823,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Create monitoring dashboards
   - _Requirements: NFR-6.3_
 
-- [~] 21.3 Configure deployment pipeline
+- [ ] 21.3 Configure deployment pipeline
   - Set up environment variables for production
   - Configure feature flags system
   - Set up CI/CD pipeline
@@ -833,7 +833,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - _Requirements: NFR-4.1_
 
 
-- [~] 21.4 Final testing and validation
+- [ ] 21.4 Final testing and validation
   - Run full test suite and ensure 80%+ coverage
   - Perform manual testing of all features
   - Test on multiple browsers (Chrome, Firefox, Safari, Edge)

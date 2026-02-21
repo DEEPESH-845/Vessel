@@ -19,7 +19,7 @@
 
 </div>
 
-<img src="assets/1.png" width="100%" height="60%"/>
+<img src="assets/1.png" />
 
 
 
@@ -64,7 +64,7 @@ Cross-border stablecoin payments should be instant and frictionless. Instead, th
 
 **The result:** Merchants want to accept crypto, but the UX doesn't match traditional payments. Crypto payments remain a niche solution instead of mainstream infrastructure.
 
-<img src="assets/2.png" width="100%" height="10%"/>
+<img src="assets/2.png"/>
 
 
 ## 🚀 The Breakthrough — Vessel
@@ -178,21 +178,6 @@ Hosts QR code payment pages and frontend UI with global CDN distribution (<50ms 
 
 **CloudWatch + CloudTrail**  
 Real-time monitoring dashboards and immutable audit logs. Tracks payment success rate, gas consumption, AI model latency, and fraud detection accuracy. Compliance-ready for SOC 2, GDPR, and PCI-DSS.
-
----
-
-### AI Intelligence Layer
-
-**Amazon Bedrock + AgentCore**  
-Intelligent routing across multiple liquidity pools. Selects optimal swap paths based on liquidity depth, slippage, and gas costs. Adapts to market conditions in real-time. Reduces swap costs by 0.3-0.5% vs. fixed routing.
-
-**SageMaker Models**  
-- **Gas Forecasting:** Predicts gas price spikes 5-10 minutes in advance using historical on-chain data. Enables proactive paymaster budget management. Reduces gas overpayment by 18%.
-- **Fraud Detection:** Analyzes payment velocity, amount patterns, and geolocation to flag suspicious transactions. Continuously retrains on new fraud patterns. Reduces fraud losses by 94% vs. rule-based systems.
-- **Liquidity Optimization:** Recommends pool rebalancing strategies to maximize capital efficiency for liquidity providers.
-
-**Kiro AI**  
-Accelerates infrastructure development with AI-generated Terraform/SAM templates, Lambda function scaffolding, and Bedrock agent prompt generation. Reduced development time by 40%.
 
 
 
@@ -392,7 +377,7 @@ Vessel is built with **enterprise-grade security** from the ground up.
 - **Formal verification** of critical invariants (gas budget never goes negative, authorization tokens are single-use)
 - **Testnet deployment** with bug bounty program before mainnet launch
 
----
+<img src="assets/6.png" />
 
 ## 📊 Business Impact & KPIs
 
