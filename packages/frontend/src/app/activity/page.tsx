@@ -9,7 +9,8 @@
 
 'use client';
 
-import { useState, useMemo, useCallback, Suspense } from 'react';
+import { useState, useMemo, useCallback, Suspense, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import ActivityList from '@/components/activity-list';
 import ActivityFilterPanel from '@/components/activity-filter-panel';
 import ActivitySearch from '@/components/activity-search';
@@ -20,10 +21,34 @@ import { searchTransactions } from '@/utils/search.utils';
 import { FileDown } from 'lucide-react';
 
 export default function ActivityPage() {
+  const router = useRouter();
   const { transactions, isLoading } = useTransactions();
   const [activeFilters, setActiveFilters] = useState<ActivityFilter>({});
   const [searchQuery, setSearchQuery] = useState('');
   const [isExportDialogOpen, setIsExportDialogOpen] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  // Check authentication status
+  useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        
+        if (data.user) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+          router.replace('/');
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        router.replace('/');
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   // Handle search query changes
   const handleSearchChange = useCallback((query: string) => {
@@ -137,6 +162,20 @@ export default function ActivityPage() {
       chain: getChainName(tx.chainId),
     }));
   }, [filteredTransactions]);
+
+  // Show loading state while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center" style={{ background: '#0A0A0A' }}>
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#CCFF00] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p style={{ color: '#A1A1AA', fontFamily: "'Inter', sans-serif" }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return null;
 
   return (
     <div className="min-h-screen" style={{ background: '#0A0A0A' }}>

@@ -34,12 +34,12 @@ function formatCurrency(amount: number): string {
 
 export default function PayPage() {
   const router = useRouter();
-  const { isLoggedIn, pendingPayment, updatePendingAmount, addTransaction, balances } =
-    useApp();
+  const { pendingPayment, updatePendingAmount, addTransaction, balances } = useApp();
   const [state, setState] = useState<PaymentState>("confirm");
   const [showFees, setShowFees] = useState(false);
   const [aiVerified, setAiVerified] = useState(false);
   const [aiReason, setAiReason] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   // Editable amount state
   const [isEditingAmount, setIsEditingAmount] = useState(false);
@@ -52,10 +52,33 @@ export default function PayPage() {
     ? balances.find((b) => b.symbol === pendingPayment.token)?.balance ?? 0
     : 0;
 
+  // Check authentication status
   useEffect(() => {
-    if (!isLoggedIn) router.replace("/");
-    if (!pendingPayment) router.replace("/wallet");
-  }, [isLoggedIn, pendingPayment, router]);
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        
+        if (data.user) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+          router.replace('/');
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        router.replace('/');
+      }
+    };
+
+    checkAuth();
+  }, [router]);
+
+  useEffect(() => {
+    if (isAuthenticated && !pendingPayment) {
+      router.replace("/wallet");
+    }
+  }, [isAuthenticated, pendingPayment, router]);
 
   useEffect(() => {
     if (pendingPayment) {
@@ -160,7 +183,19 @@ export default function PayPage() {
     }
   };
 
-  if (!isLoggedIn || !pendingPayment) return null;
+  // Show loading state while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="flex items-center justify-center min-h-dvh" style={{ background: '#0A0A0A' }}>
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#CCFF00] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p style={{ color: '#A1A1AA', fontFamily: "'Inter', sans-serif" }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || !pendingPayment) return null;
 
   return (
     <div className="flex flex-col min-h-dvh px-5 pt-safe pb-8">

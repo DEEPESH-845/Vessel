@@ -10,13 +10,32 @@ import { useEffect, useState } from "react";
 
 export default function ScanPage() {
   const router = useRouter();
-  const { isLoggedIn, setPendingPayment } = useApp();
+  const { setPendingPayment } = useApp();
   const [showManual, setShowManual] = useState(false);
   const [manualCode, setManualCode] = useState("");
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
+  // Check authentication status
   useEffect(() => {
-    if (!isLoggedIn) router.replace("/");
-  }, [isLoggedIn, router]);
+    const checkAuth = async () => {
+      try {
+        const response = await fetch('/api/auth/me');
+        const data = await response.json();
+        
+        if (data.user) {
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+          router.replace('/');
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+        router.replace('/');
+      }
+    };
+
+    checkAuth();
+  }, [router]);
 
   const handleScan = () => {
     setPendingPayment(DEMO_MERCHANT);
@@ -30,7 +49,19 @@ export default function ScanPage() {
     }
   };
 
-  if (!isLoggedIn) return null;
+  // Show loading state while checking authentication
+  if (isAuthenticated === null) {
+    return (
+      <div className="flex items-center justify-center min-h-dvh" style={{ background: '#0A0A0A' }}>
+        <div className="text-center">
+          <div className="w-8 h-8 border-2 border-[#CCFF00] border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+          <p style={{ color: '#A1A1AA', fontFamily: "'Inter', sans-serif" }}>Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) return null;
 
   return (
     <div className="flex flex-col min-h-dvh px-5 pt-safe pb-28">
