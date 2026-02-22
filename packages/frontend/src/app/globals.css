@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&family=JetBrains+Mono:ital,wght@0,100..800;1,100..800&family=Syne:wght@400..800&display=swap');
 
 @custom-variant dark (&:is(.dark *));
 
@@ -9,24 +10,42 @@
 
 /* ─────────────────────────── DESIGN TOKENS ─────────────────────────── */
 @theme inline {
-  /* Color System — Deep Void */
-  --color-background: #050810;
-  --color-foreground: #edf0f7;
-  --color-muted-foreground: #8490a8;
-
-  /* Brand Colors */
-  --color-primary: #6366f1;
-  --color-primary-dim: rgba(99, 102, 241, 0.15);
-  --color-accent: #06d6a0;
-  --color-success: #22c55e;
-  --color-danger: #f43f5e;
+  /* Backgrounds */
+  --color-bg-void: #060b14;
+  --color-bg-surface: #0b1422;
+  --color-bg-elevated: #101c2e;
+  --color-bg-overlay: rgba(11, 20, 34, 0.82);
+  
+  /* Brand / Accent */
+  --color-accent-blue: #3b82f6;
+  --color-accent-blue-glow: rgba(59, 130, 246, 0.35);
+  --color-accent-cyan: #22d3ee;
+  --color-accent-teal: #14b8a6;
+  --color-accent-orange: #f97316;
+  --color-accent-purple: #8b5cf6;
+  
+  /* Legacy Colors */
+  --color-background: #060b14;
+  --color-foreground: #e8edf5;
+  --color-muted-foreground: #6b7fa3;
+  --color-primary: #3b82f6;
+  --color-primary-dim: rgba(59, 130, 246, 0.15);
+  --color-accent: #22d3ee;
+  --color-success: #10b981;
+  --color-danger: #ef4444;
   --color-warning: #f59e0b;
   
-  /* Rise & Grind Palette */
+  /* Neon */
   --color-neon-green: #CCFF00;
   --color-dark-bg: #0A0A0A;
   --color-card-surface: #18181B;
   --color-border-stroke: #27272A;
+
+  /* Text Colors */
+  --color-text-primary: #e8edf5;
+  --color-text-secondary: #6b7fa3;
+  --color-text-muted: #374562;
+  --color-text-value: #ffffff;
 
   /* Surface Layers (Depth System) */
   --color-surface-1: rgba(255, 255, 255, 0.03);
@@ -34,10 +53,18 @@
   --color-surface-3: rgba(255, 255, 255, 0.10);
   --color-border: rgba(255, 255, 255, 0.06);
   --color-border-strong: rgba(255, 255, 255, 0.10);
+  
+  /* Border States */
+  --color-border-subtle: rgba(59, 130, 246, 0.12);
+  --color-border-active: rgba(59, 130, 246, 0.4);
+
+  /* Status */
+  --color-green-pos: #10b981;
+  --color-red-neg: #ef4444;
 
   /* Typography */
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-sans: "DM Sans", system-ui, -apple-system, sans-serif;
+  --font-display: "Syne", system-ui, sans-serif;
   --font-mono: "JetBrains Mono", "Fira Code", monospace;
 
   /* Spacing — 8pt Grid */
@@ -67,6 +94,7 @@
   /* Motion */
   --ease-out: cubic-bezier(0.2, 0, 0, 1);
   --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --ease-smooth: cubic-bezier(0.4, 0, 0.2, 1);
   --duration-fast: 150ms;
   --duration-normal: 200ms;
   --duration-slow: 300ms;
@@ -192,6 +220,44 @@ body::before {
   line-height: 1.2;
   letter-spacing: 0.08em;
   text-transform: uppercase;
+}
+
+/* ─────────────────────────── NEW TYPOGRAPHY SCALE ─────────────────────────── */
+/* Typography Scale from spec */
+.text-xs { font-size: 11px; }
+.text-sm { font-size: 13px; }
+.text-base { font-size: 15px; }
+.text-lg { font-size: 18px; }
+.text-xl { font-size: 24px; }
+.text-2xl { font-size: 32px; }
+.text-hero { font-size: clamp(48px, 7vw, 96px); }
+
+/* ─────────────────────────── NEW GLASSMORPHISM ─────────────────────────── */
+/* Glassmorphism mixin from spec */
+.glass {
+  background: var(--color-bg-overlay, rgba(11, 20, 34, 0.82));
+  backdrop-filter: blur(16px) saturate(1.4);
+  -webkit-backdrop-filter: blur(16px) saturate(1.4);
+  border: 1px solid var(--color-border-subtle, rgba(59, 130, 246, 0.12));
+  border-radius: 16px;
+}
+
+/* Subtle inner glow border */
+.glow-border {
+  box-shadow: inset 0 0 0 1px var(--color-border-active, rgba(59, 130, 246, 0.4)),
+              0 0 24px var(--color-accent-blue-glow, rgba(59, 130, 246, 0.35));
+}
+
+/* ─────────────────────────── VARS ─────────────────────────── */
+:root {
+  /* Typography Scale */
+  --text-xs: 11px;
+  --text-sm: 13px;
+  --text-base: 15px;
+  --text-lg: 18px;
+  --text-xl: 24px;
+  --text-2xl: 32px;
+  --text-hero: clamp(48px, 7vw, 96px);
 }
 
 /* ─────────────────────────── TEXT GRADIENT ─────────────────────────── */
