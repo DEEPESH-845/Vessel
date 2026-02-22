@@ -1,11 +1,13 @@
 {
     "compilerOptions": {
-        "target": "es2020",
+        "target": "es2021",
         "module": "commonjs",
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
         "skipLibCheck": true,
         "resolveJsonModule": true
-    }
+    },
+    "include": ["hardhat-env.d.ts", "scripts/**/*", "test/**/*"],
+    "exclude": ["node_modules", "../node_modules", "../../node_modules"]
 }

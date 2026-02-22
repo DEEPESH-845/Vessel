@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
-
+import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /**
  * @title PaymentProcessor
@@ -15,9 +15,11 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * - Recurring subscriptions
  * - Payment events for indexing
  * - Webhook notifications
+ * SECURITY: Added reentrancy guards, payer authorization, and access controls
  */
 contract PaymentProcessor is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
+    using ECDSA for bytes32;
 
     // Custom pause state
     bool public isPaused = false;
@@ -29,6 +31,9 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
 
     // ============ State Variables ============
     
+    // Authorized payment completers (for payer authorization)
+    mapping(bytes32 => bool) public authorizedPaymentCompletions;
+    
     // Merchant configuration
     struct MerchantConfig {
         address merchant;
@@ -36,6 +41,7 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
         uint256 feeBps;
         bool isActive;
         string webhookUrl;
+        bool isVerified; // KYC verified merchants
     }
     mapping(bytes32 => MerchantConfig) public merchantConfigs;
     mapping(address => bytes32[]) public merchantIds;
@@ -103,6 +109,9 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     mapping(address => bool) public acceptedTokens;
     address[] public acceptedTokenList;
     
+    // Authorized executors for subscriptions (can be a relayer service)
+    mapping(address => bool) public authorizedExecutors;
+
     // Events
     event MerchantRegistered(
         bytes32 indexed merchantId,
@@ -115,6 +124,10 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
         address settlementToken,
         uint256 feeBps,
         bool isActive
+    );
+    event MerchantVerified(
+        bytes32 indexed merchantId,
+        bool isVerified
     );
     event MerchantWebhookSet(
         bytes32 indexed merchantId,
@@ -148,6 +161,10 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     event PaymentResolved(
         bytes32 indexed paymentId,
         bool refundIssued
+    );
+    event PaymentAuthorized(
+        bytes32 indexed paymentId,
+        address indexed authorizedSigner
     );
     
     event SubscriptionCreated(
@@ -184,6 +201,7 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     event TokenRemoved(address indexed token);
     event ProtocolFeeUpdated(uint256 newFeeBps);
     event FeeCollectorUpdated(address indexed newFeeCollector);
+    event ExecutorUpdated(address indexed executor, bool authorized);
 
     // ============ Modifiers ============
     
@@ -199,6 +217,14 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
         );
         _;
     }
+    
+    modifier onlyAuthorizedExecutor() {
+        require(
+            authorizedExecutors[msg.sender] || msg.sender == owner(),
+            "PaymentProcessor: not authorized executor"
+        );
+        _;
+    }
 
     // ============ Constructor ============
     
@@ -208,6 +234,20 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
         
         feeCollector = _feeCollector;
         protocolFeeBps = _protocolFeeBps;
+        
+        // Set owner as default authorized executor
+        authorizedExecutors[msg.sender] = true;
+    }
+
+    // ============ Admin Functions ============
+    
+    /**
+     * @dev Set authorized executor for subscription processing
+     */
+    function setAuthorizedExecutor(address _executor, bool _authorized) external onlyOwner {
+        require(_executor != address(0), "PaymentProcessor: invalid executor");
+        authorizedExecutors[_executor] = _authorized;
+        emit ExecutorUpdated(_executor, _authorized);
     }
 
     // ============ Merchant Functions ============
@@ -230,7 +270,8 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
             settlementToken: _settlementToken,
             feeBps: _feeBps,
             isActive: true,
-            webhookUrl: ""
+            webhookUrl: "",
+            isVerified: false // Must go through KYC
         });
         
         merchantIds[msg.sender].push(_merchantId);
@@ -258,6 +299,15 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     }
     
     /**
+     * @dev Verify merchant (KYC) - can only be done by owner
+     */
+    function verifyMerchant(bytes32 _merchantId, bool _verified) external onlyOwner {
+        require(merchantConfigs[_merchantId].merchant != address(0), "PaymentProcessor: merchant not found");
+        merchantConfigs[_merchantId].isVerified = _verified;
+        emit MerchantVerified(_merchantId, _verified);
+    }
+    
+    /**
      * @dev Set merchant webhook URL
      */
     function setMerchantWebhook(
@@ -277,7 +327,8 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
         address settlementToken,
         uint256 feeBps,
         bool isActive,
-        string memory webhookUrl
+        string memory webhookUrl,
+        bool isVerified
     ) {
         MerchantConfig storage config = merchantConfigs[_merchantId];
         return (
@@ -285,11 +336,25 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
             config.settlementToken,
             config.feeBps,
             config.isActive,
-            config.webhookUrl
+            config.webhookUrl,
+            config.isVerified
         );
     }
 
     // ============ Payment Functions ============
+    
+    /**
+     * @dev Authorize payment completion (called by payer)
+     * SECURITY: This allows payers to pre-authorize payment completion
+     */
+    function authorizePaymentCompletion(bytes32 _paymentId) external {
+        Payment storage payment = payments[_paymentId];
+        require(payment.payer == msg.sender, "PaymentProcessor: not payer");
+        require(payment.status == PaymentStatus.Pending, "PaymentProcessor: not pending");
+        
+        authorizedPaymentCompletions[_paymentId] = true;
+        emit PaymentAuthorized(_paymentId, msg.sender);
+    }
     
     /**
      * @dev Create a payment
@@ -342,6 +407,7 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     
     /**
      * @dev Complete a payment - transfer to merchant
+     * SECURITY: Now requires payer authorization or their signature
      */
     function completePayment(bytes32 _paymentId) external whenNotPaused nonReentrant {
         Payment storage payment = payments[_paymentId];
@@ -349,10 +415,17 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
         require(payment.status == PaymentStatus.Pending, "PaymentProcessor: not pending");
         
         MerchantConfig storage config = merchantConfigs[payment.merchantId];
+        
+        // SECURITY FIX: Require payer authorization (either direct call or pre-authorization)
         require(
-            msg.sender == payment.payer || msg.sender == config.merchant || msg.sender == owner(),
-            "PaymentProcessor: not authorized"
+            msg.sender == payment.payer || 
+            authorizedPaymentCompletions[_paymentId] ||
+            msg.sender == owner(), // Owner can act as fallback for failed transactions
+            "PaymentProcessor: not authorized - payer must authorize"
         );
+        
+        // Clear authorization after use
+        authorizedPaymentCompletions[_paymentId] = false;
         
         // Transfer net amount to merchant
         IERC20(payment.token).safeTransfer(config.merchant, payment.netAmount);
@@ -370,10 +443,19 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     
     /**
      * @dev Fail a payment - refund payer
+     * SECURITY: Added nonReentrant
      */
-    function failPayment(bytes32 _paymentId, string calldata _reason) external onlyMerchant(payments[_paymentId].merchantId) {
+    function failPayment(bytes32 _paymentId, string calldata _reason) external nonReentrant {
         Payment storage payment = payments[_paymentId];
+        require(payment.payer != address(0), "PaymentProcessor: payment not found");
         require(payment.status == PaymentStatus.Pending, "PaymentProcessor: not pending");
+        
+        // Only merchant can fail payment
+        MerchantConfig storage config = merchantConfigs[payment.merchantId];
+        require(
+            msg.sender == config.merchant || msg.sender == owner(),
+            "PaymentProcessor: not authorized"
+        );
         
         payment.status = PaymentStatus.Failed;
         payment.completedAt = block.timestamp;
@@ -386,8 +468,9 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     
     /**
      * @dev Refund a payment
+     * SECURITY: Added nonReentrant
      */
-    function refundPayment(bytes32 _paymentId) external {
+    function refundPayment(bytes32 _paymentId) external nonReentrant {
         Payment storage payment = payments[_paymentId];
         require(payment.payer != address(0), "PaymentProcessor: payment not found");
         
@@ -421,8 +504,9 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     
     /**
      * @dev Dispute a payment
+     * SECURITY: Added nonReentrant
      */
-    function disputePayment(bytes32 _paymentId) external {
+    function disputePayment(bytes32 _paymentId) external nonReentrant {
         Payment storage payment = payments[_paymentId];
         require(payment.payer != address(0), "PaymentProcessor: payment not found");
         require(payment.status == PaymentStatus.Completed, "PaymentProcessor: not completed");
@@ -437,8 +521,9 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     
     /**
      * @dev Resolve a dispute
+     * SECURITY: Added nonReentrant
      */
-    function resolveDispute(bytes32 _paymentId, bool _refundIssued) external onlyOwner {
+    function resolveDispute(bytes32 _paymentId, bool _refundIssued) external onlyOwner nonReentrant {
         Payment storage payment = payments[_paymentId];
         require(payment.status == PaymentStatus.Disputed, "PaymentProcessor: not disputed");
         
@@ -535,16 +620,17 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     }
     
     /**
-     * @dev Process subscription payment (called by anyone)
+     * @dev Process subscription payment
+     * SECURITY: Now requires authorized executor (no longer open to anyone)
      */
-    function processSubscriptionPayment(bytes32 _subscriptionId) external whenNotPaused nonReentrant returns (bytes32 paymentId) {
+    function processSubscriptionPayment(bytes32 _subscriptionId) external whenNotPaused onlyAuthorizedExecutor nonReentrant returns (bytes32 paymentId) {
         Subscription storage sub = subscriptions[_subscriptionId];
         require(sub.subscriber != address(0), "PaymentProcessor: subscription not found");
         require(sub.isActive, "PaymentProcessor: subscription not active");
         require(block.timestamp >= sub.nextPaymentTime, "PaymentProcessor: not time yet");
         
         // Generate payment ID
-        paymentId = keccak256(abi.encodePacked(_subscriptionId, sub.nextPaymentTime));
+        paymentId = keccak256(abi.encodePacked(_subscriptionId, sub.nextPaymentTime, block.timestamp));
         
         // Calculate fees
         MerchantConfig storage config = merchantConfigs[sub.merchantId];
@@ -592,8 +678,9 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     
     /**
      * @dev Cancel a subscription
+     * SECURITY: Added nonReentrant
      */
-    function cancelSubscription(bytes32 _subscriptionId) external {
+    function cancelSubscription(bytes32 _subscriptionId) external nonReentrant {
         Subscription storage sub = subscriptions[_subscriptionId];
         require(sub.subscriber != address(0), "PaymentProcessor: subscription not found");
         
@@ -648,8 +735,9 @@ contract PaymentProcessor is Ownable, ReentrancyGuard {
     
     /**
      * @dev Complete a batch payment
+     * SECURITY: Added onlyAuthorizedExecutor
      */
-    function completeBatchPayment(bytes32 _batchId) external nonReentrant {
+    function completeBatchPayment(bytes32 _batchId) external onlyAuthorizedExecutor nonReentrant {
         BatchPayment storage batch = batchPayments[_batchId];
         require(batch.createdAt > 0, "PaymentProcessor: batch not found");
         require(batch.status == PaymentStatus.Pending, "PaymentProcessor: not pending");

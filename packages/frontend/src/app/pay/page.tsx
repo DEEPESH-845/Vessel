@@ -23,6 +23,7 @@ import {
   AlertCircle,
   Pencil,
   Wallet,
+  Check,
 } from "lucide-react";
 import { useEffect, useState, useCallback, useRef } from "react";
 import confetti from "canvas-confetti";
@@ -230,13 +231,13 @@ export default function PayPage() {
             y: backgroundY,
             opacity: backgroundOpacity,
             background:
-              "radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 50%), radial-gradient(circle at 80% 20%, rgba(204, 255, 0, 0.04), transparent 40%)",
+              "radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.06), transparent 50%), radial-gradient(circle at 80% 20%, rgba(204, 255, 0, 0.03), transparent 40%)",
           }}
           aria-hidden="true"
         />
 
-        {/* Enhanced particle field */}
-        <ParticleField count={15} color="rgba(204, 255, 0, 0.15)" />
+        {/* Subtle particle field */}
+        <ParticleField count={8} color="rgba(204, 255, 0, 0.1)" />
 
         {/* Content wrapper */}
         <div className="relative z-10" style={{ padding: "24px" }}>
@@ -248,45 +249,32 @@ export default function PayPage() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0, y: -30, filter: "blur(8px)" }}
-                className="flex flex-col flex-1 pt-6"
+                className="flex flex-col flex-1"
               >
-                {/* Back button - Premium style */}
+                {/* Back button - Clean minimal style */}
                 <motion.button
                   onClick={() => router.back()}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
-                  whileHover={{ scale: 1.05, x: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="mb-6 flex items-center gap-2 group"
+                  transition={{ duration: 0.4, ease: [0.21, 0.47, 0.32, 0.98] }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="mb-8 flex items-center gap-2"
                   style={{
-                    background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
-                    border: "1px solid rgba(39, 39, 42, 0.8)",
-                    borderRadius: "16px",
-                    padding: "10px 16px",
-                    backdropFilter: "blur(20px)",
-                    WebkitBackdropFilter: "blur(20px)",
+                    background: "rgba(24, 24, 27, 0.8)",
+                    border: "1px solid rgba(39, 39, 42, 0.6)",
+                    borderRadius: "12px",
+                    padding: "10px 14px",
+                    width: "fit-content",
                   }}
                   aria-label="Go back"
                 >
-                  <svg
-                    width="16"
-                    height="16"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="#CCFF00"
-                    strokeWidth="2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    className="transition-transform group-hover:-translate-x-1"
-                  >
-                    <path d="M19 12H5M12 19l-7-7 7-7" />
-                  </svg>
+                  <ArrowLeft className="w-4 h-4" style={{ color: "#CCFF00" }} />
                   <span
                     style={{
                       fontFamily: "'Inter', sans-serif",
                       fontSize: "14px",
-                      fontWeight: 600,
+                      fontWeight: 500,
                       color: "#FFFFFF",
                     }}
                   >
@@ -296,323 +284,283 @@ export default function PayPage() {
 
                 {/* Header */}
                 <motion.div
-                  initial={{ opacity: 0, y: -20 }}
+                  initial={{ opacity: 0, y: -16 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, ease: [0.21, 0.47, 0.32, 0.98] }}
+                  transition={{ duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
                   className="mb-8"
                 >
                   <motion.h1
                     style={{
                       fontFamily: "'Space Grotesk', sans-serif",
-                      fontSize: "clamp(20px, 4vw, 24px)",
+                      fontSize: "28px",
                       fontWeight: 700,
                       color: "#FFFFFF",
                       letterSpacing: "-0.02em",
-                      marginBottom: "4px",
                     }}
                   >
-                    Confirm Payment
+                    Confirm
                   </motion.h1>
                   <motion.p
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.2, duration: 0.5 }}
+                    transition={{ delay: 0.15, duration: 0.4 }}
                     style={{
                       fontFamily: "'Inter', sans-serif",
-                      fontSize: "14px",
+                      fontSize: "15px",
                       color: "#71717A",
-                      fontWeight: 500,
+                      marginTop: "4px",
                     }}
                   >
-                    Review and confirm your transaction
+                    Review your payment
                   </motion.p>
                 </motion.div>
 
-                {/* ── Merchant Card ── */}
+                {/* ── Clean Merchant Card ── */}
                 <ErrorBoundary>
                   <motion.div
-                    initial={{ opacity: 0, y: 24, filter: "blur(6px)" }}
-                    animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                    transition={{ delay: 0.1, type: "spring", damping: 22 }}
-                    className="relative overflow-hidden mb-4"
+                    initial={{ opacity: 0, y: 24 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.1, duration: 0.5, ease: [0.21, 0.47, 0.32, 0.98] }}
+                    className="mb-6"
                     style={{
-                      background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
-                      border: "1px solid rgba(39, 39, 42, 0.8)",
-                      borderRadius: "24px",
-                      padding: "28px",
-                      backdropFilter: "blur(20px)",
-                      WebkitBackdropFilter: "blur(20px)",
-                      boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+                      background: "rgba(24, 24, 27, 0.8)",
+                      border: "1px solid rgba(39, 39, 42, 0.6)",
+                      borderRadius: "20px",
+                      padding: "32px 24px",
                     }}
                   >
-                    {/* Ambient glow effect */}
-                    <motion.div
-                      className="absolute -inset-4 rounded-3xl opacity-0"
-                      style={{
-                        background: "radial-gradient(circle at 50% 50%, rgba(204, 255, 0, 0.08), transparent 70%)",
-                      }}
-                      animate={{
-                        opacity: [0, 0.3, 0],
-                        scale: [0.95, 1.05, 0.95],
-                      }}
-                      transition={{
-                        duration: 4,
-                        repeat: Infinity,
-                        ease: "easeInOut",
-                      }}
-                      aria-hidden="true"
-                    />
-
-                    {/* Shimmer effect */}
-                    <motion.div
-                      className="absolute inset-0 pointer-events-none"
-                      style={{
-                        background: "linear-gradient(90deg, transparent 0%, rgba(204, 255, 0, 0.03) 50%, transparent 100%)",
-                        backgroundSize: "200% 100%",
-                      }}
-                      animate={{
-                        backgroundPosition: ["0% 0%", "200% 0%"],
-                      }}
-                      transition={{
-                        duration: 3,
-                        repeat: Infinity,
-                        ease: "linear",
-                      }}
-                      aria-hidden="true"
-                    />
-
-                    {/* Decorative background */}
-                    <div
-                      className="absolute -top-16 -right-16 w-44 h-44 rounded-full opacity-10 pointer-events-none"
-                      style={{
-                        background: "radial-gradient(circle, rgba(99,102,241,0.5), transparent 70%)",
-                      }}
-                      aria-hidden="true"
-                    />
-                    <div
-                      className="absolute -bottom-12 -left-12 w-36 h-36 rounded-full opacity-10 pointer-events-none"
-                      style={{
-                        background: "radial-gradient(circle, rgba(6,214,160,0.5), transparent 70%)",
-                      }}
-                      aria-hidden="true"
-                    />
-
-                    {/* Content */}
-                    <div className="relative z-10">
-                      {/* Merchant Avatar */}
-                      <motion.div
-                        className="w-20 h-20 rounded-2xl mx-auto mb-4 flex items-center justify-center text-3xl relative"
+                    {/* Merchant info row */}
+                    <div className="flex items-center gap-4 mb-6">
+                      {/* Merchant Avatar - Clean and simple */}
+                      <div
+                        className="w-14 h-14 rounded-2xl flex items-center justify-center text-xl"
                         style={{
-                          background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
-                          border: "1px solid rgba(39, 39, 42, 0.8)",
-                          boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+                          background: "linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(139, 92, 246, 0.1))",
+                          border: "1px solid rgba(99, 102, 241, 0.2)",
                         }}
-                        animate={{
-                          boxShadow: [
-                            "0 0 16px rgba(99,102,241,0.08)",
-                            "0 0 28px rgba(99,102,241,0.16)",
-                            "0 0 16px rgba(99,102,241,0.08)",
-                          ],
-                        }}
-                        transition={{ duration: 3, repeat: Infinity }}
                       >
                         <span role="img" aria-label={pendingPayment.name}>
                           {pendingPayment.avatar}
                         </span>
-                      </motion.div>
-
-                      <div className="flex items-center justify-center gap-2 mb-1">
-                        <h2 
-                          className="text-[17px] font-bold"
-                          style={{
-                            fontFamily: "'Space Grotesk', sans-serif",
-                            color: "#FFFFFF",
-                          }}
-                        >
-                          {pendingPayment.name}
-                        </h2>
-                        {pendingPayment.verified && (
-                          <BadgeCheck
-                            className="w-5 h-5 text-[#CCFF00]"
-                            aria-label="Verified merchant"
-                          />
-                        )}
                       </div>
 
-                      <p 
-                        className="text-[11px] text-center mb-5 font-mono tracking-wider"
-                        style={{
-                          color: "#52525B",
-                        }}
-                      >
-                        {pendingPayment.address.slice(0, 10)}...
-                        {pendingPayment.address.slice(-6)}
-                      </p>
-
-                      {/* Amount — Editable Hero Display */}
-                      <motion.div
-                        initial={{ scale: 0.85, opacity: 0 }}
-                        animate={{ scale: 1, opacity: 1 }}
-                        transition={{ type: "spring", stiffness: 180, delay: 0.2 }}
-                      >
-                        {isEditingAmount ? (
-                          <div className="flex flex-col items-center gap-2">
-                            <div className="relative inline-flex items-center">
-                              <span 
-                                className="text-display text-gradient mr-1"
-                                style={{
-                                  fontFamily: "'Space Grotesk', sans-serif",
-                                  fontSize: "clamp(2rem, 5vw, 2.5rem)",
-                                  fontWeight: 800,
-                                }}
-                              >$</span>
-                              <input
-                                ref={inputRef}
-                                type="text"
-                                inputMode="decimal"
-                                value={editValue}
-                                onChange={(e) => {
-                                  const val = e.target.value;
-                                  if (/^\d*\.?\d{0,2}$/.test(val) || val === "") {
-                                    setEditValue(val);
-                                    setAmountError("");
-                                  }
-                                }}
-                                onKeyDown={handleEditKeyDown}
-                                onBlur={validateAndSave}
-                                className="text-display text-gradient bg-transparent outline-none w-[180px] text-center font-numeric"
-                                style={{
-                                  fontFamily: "'Space Grotesk', sans-serif",
-                                  fontSize: "clamp(2rem, 5vw, 2.5rem)",
-                                  fontWeight: 800,
-                                }}
-                                aria-label="Edit payment amount"
-                              />
-                            </div>
-                            {amountError && (
-                              <motion.p
-                                initial={{ opacity: 0, y: -4 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                className="text-[12px] font-medium flex items-center gap-1"
-                                style={{ color: "#f43f5e" }}
-                              >
-                                <AlertCircle className="w-4 h-4" />
-                                {amountError}
-                              </motion.p>
-                            )}
-                          </div>
-                        ) : (
-                          <button
-                            onClick={startEditing}
-                            className="group cursor-pointer focus-ring rounded-xl px-4 py-2 -mx-4 -my-2 transition-colors hover:bg-white/[0.03]"
-                            aria-label="Tap to edit payment amount"
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <h2 
+                            style={{
+                              fontFamily: "'Space Grotesk', sans-serif",
+                              fontSize: "18px",
+                              fontWeight: 600,
+                              color: "#FFFFFF",
+                            }}
                           >
-                            <h3 
-                              className="text-gradient mb-1 inline-flex items-center gap-2"
-                              style={{
-                                fontFamily: "'Space Grotesk', sans-serif",
-                                fontSize: "clamp(2rem, 5vw, 2.5rem)",
-                                fontWeight: 800,
-                              }}
-                            >
-                              {formatCurrency(pendingPayment.amount)}
-                              <Pencil className="w-5 h-5 text-muted-foreground/30 group-hover:text-muted-foreground/60 transition-colors" />
-                            </h3>
-                            <p 
-                              className="text-[13px]"
-                              style={{ color: "#71717A" }}
-                            >
-                              {pendingPayment.token}
-                            </p>
-                          </button>
-                        )}
-                      </motion.div>
+                            {pendingPayment.name}
+                          </h2>
+                          {pendingPayment.verified && (
+                            <BadgeCheck
+                              className="w-4 h-4"
+                              style={{ color: "#CCFF00" }}
+                              aria-label="Verified merchant"
+                            />
+                          )}
+                        </div>
+                        <p 
+                          style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: "11px",
+                            color: "#52525B",
+                            marginTop: "2px",
+                          }}
+                        >
+                          {pendingPayment.address.slice(0, 8)}...{pendingPayment.address.slice(-4)}
+                        </p>
+                      </div>
                     </div>
 
-                    {/* Corner accents */}
-                    <div
-                      className="absolute top-0 right-0 w-24 h-24 opacity-10 pointer-events-none"
-                      style={{
-                        background: "radial-gradient(circle at top right, #CCFF00, transparent 70%)",
-                      }}
-                      aria-hidden="true"
+                    {/* Divider */}
+                    <div 
+                      className="mb-6" 
+                      style={{ 
+                        height: "1px", 
+                        background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)" 
+                      }} 
                     />
+
+                    {/* Amount - Hero Element */}
+                    <motion.div
+                      initial={{ scale: 0.9, opacity: 0 }}
+                      animate={{ scale: 1, opacity: 1 }}
+                      transition={{ delay: 0.2, type: "spring", stiffness: 150, damping: 20 }}
+                      className="text-center"
+                    >
+                      {isEditingAmount ? (
+                        <div className="flex flex-col items-center gap-2">
+                          <div className="relative flex items-center justify-center">
+                            <span 
+                              style={{
+                                fontFamily: "'Space Grotesk', sans-serif",
+                                fontSize: "48px",
+                                fontWeight: 700,
+                                color: "#FFFFFF",
+                              }}
+                            >$</span>
+                            <input
+                              ref={inputRef}
+                              type="text"
+                              inputMode="decimal"
+                              value={editValue}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                if (/^\d*\.?\d{0,2}$/.test(val) || val === "") {
+                                  setEditValue(val);
+                                  setAmountError("");
+                                }
+                              }}
+                              onKeyDown={handleEditKeyDown}
+                              onBlur={validateAndSave}
+                              className="bg-transparent outline-none text-center"
+                              style={{
+                                fontFamily: "'Space Grotesk', sans-serif",
+                                fontSize: "48px",
+                                fontWeight: 700,
+                                color: "#FFFFFF",
+                                width: "200px",
+                              }}
+                              aria-label="Edit payment amount"
+                            />
+                          </div>
+                          {amountError && (
+                            <motion.p
+                              initial={{ opacity: 0, y: -4 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              className="text-xs font-medium flex items-center gap-1"
+                              style={{ color: "#f43f5e" }}
+                            >
+                              <AlertCircle className="w-3 h-3" />
+                              {amountError}
+                            </motion.p>
+                          )}
+                        </div>
+                      ) : (
+                        <button
+                          onClick={startEditing}
+                          className="group cursor-pointer focus-ring rounded-xl px-4 py-2 -mx-4 transition-colors hover:bg-white/[0.03]"
+                          aria-label="Tap to edit payment amount"
+                        >
+                          <h3 
+                            style={{
+                              fontFamily: "'Space Grotesk', sans-serif",
+                              fontSize: "48px",
+                              fontWeight: 700,
+                              color: "#FFFFFF",
+                              letterSpacing: "-0.02em",
+                            }}
+                          >
+                            {formatCurrency(pendingPayment.amount)}
+                          </h3>
+                          <p 
+                            className="text-sm flex items-center justify-center gap-1.5 mt-1"
+                            style={{ color: "#71717A" }}
+                          >
+                            {pendingPayment.token}
+                            <Pencil className="w-3 h-3 opacity-30 group-hover:opacity-60 transition-opacity" />
+                          </p>
+                        </button>
+                      )}
+                    </motion.div>
                   </motion.div>
                 </ErrorBoundary>
 
-                {/* ── AI Verification Badge ── */}
+                {/* ── AI Verification - Clean Badge ── */}
                 <ErrorBoundary>
                   <motion.div
                     initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: aiVerified ? 1 : 0.4, y: 0 }}
-                    transition={{ delay: 0.7, type: "spring", damping: 20 }}
-                    className="flex items-center gap-3 p-4 mb-3"
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.35, duration: 0.4 }}
+                    className="flex items-center gap-3 px-4 py-3 mb-4"
                     style={{
-                      background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
-                      border: "1px solid rgba(39, 39, 42, 0.8)",
-                      borderRadius: "16px",
+                      background: aiVerified 
+                        ? "rgba(34, 197, 94, 0.08)" 
+                        : "rgba(245, 158, 11, 0.08)",
+                      border: aiVerified 
+                        ? "1px solid rgba(34, 197, 94, 0.15)" 
+                        : "1px solid rgba(245, 158, 11, 0.15)",
+                      borderRadius: "12px",
                     }}
                   >
                     <div 
-                      className="w-10 h-10 rounded-xl flex items-center justify-center"
+                      className="w-8 h-8 rounded-lg flex items-center justify-center"
                       style={{
-                        background: "linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05))",
-                        border: "1px solid rgba(34, 197, 94, 0.2)",
+                        background: aiVerified 
+                          ? "rgba(34, 197, 94, 0.15)" 
+                          : "rgba(245, 158, 11, 0.15)",
                       }}
                     >
-                      <ShieldCheck className="w-5 h-5 text-[#22c55e]" />
+                      {aiVerified ? (
+                        <ShieldCheck className="w-4 h-4" style={{ color: "#22c55e" }} />
+                      ) : (
+                        <Sparkles className="w-4 h-4" style={{ color: "#f59e0b" }} />
+                      )}
                     </div>
                     <div className="flex-1">
                       <p 
-                        className="text-[13px] font-semibold flex items-center gap-1.5"
-                        style={{ color: "#22c55e" }}
+                        className="text-sm font-medium flex items-center gap-1.5"
+                        style={{ color: aiVerified ? "#22c55e" : "#f59e0b" }}
                       >
-                        AI Verified
-                        <Sparkles
-                          className="w-3.5 h-3.5 opacity-60"
-                          aria-hidden="true"
-                        />
+                        {aiVerified ? "AI Verified" : "Checking..."}
+                        {aiVerified && (
+                          <Sparkles className="w-3 h-3 opacity-60" aria-hidden="true" />
+                        )}
                       </p>
                       <p 
-                        className="text-[11px]"
+                        className="text-xs"
                         style={{ color: "#52525B" }}
                       >
-                        {aiReason}
+                        {aiReason || "Analyzing transaction..."}
                       </p>
                     </div>
                   </motion.div>
                 </ErrorBoundary>
 
-                {/* ── Fee Breakdown ── */}
+                {/* ── Fee Breakdown - Clean & Minimal ── */}
                 <ErrorBoundary>
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: 0.3 }}
-                    className="overflow-hidden mb-6"
+                    transition={{ delay: 0.4 }}
+                    className="mb-8"
                     style={{
-                      background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
-                      border: "1px solid rgba(39, 39, 42, 0.8)",
-                      borderRadius: "16px",
+                      background: "rgba(24, 24, 27, 0.6)",
+                      border: "1px solid rgba(39, 39, 42, 0.4)",
+                      borderRadius: "14px",
+                      overflow: "hidden",
                     }}
                   >
                     <button
                       onClick={() => setShowFees(!showFees)}
-                      className="w-full flex items-center justify-between p-4 cursor-pointer focus-ring"
+                      className="w-full flex items-center justify-between px-4 py-3 cursor-pointer focus-ring"
                       aria-expanded={showFees}
                     >
-                      <span 
-                        className="text-[13px]"
-                        style={{ color: "#71717A" }}
-                      >
-                        Fee Breakdown
-                      </span>
-                      <motion.div
-                        animate={{ rotate: showFees ? 180 : 0 }}
-                        transition={{ duration: 0.25 }}
-                      >
-                        <ChevronDown className="w-4 h-4 text-muted-foreground/40" />
-                      </motion.div>
+                      <div className="flex items-center gap-2">
+                        <Zap className="w-4 h-4" style={{ color: "#22c55e" }} />
+                        <span style={{ color: "#A1A1AA", fontSize: "14px" }}>
+                          Total
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span 
+                          className="font-semibold font-numeric"
+                          style={{ color: "#FFFFFF", fontSize: "14px" }}
+                        >
+                          {formatCurrency(pendingPayment.amount + 0.01)}
+                        </span>
+                        <motion.div
+                          animate={{ rotate: showFees ? 180 : 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <ChevronDown className="w-4 h-4" style={{ color: "#52525B" }} />
+                        </motion.div>
+                      </div>
                     </button>
 
                     <AnimatePresence>
@@ -621,32 +569,20 @@ export default function PayPage() {
                           initial={{ height: 0, opacity: 0 }}
                           animate={{ height: "auto", opacity: 1 }}
                           exit={{ height: 0, opacity: 0 }}
-                          transition={{ duration: 0.25 }}
+                          transition={{ duration: 0.2 }}
                           className="overflow-hidden"
                         >
-                          <div className="px-4 pb-4 space-y-3">
-                            <div className="flex justify-between text-[13px]">
-                              <span className="flex items-center gap-2" style={{ color: "#71717A" }}>
-                                <Zap className="w-3.5 h-3.5 text-[#22c55e]/60" aria-hidden="true" />
-                                Network Gas
-                              </span>
-                              <span className="font-semibold" style={{ color: "#22c55e" }}>
-                                $0.00{" "}
-                                <span className="text-[10px] opacity-50">Sponsored</span>
-                              </span>
+                          <div 
+                            className="px-4 pb-3 space-y-2"
+                            style={{ borderTop: "1px solid rgba(255,255,255,0.04)" }}
+                          >
+                            <div className="flex justify-between py-2">
+                              <span style={{ color: "#71717A", fontSize: "13px" }}>Network Gas</span>
+                              <span style={{ color: "#22c55e", fontSize: "13px" }}>Sponsored</span>
                             </div>
-                            <div className="flex justify-between text-[13px]">
-                              <span style={{ color: "#71717A" }}>Service Fee</span>
-                              <span className="font-numeric" style={{ color: "#A1A1AA" }}>$0.01</span>
-                            </div>
-                            <div 
-                              className="border-t border-white/[0.05] pt-3 flex justify-between text-[14px] font-semibold"
-                              style={{ color: "#FFFFFF" }}
-                            >
-                              <span>Total</span>
-                              <span className="font-numeric">
-                                {formatCurrency(pendingPayment.amount + 0.01)}
-                              </span>
+                            <div className="flex justify-between py-2">
+                              <span style={{ color: "#71717A", fontSize: "13px" }}>Service Fee</span>
+                              <span style={{ color: "#A1A1AA", fontSize: "13px" }}>$0.01</span>
                             </div>
                           </div>
                         </motion.div>
@@ -655,23 +591,17 @@ export default function PayPage() {
                   </motion.div>
                 </ErrorBoundary>
 
-                {/* Slide to Pay with MovingBorder */}
+                {/* Slide to Pay */}
                 <ErrorBoundary>
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.5, type: "spring" }}
-                    className="flex justify-center mt-auto pt-4 mb-4"
+                    transition={{ delay: 0.5, duration: 0.5 }}
+                    className="flex justify-center mt-auto"
                   >
-                    <MovingBorder
-                      duration={2000}
-                      containerClassName="w-full max-w-[320px]"
-                      borderClassName="bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#06d6a0]"
-                    >
-                      <div className="w-full" style={{ padding: "4px" }}>
-                        <SlideToPay onComplete={handlePayment} />
-                      </div>
-                    </MovingBorder>
+                    <div className="w-full max-w-[340px]">
+                      <SlideToPay onComplete={handlePayment} />
+                    </div>
                   </motion.div>
                 </ErrorBoundary>
 
@@ -679,8 +609,8 @@ export default function PayPage() {
                 <motion.p
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
-                  transition={{ delay: 0.7 }}
-                  className="text-center text-[11px] flex items-center justify-center gap-1.5"
+                  transition={{ delay: 0.6 }}
+                  className="text-center text-xs flex items-center justify-center gap-1.5 mt-4"
                   style={{ color: "#52525B" }}
                 >
                   <Wallet className="w-3 h-3" />
@@ -710,14 +640,14 @@ export default function PayPage() {
                       ease: "linear",
                     }}
                   >
-                    <Loader2 className="w-14 h-14 text-primary/80" />
+                    <Loader2 className="w-12 h-12" style={{ color: "#6366f1" }} />
                   </motion.div>
                   {/* Outer pulsing ring */}
                   <motion.div
-                    className="absolute -inset-4 rounded-full"
+                    className="absolute -inset-5 rounded-full"
                     style={{ border: "1px solid rgba(99, 102, 241, 0.1)" }}
                     animate={{
-                      scale: [1, 1.3, 1],
+                      scale: [1, 1.4, 1],
                       opacity: [0.3, 0, 0.3],
                     }}
                     transition={{ duration: 2, repeat: Infinity }}
@@ -727,21 +657,20 @@ export default function PayPage() {
 
                 <div className="text-center">
                   <h2 
-                    className="mb-2"
                     style={{
                       fontFamily: "'Space Grotesk', sans-serif",
-                      fontSize: "24px",
-                      fontWeight: 700,
+                      fontSize: "22px",
+                      fontWeight: 600,
                       color: "#FFFFFF",
                     }}
                   >
-                    Processing
+                    Sending
                   </h2>
                   <p 
-                    className="text-[14px]"
+                    className="text-sm mt-1"
                     style={{ color: "#71717A" }}
                   >
-                    Submitting to Lisk network...
+                    {formatCurrency(pendingPayment.amount)} to {pendingPayment.name}
                   </p>
                 </div>
 
@@ -750,7 +679,8 @@ export default function PayPage() {
                   {[0, 1, 2].map((i) => (
                     <motion.div
                       key={i}
-                      className="w-2 h-2 rounded-full bg-primary/70"
+                      className="w-2 h-2 rounded-full"
+                      style={{ background: "rgba(99, 102, 241, 0.7)" }}
                       animate={{
                         scale: [1, 1.8, 1],
                         opacity: [0.3, 1, 0.3],
@@ -770,132 +700,132 @@ export default function PayPage() {
             {state === "success" && (
               <motion.div
                 key="success"
-                initial={{ opacity: 0, scale: 0.8 }}
+                initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
-                transition={{ type: "spring", damping: 15, stiffness: 90 }}
-                className="flex-1 flex flex-col items-center justify-center gap-6 px-4 py-10"
+                transition={{ type: "spring", damping: 18, stiffness: 120 }}
+                className="flex-1 flex flex-col items-center justify-center gap-6 px-4 py-8"
               >
                 {/* Success Checkmark */}
                 <motion.div
-                  initial={{ scale: 0, rotate: -30 }}
+                  initial={{ scale: 0, rotate: -20 }}
                   animate={{ scale: 1, rotate: 0 }}
                   transition={{
                     type: "spring",
-                    damping: 12,
-                    stiffness: 150,
-                    delay: 0.15,
+                    damping: 14,
+                    stiffness: 180,
+                    delay: 0.1,
                   }}
                   className="relative"
                 >
                   {/* Outer glow */}
                   <motion.div
-                    className="absolute -inset-6 rounded-full opacity-30"
+                    className="absolute -inset-8 rounded-full opacity-25"
                     style={{
-                      background: "radial-gradient(circle, rgba(34,197,94,0.4), transparent 70%)",
+                      background: "radial-gradient(circle, rgba(34,197,94,0.3), transparent 70%)",
                     }}
                     animate={{
-                      scale: [1, 1.2, 1],
-                      opacity: [0.2, 0.4, 0.2],
+                      scale: [1, 1.15, 1],
+                      opacity: [0.2, 0.35, 0.2],
                     }}
-                    transition={{ duration: 2, repeat: Infinity }}
+                    transition={{ duration: 2.5, repeat: Infinity }}
                     aria-hidden="true"
                   />
 
                   <div 
-                    className="w-28 h-28 rounded-full flex items-center justify-center glow-success relative"
+                    className="w-24 h-24 rounded-full flex items-center justify-center"
                     style={{
-                      background: "linear-gradient(135deg, rgba(34, 197, 94, 0.15), rgba(34, 197, 94, 0.05))",
+                      background: "linear-gradient(135deg, rgba(34, 197, 94, 0.12), rgba(34, 197, 94, 0.05))",
                       border: "1px solid rgba(34, 197, 94, 0.2)",
-                      boxShadow: "0 0 24px rgba(34, 197, 94, 0.15), 0 0 48px rgba(34, 197, 94, 0.08)",
+                      boxShadow: "0 0 32px rgba(34, 197, 94, 0.15), 0 0 64px rgba(34, 197, 94, 0.06)",
                     }}
                   >
-                    <svg viewBox="0 0 24 24" className="w-14 h-14" aria-hidden="true">
-                      <motion.path
-                        d="M5 13l4 4L19 7"
-                        fill="none"
-                        stroke="#22c55e"
-                        strokeWidth={2.5}
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        initial={{ pathLength: 0 }}
-                        animate={{ pathLength: 1 }}
-                        transition={{
-                          duration: 0.7,
-                          delay: 0.35,
-                          ease: "easeOut",
-                        }}
-                      />
-                    </svg>
+                    <Check className="w-10 h-10" style={{ color: "#22c55e", strokeWidth: 3 }} />
                   </div>
                 </motion.div>
 
                 <motion.div
                   initial={{ opacity: 0, y: 12 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
+                  transition={{ delay: 0.35 }}
                   className="text-center"
                 >
                   <h2 
-                    className="mb-1"
                     style={{
                       fontFamily: "'Space Grotesk', sans-serif",
-                      fontSize: "28px",
+                      fontSize: "26px",
                       fontWeight: 700,
                       color: "#FFFFFF",
                     }}
                   >
-                    Payment Sent!
+                    Sent
                   </h2>
                   <p 
-                    className="text-[14px]"
+                    className="text-sm mt-1"
                     style={{ color: "#71717A" }}
                   >
-                    {formatCurrency(pendingPayment.amount)} {pendingPayment.token} → {pendingPayment.name}
+                    {formatCurrency(pendingPayment.amount)} {pendingPayment.token}
                   </p>
+                </motion.div>
+
+                {/* To/From info */}
+                <motion.div
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.5 }}
+                  className="flex items-center gap-3 px-4 py-2.5"
+                  style={{
+                    background: "rgba(24, 24, 27, 0.6)",
+                    border: "1px solid rgba(39, 39, 42, 0.4)",
+                    borderRadius: "12px",
+                  }}
+                >
+                  <span style={{ color: "#52525B", fontSize: "12px" }}>to</span>
+                  <span style={{ color: "#FFFFFF", fontSize: "14px", fontWeight: 500 }}>
+                    {pendingPayment.name}
+                  </span>
+                  {pendingPayment.verified && (
+                    <BadgeCheck className="w-4 h-4" style={{ color: "#CCFF00" }} />
+                  )}
                 </motion.div>
 
                 {/* Tx Hash */}
                 <motion.a
                   initial={{ opacity: 0, y: 8 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.7 }}
+                  transition={{ delay: 0.6 }}
                   href="#"
-                  className="flex items-center gap-2.5 px-5 py-3 rounded-2xl group"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl group"
                   style={{
-                    background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
-                    border: "1px solid rgba(39, 39, 42, 0.8)",
+                    background: "rgba(24, 24, 27, 0.6)",
+                    border: "1px solid rgba(39, 39, 42, 0.4)",
                   }}
                 >
                   <span 
-                    className="text-[12px] font-mono tracking-wider"
+                    className="text-xs font-mono"
                     style={{ color: "#52525B" }}
                   >
                     0xf6760d52...ab12e5ce
                   </span>
-                  <ExternalLink className="w-4 h-4 text-primary/50 group-hover:text-primary transition-colors" />
+                  <ExternalLink className="w-3.5 h-3.5" style={{ color: "#52525B" }} />
                 </motion.a>
 
                 {/* Done Button */}
-                <MovingBorder
-                  duration={2000}
-                  containerClassName="w-full max-w-[300px] mt-4"
-                  borderClassName="bg-gradient-to-r from-[#6366f1] via-[#8b5cf6] to-[#06d6a0]"
+                <motion.button
+                  initial={{ opacity: 0, y: 12 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.75 }}
+                  onClick={() => router.push("/wallet")}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full max-w-[280px] py-4 rounded-xl font-semibold text-[15px] mt-2"
+                  style={{
+                    background: "linear-gradient(135deg, #6366f1, #4f46e5)",
+                    color: "#FFFFFF",
+                    boxShadow: "0 4px 16px rgba(99, 102, 241, 0.25)",
+                  }}
                 >
-                  <motion.button
-                    initial={{ opacity: 0, y: 12 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.9 }}
-                    onClick={() => router.push("/wallet")}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full py-[18px] rounded-2xl text-white font-semibold text-[15px]"
-                    style={{
-                      background: "linear-gradient(135deg, #6366f1, #8b5cf6, #06d6a0)",
-                    }}
-                  >
-                    Back to Wallet
-                  </motion.button>
-                </MovingBorder>
+                  Done
+                </motion.button>
               </motion.div>
             )}
 
@@ -910,52 +840,46 @@ export default function PayPage() {
                 role="alert"
               >
                 <div 
-                  className="w-24 h-24 rounded-full flex items-center justify-center"
+                  className="w-20 h-20 rounded-full flex items-center justify-center"
                   style={{
                     background: "linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(244, 63, 94, 0.05))",
                     border: "1px solid rgba(244, 63, 94, 0.2)",
                   }}
                 >
-                  <AlertCircle className="w-12 h-12 text-[#f43f5e]/80" />
+                  <AlertCircle className="w-10 h-10" style={{ color: "#f43f5e" }} />
                 </div>
 
                 <div className="text-center">
                   <h2 
-                    className="mb-1"
                     style={{
                       fontFamily: "'Space Grotesk', sans-serif",
-                      fontSize: "24px",
-                      fontWeight: 700,
+                      fontSize: "22px",
+                      fontWeight: 600,
                       color: "#FFFFFF",
                     }}
                   >
-                    Payment Failed
+                    Failed
                   </h2>
                   <p 
-                    className="text-[14px]"
+                    className="text-sm mt-1"
                     style={{ color: "#71717A" }}
                   >
-                    Transaction could not be completed. Please try again.
+                    Transaction could not be completed
                   </p>
                 </div>
 
-                <MovingBorder
-                  duration={2000}
-                  containerClassName="w-full max-w-[300px]"
-                  borderClassName="bg-gradient-to-r from-[#f43f5e] via-[#f43f5e] to-[#f43f5e]"
+                <motion.button
+                  onClick={() => setState("confirm")}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                  className="w-full max-w-[260px] py-4 rounded-xl font-semibold text-[15px]"
+                  style={{
+                    background: "linear-gradient(135deg, #f43f5e, #e11d48)",
+                    color: "#FFFFFF",
+                  }}
                 >
-                  <motion.button
-                    onClick={() => setState("confirm")}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className="w-full py-[18px] rounded-2xl text-white font-semibold text-[15px]"
-                    style={{
-                      background: "linear-gradient(135deg, #f43f5e, #e11d48, #f43f5e)",
-                    }}
-                  >
-                    Try Again
-                  </motion.button>
-                </MovingBorder>
+                  Try Again
+                </motion.button>
               </motion.div>
             )}
           </AnimatePresence>

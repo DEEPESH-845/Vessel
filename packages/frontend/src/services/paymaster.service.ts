@@ -2,9 +2,12 @@
  * Paymaster Service
  * Handles ERC-4337 paymaster integration for gas abstraction
  * Requirements: FR-5.1, FR-5.2, FR-5.3
+ * 
+ * Updated to use AWS Lambda backend for secure signing
  */
 
 import { ethers } from 'ethers';
+import { backendAPI } from '@/lib/backend-client';
 
 /**
  * Gas Estimate Types
@@ -230,35 +233,82 @@ export class PaymasterService {
   }
 
   /**
-   * Request paymaster signature
+   * Request paymaster signature from backend
+   * Uses AWS Lambda + KMS for secure signing
    */
   async requestPaymasterSignature(
-    userOp: Partial<UserOperation>,
-    chainId: number
+    userOpHash: string,
+    chainId: number,
+    sender: string,
+    maxCost?: bigint
   ): Promise<string> {
-    const paymaster = this.paymasters.get(chainId);
-    if (!paymaster) {
-      throw new Error('No paymaster configured for this chain');
+    // Get paymaster address from backend config
+    const configResult = await backendAPI.getPaymasterConfig();
+    if (!configResult.success || !configResult.data) {
+      throw new Error('Failed to get paymaster configuration');
     }
 
-    // In production, this would call the paymaster server
-    // For now, return placeholder
-    const response = await fetch('/api/paymaster/sign', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        userOp,
-        chainId,
-        paymasterAddress: paymaster.address,
-      }),
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to get paymaster signature');
+    const paymasterAddress = configResult.data.addresses[chainId];
+    if (!paymasterAddress) {
+      throw new Error(`No paymaster configured for chain ${chainId}`);
     }
 
-    const result = await response.json();
+    const validUntil = Math.floor(Date.now() / 1000) + 3600; // 1 hour
+    const validAfter = Math.floor(Date.now() / 1000);
+
+    // Request signature from AWS Lambda backend
+    const result = await backendAPI.signPaymasterData(
+      userOpHash,
+      validUntil,
+      validAfter,
+      paymasterAddress
+    );
+
+    if (!result.success || !result.data) {
+      throw new Error(result.error || 'Failed to get paymaster signature');
+    }
+
     return result.data.paymasterAndData;
+  }
+
+  /**
+   * Validate UserOperation for sponsorship
+   */
+  async validateForSponsorship(
+    userOpHash: string,
+    sender: string
+  ): Promise<{ allowed: boolean; reason?: string }> {
+    const result = await backendAPI.validateUserOpForSponsorship(userOpHash, sender);
+    
+    if (!result.success) {
+      return { allowed: false, reason: result.error };
+    }
+    
+    return result.data || { allowed: false, reason: 'Unknown error' };
+  }
+
+  /**
+   * Get backend paymaster configuration
+   */
+  async fetchPaymasterConfigFromBackend(): Promise<void> {
+    const result = await backendAPI.getPaymasterConfig();
+    
+    if (result.success && result.data) {
+      // Configure paymasters for each supported chain
+      for (const chainId of result.data.supportedChains || []) {
+        const address = result.data.addresses?.[chainId];
+        if (address && address !== ethers.ZeroAddress) {
+          this.configurePaymaster(chainId, {
+            address,
+            stableToken: '', // Would come from config
+            exchangeRate: '1', // Default rate
+            feeBps: 30, // 0.3%
+            minAmount: '0',
+            maxAmount: '1000000',
+          });
+        }
+      }
+    }
   }
 
   /**

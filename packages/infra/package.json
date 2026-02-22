@@ -20,7 +20,7 @@
     "clean": "rm -rf cdk.out dist lib/*.d.ts lib/*.js bin/*.d.ts bin/*.js"
   },
   "devDependencies": {
-    "@types/jest": "^30.0.0",
+    "@types/jest": "^29.5.14",
     "@types/node": "^24.10.1",
     "aws-cdk": "2.1106.0",
     "jest": "^27.5.1",

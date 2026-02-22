@@ -1,17 +1,39 @@
-require("@nomicfoundation/hardhat-toolbox");
 require("dotenv").config();
+require("typechain");
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
     solidity: {
-        version: "0.8.28",
-        settings: {
-            optimizer: {
-                enabled: true,
-                runs: 200,
+        compilers: [
+            {
+                version: "0.8.28",
+                settings: {
+                    optimizer: { enabled: true, runs: 200 },
+                    evmVersion: "cancun"
+                }
             },
-            evmVersion: "cancun",
-        },
+            {
+                version: "0.8.22",
+                settings: {
+                    optimizer: { enabled: true, runs: 200 },
+                    evmVersion: "cancun"
+                }
+            },
+            {
+                version: "0.8.21",
+                settings: {
+                    optimizer: { enabled: true, runs: 200 },
+                    evmVersion: "cancun"
+                }
+            },
+            {
+                version: "0.8.20",
+                settings: {
+                    optimizer: { enabled: true, runs: 200 },
+                    evmVersion: "cancun"
+                }
+            }
+        ]
     },
     networks: {
         "lisk-sepolia": {

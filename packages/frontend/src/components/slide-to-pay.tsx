@@ -13,28 +13,28 @@ export default function SlideToPay({ onComplete, disabled }: SlideToPayProps) {
   const [completed, setCompleted] = useState(false);
   const x = useMotionValue(0);
 
-  const trackWidth = 300;
-  const thumbSize = 60;
-  const threshold = trackWidth - thumbSize - 8;
+  const trackWidth = 320;
+  const thumbSize = 56;
+  const threshold = trackWidth - thumbSize - 12;
 
   const progressWidth = useTransform(
     x,
     [0, threshold],
-    [thumbSize + 8, trackWidth]
+    [thumbSize + 12, trackWidth]
   );
   const progressOpacity = useTransform(
     x,
     [0, threshold * 0.4, threshold],
-    [0.15, 0.4, 0.8]
+    [0.1, 0.3, 0.6]
   );
-  const textOpacity = useTransform(x, [0, threshold * 0.25], [1, 0]);
-  const iconRotate = useTransform(x, [threshold * 0.7, threshold], [0, 360]);
+  const textOpacity = useTransform(x, [0, threshold * 0.2], [1, 0]);
+  const iconRotate = useTransform(x, [threshold * 0.6, threshold], [0, 360]);
   const thumbGlow = useTransform(
     x,
     [0, threshold],
     [
-      "0 4px 16px rgba(99,102,241,0.3), 0 0 0 4px rgba(99,102,241,0.08)",
-      "0 4px 24px rgba(6,214,160,0.4), 0 0 0 6px rgba(6,214,160,0.15)",
+      "0 2px 8px rgba(99,102,241,0.2), 0 0 0 2px rgba(99,102,241,0.06)",
+      "0 4px 20px rgba(6,214,160,0.3), 0 0 0 4px rgba(6,214,160,0.12)",
     ]
   );
 
@@ -51,37 +51,44 @@ export default function SlideToPay({ onComplete, disabled }: SlideToPayProps) {
 
   return (
     <div
-      className="relative w-[300px] mx-auto"
+      className="relative"
       role="slider"
       aria-label="Slide to confirm payment"
       aria-valuemin={0}
       aria-valuemax={100}
       tabIndex={0}
     >
-      <div className="slide-track h-[68px] flex items-center relative">
-        {/* Progress fill with gradient */}
+      {/* Track */}
+      <div 
+        className="h-16 rounded-2xl flex items-center relative overflow-hidden"
+        style={{
+          background: "rgba(24, 24, 27, 0.8)",
+          border: "1px solid rgba(39, 39, 42, 0.6)",
+          width: trackWidth,
+        }}
+      >
+        {/* Progress fill */}
         <motion.div
-          className="absolute left-0 top-0 bottom-0 rounded-[60px]"
+          className="absolute left-1 top-1 bottom-1 rounded-[18px]"
           style={{
             width: progressWidth,
             opacity: progressOpacity,
-            background:
-              "linear-gradient(90deg, rgba(99,102,241,0.25), rgba(6,214,160,0.2))",
+            background: "linear-gradient(90deg, rgba(99,102,241,0.2), rgba(6,214,160,0.15))",
           }}
         />
 
         {/* Label text */}
         <motion.span
-          className="absolute inset-0 flex items-center justify-center text-[13px] font-medium pointer-events-none select-none"
+          className="absolute inset-0 flex items-center justify-center text-[14px] font-medium pointer-events-none select-none"
           style={{ opacity: textOpacity }}
         >
-          <span className="text-muted-foreground/60">
-            {completed ? "Payment sent!" : "Slide to pay"}
+          <span style={{ color: "#A1A1AA" }}>
+            {completed ? "Sending..." : "Slide to pay"}
           </span>
           {!completed && (
             <motion.span
-              className="ml-1.5 text-muted-foreground/40"
-              animate={{ x: [0, 6, 0] }}
+              style={{ color: "#52525B", marginLeft: "6px" }}
+              animate={{ x: [0, 4, 0] }}
               transition={{
                 duration: 1.5,
                 repeat: Infinity,
@@ -95,20 +102,28 @@ export default function SlideToPay({ onComplete, disabled }: SlideToPayProps) {
 
         {/* Draggable thumb */}
         <motion.div
-          className="slide-thumb absolute left-1 z-10"
+          className="absolute left-1.5 z-10 rounded-xl flex items-center justify-center"
           drag={disabled || completed ? false : "x"}
           dragConstraints={{ left: 0, right: threshold }}
           dragElastic={0}
           dragMomentum={false}
-          style={{ x, boxShadow: thumbGlow }}
+          style={{ 
+            x, 
+            boxShadow: thumbGlow,
+            width: thumbSize,
+            height: "calc(100% - 12px)",
+            background: completed 
+              ? "linear-gradient(135deg, #22c55e, #16a34a)"
+              : "linear-gradient(135deg, #6366f1, #4f46e5)",
+          }}
           onDragEnd={handleDragEnd}
-          whileTap={!completed ? { scale: 1.08 } : undefined}
+          whileTap={!completed ? { scale: 1.05 } : undefined}
         >
           <motion.div style={{ rotate: iconRotate }}>
             {completed ? (
-              <Check className="w-5 h-5 text-white" strokeWidth={2.5} />
+              <Check className="w-5 h-5 text-white" strokeWidth={3} />
             ) : (
-              <ArrowRight className="w-5 h-5 text-white" strokeWidth={2} />
+              <ArrowRight className="w-5 h-5 text-white" strokeWidth={2.5} />
             )}
           </motion.div>
         </motion.div>

@@ -1,10 +1,9 @@
 import { expect } from "chai";
 import { ethers } from "hardhat";
-import { VesselPaymaster } from "../typechain-types";
 import { SignerWithAddress } from "@nomicfoundation/hardhat-ethers/signers";
 
 describe("VesselPaymaster", function () {
-    let paymaster: VesselPaymaster;
+    let paymaster: Contract;
     let owner: SignerWithAddress;
     let signer: SignerWithAddress;
     let user: SignerWithAddress;
