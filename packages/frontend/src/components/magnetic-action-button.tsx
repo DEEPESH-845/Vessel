@@ -92,8 +92,8 @@ export default function MagneticActionButton({
           <div
             className="relative"
             style={{
-              background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
-              border: "1px solid rgba(39, 39, 42, 0.8)",
+              background: "linear-gradient(145deg, rgba(14, 19, 32, 0.95), rgba(14, 19, 32, 0.8))",
+              border: "1px solid rgba(59, 130, 246, 0.15)",
               borderRadius: "24px",
               padding: "24px",
               minHeight: "120px",
@@ -106,7 +106,7 @@ export default function MagneticActionButton({
             <motion.div
               className="absolute inset-0 pointer-events-none rounded-3xl"
               style={{
-                background: `radial-gradient(circle at ${useTransform(x, [-0.5, 0.5], ["30%", "70%"]).get()} ${useTransform(y, [-0.5, 0.5], ["30%", "70%"]).get()}, rgba(204, 255, 0, 0.12), transparent 60%)`,
+                background: `radial-gradient(circle at ${useTransform(x, [-0.5, 0.5], ["30%", "70%"]).get()} ${useTransform(y, [-0.5, 0.5], ["30%", "70%"]).get()}, rgba(59, 130, 246, 0.15), transparent 60%)`,
                 opacity: 0,
               }}
               whileHover={{ opacity: 1 }}
@@ -131,14 +131,14 @@ export default function MagneticActionButton({
               <motion.div
                 className="w-14 h-14 rounded-full flex items-center justify-center"
                 style={{
-                  background: "rgba(204, 255, 0, 0.12)",
-                  border: "1px solid rgba(204, 255, 0, 0.25)",
-                  boxShadow: "0 0 20px rgba(204, 255, 0, 0.15)",
+                  background: "rgba(59, 130, 246, 0.15)",
+                  border: "1px solid rgba(59, 130, 246, 0.25)",
+                  boxShadow: "0 0 20px rgba(59, 130, 246, 0.15)",
                 }}
                 whileHover={{
                   scale: 1.1,
                   rotate: 5,
-                  boxShadow: "0 0 30px rgba(204, 255, 0, 0.3)",
+                  boxShadow: "0 0 30px rgba(59, 130, 246, 0.3)",
                 }}
                 whileTap={{ scale: 0.95, rotate: -5 }}
                 transition={{ type: "spring", stiffness: 400, damping: 17 }}
@@ -172,7 +172,7 @@ export default function MagneticActionButton({
             <motion.div
               className="absolute inset-0 rounded-3xl pointer-events-none"
               style={{
-                background: "radial-gradient(circle, rgba(204, 255, 0, 0.2), transparent 70%)",
+                background: "radial-gradient(circle, rgba(59, 130, 246, 0.2), transparent 70%)",
                 opacity: 0,
               }}
               whileTap={{
@@ -187,7 +187,7 @@ export default function MagneticActionButton({
             <div
               className="absolute bottom-0 right-0 w-16 h-16 opacity-10 pointer-events-none"
               style={{
-                background: "radial-gradient(circle at bottom right, #CCFF00, transparent 70%)",
+                background: "radial-gradient(circle at bottom right, rgba(59, 130, 246, 0.3), transparent 70%)",
               }}
               aria-hidden="true"
             />

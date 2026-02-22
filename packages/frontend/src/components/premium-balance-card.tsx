@@ -61,7 +61,7 @@ export default function PremiumBalanceCard({ balance }: PremiumBalanceCardProps)
       <motion.div
         className="absolute -inset-4 rounded-3xl opacity-0"
         style={{
-          background: "radial-gradient(circle at 50% 50%, rgba(204, 255, 0, 0.08), transparent 70%)",
+          background: "radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.15), transparent 70%)",
         }}
         animate={{
           opacity: [0, 0.3, 0],
@@ -78,21 +78,21 @@ export default function PremiumBalanceCard({ balance }: PremiumBalanceCardProps)
       {/* Enhanced card with animated balance */}
       <div
         className="relative overflow-hidden group"
-        style={{
-          background: "linear-gradient(145deg, rgba(24, 24, 27, 0.95), rgba(24, 24, 27, 0.8))",
-          border: "1px solid rgba(39, 39, 42, 0.8)",
-          borderRadius: "24px",
-          padding: "24px",
-          backdropFilter: "blur(20px)",
-          WebkitBackdropFilter: "blur(20px)",
-          boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(255, 255, 255, 0.05) inset",
-        }}
+          style={{
+            background: "linear-gradient(145deg, rgba(14, 19, 32, 0.95), rgba(14, 19, 32, 0.8))",
+            border: "1px solid rgba(59, 130, 246, 0.2)",
+            borderRadius: "24px",
+            padding: "24px",
+            backdropFilter: "blur(20px)",
+            WebkitBackdropFilter: "blur(20px)",
+            boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3), 0 0 60px rgba(59, 130, 246, 0.1)",
+          }}
       >
         {/* Shimmer effect on hover */}
         <motion.div
           className="absolute inset-0 pointer-events-none"
           style={{
-            background: "linear-gradient(90deg, transparent 0%, rgba(204, 255, 0, 0.03) 50%, transparent 100%)",
+            background: "linear-gradient(90deg, transparent 0%, rgba(59, 130, 246, 0.05) 50%, transparent 100%)",
             backgroundSize: "200% 100%",
           }}
           animate={{
@@ -129,11 +129,11 @@ export default function PremiumBalanceCard({ balance }: PremiumBalanceCardProps)
             <p
               className="text-sm"
               style={{
-                color: "#CCFF00",
-                fontWeight: 600,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                textShadow: "0 0 20px rgba(204, 255, 0, 0.3)",
+            color: "#60A5FA",
+            fontWeight: 600,
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            textShadow: "0 0 20px rgba(59, 130, 246, 0.3)",
               }}
             >
               Total Balance
@@ -143,8 +143,8 @@ export default function PremiumBalanceCard({ balance }: PremiumBalanceCardProps)
             <motion.div
               className="w-2 h-2 rounded-full"
               style={{
-                background: "#CCFF00",
-                boxShadow: "0 0 8px rgba(204, 255, 0, 0.6)",
+                background: "#3B82F6",
+                boxShadow: "0 0 8px rgba(59, 130, 246, 0.6)",
               }}
               animate={{
                 opacity: [1, 0.4, 1],
@@ -234,8 +234,8 @@ export default function PremiumBalanceCard({ balance }: PremiumBalanceCardProps)
         {/* Enhanced accent highlight */}
         <motion.div
           className="absolute bottom-0 left-0 right-0 h-1"
-          style={{
-            background: "linear-gradient(90deg, transparent, #CCFF00, transparent)",
+              style={{
+                background: "linear-gradient(90deg, transparent, #3B82F6, transparent)",
           }}
           animate={{
             opacity: [0.2, 0.4, 0.2],
@@ -252,7 +252,7 @@ export default function PremiumBalanceCard({ balance }: PremiumBalanceCardProps)
         <div
           className="absolute top-0 right-0 w-24 h-24 opacity-10 pointer-events-none"
           style={{
-            background: "radial-gradient(circle at top right, #CCFF00, transparent 70%)",
+            background: "radial-gradient(circle at top right, rgba(59, 130, 246, 0.3), transparent 70%)",
           }}
           aria-hidden="true"
         />
