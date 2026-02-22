@@ -9,7 +9,7 @@ import { ethers } from 'ethers';
 /**
  * Recovery Method Types
  */
-export type RecoveryMethod = 'mpc' | 'social' | 'seed-phrase';
+export type RecoveryMethod = 'mpc' | 'social' | 'timelock' | 'seed-phrase';
 
 /**
  * MPC Recovery State
@@ -390,3 +390,14 @@ export class WalletRecoveryService {
 
 // Export singleton instance
 export const walletRecoveryService = WalletRecoveryService.getInstance();
+
+// Missing types for recovery page
+export interface RecoveryRequest {
+  walletAddress: string;
+  method: RecoveryMethod;
+  guardians?: string[];
+  timelockDuration?: number;
+  requestId?: string;
+  status?: string;
+  timelockEndTime?: string;
+}

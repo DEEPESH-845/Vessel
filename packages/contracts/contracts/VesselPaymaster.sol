@@ -268,9 +268,25 @@ contract VesselPaymaster is BasePaymaster, Pausable {
         // First do basic validation (signature check)
         bytes memory validationContext = _validateSignature(userOp, userOpHash);
         
+        // Extract sender from userOp
+        address sender = userOp.sender;
+        
+        // Reset daily trackers if needed
+        _resetDailyTrackersIfNeeded();
+        
+        // Check rate limit for user
+        _checkRateLimit(sender);
+        
+        // Check user gas limit (using maxCost as estimate)
+        _checkUserGasLimit(sender, maxCost);
+        
+        // Check global cap
+        _checkGlobalCap(maxCost);
+        
         // Return context with maxCost for post-operation checks
         return (validationContext, _packValidationData(false, uint48(maxCost), uint48(0)));
     }
+
 
     /**
      * @dev Internal signature validation

@@ -7,10 +7,11 @@
     ],
     "scripts": {
         "dev": "npm run dev --workspace=packages/frontend",
-        "build": "npm run build --workspaces --if-present",
+        "build": "npm run build --workspace=packages/backend && npm run build --workspace=packages/frontend",
         "build:frontend": "npm run build --workspace=packages/frontend",
         "build:backend": "npm run build --workspace=packages/backend",
         "build:contracts": "npm run compile --workspace=packages/contracts",
+        "build:infra": "npm run build --workspace=packages/infra",
         "lint": "npm run lint --workspaces --if-present",
         "test": "npm run test --workspaces --if-present",
         "clean": "rm -rf node_modules packages/*/node_modules packages/*/dist packages/contracts/cache packages/contracts/artifacts",

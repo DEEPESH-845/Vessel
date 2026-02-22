@@ -5,6 +5,21 @@
  * Target: 82% accuracy prediction
  */
 
+export interface GasPriceEstimate {
+  slow: string;
+  standard: string;
+  fast: string;
+}
+
+export interface FullGasEstimate extends GasPriceEstimate {
+  gasLimit: string;
+  totalCost: string;
+  chainId: number;
+  timestamp: string;
+}
+
+export type GasLevel = 'slow' | 'standard' | 'fast';
+
 export interface GasPrice {
   slow: number; // gwei
   standard: number; // gwei
@@ -246,3 +261,6 @@ export async function getGasPrice(chainId?: number): Promise<GasPrediction> {
 export async function estimateTxCost(chainId?: number, gasLimit?: number): Promise<{ slow: string; standard: string; fast: string }> {
   return gasEstimator.estimateTransactionCost(chainId, gasLimit);
 }
+
+// Alias for backward compatibility
+export const gasEstimatorService = gasEstimator;

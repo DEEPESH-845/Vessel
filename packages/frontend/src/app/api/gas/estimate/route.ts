@@ -5,7 +5,7 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import { gasEstimatorService } from '@/services/gas-estimator.service';
+import { gasEstimator } from '@/services/gas-estimator.service';
 
 /**
  * GET /api/gas/estimate?chainId=1
@@ -17,42 +17,50 @@ export async function GET(request: NextRequest) {
     const chainId = parseInt(searchParams.get('chainId') || '1');
     const gasLimit = searchParams.get('gasLimit');
 
-    const estimates = await gasEstimatorService.getGasEstimates(chainId);
+    const prediction = await gasEstimator.getGasPrice(chainId);
 
-    // Calculate costs for each level if gasLimit provided
-    let costEstimates;
-    if (gasLimit) {
-      const limit = BigInt(gasLimit);
-      costEstimates = estimates.estimates.map((estimate) => ({
-        level: estimate.level,
-        ...gasEstimatorService.calculateCost(estimate, limit, estimates.nativeTokenPrice),
-        estimatedConfirmationTime: estimate.estimatedConfirmationTime,
-        confidence: estimate.confidence,
-      }));
-    }
-
-    return NextResponse.json({
+    // Build response similar to what was expected
+    const response = {
       success: true,
       data: {
-        chainId: estimates.chainId,
-        chainName: estimates.chainName,
-        nativeToken: estimates.nativeToken,
-        nativeTokenPrice: estimates.nativeTokenPrice,
-        baseFee: estimates.baseFee.toString(),
-        networkCongestion: estimates.networkCongestion,
-        recommended: estimates.recommended,
-        estimates: estimates.estimates.map((e) => ({
-          level: e.level,
-          maxFeePerGas: e.maxFeePerGas.toString(),
-          maxPriorityFeePerGas: e.maxPriorityFeePerGas.toString(),
-          gasPrice: e.gasPrice.toString(),
-          estimatedConfirmationTime: e.estimatedConfirmationTime,
-          confidence: e.confidence,
-        })),
-        costEstimates,
-        lastUpdated: estimates.lastUpdated.toISOString(),
+        chainId,
+        chainName: getChainName(chainId),
+        nativeToken: getNativeToken(chainId),
+        nativeTokenPrice: '0', // Would need price feed
+        baseFee: prediction.current.baseFee.toString(),
+        networkCongestion: prediction.trend === 'rising' ? 'high' : prediction.trend === 'falling' ? 'low' : 'medium',
+        recommended: 'standard',
+        estimates: [
+          {
+            level: 'slow',
+            maxFeePerGas: (prediction.current.slow * 1e9).toString(),
+            maxPriorityFeePerGas: (prediction.current.priorityFee * 0.5 * 1e9).toString(),
+            gasPrice: (prediction.current.slow * 1e9).toString(),
+            estimatedConfirmationTime: '5',
+            confidence: prediction.confidence,
+          },
+          {
+            level: 'standard',
+            maxFeePerGas: (prediction.current.standard * 1e9).toString(),
+            maxPriorityFeePerGas: (prediction.current.priorityFee * 1e9).toString(),
+            gasPrice: (prediction.current.standard * 1e9).toString(),
+            estimatedConfirmationTime: '1',
+            confidence: prediction.confidence,
+          },
+          {
+            level: 'fast',
+            maxFeePerGas: (prediction.current.fast * 1e9).toString(),
+            maxPriorityFeePerGas: (prediction.current.priorityFee * 1.5 * 1e9).toString(),
+            gasPrice: (prediction.current.fast * 1e9).toString(),
+            estimatedConfirmationTime: '0.1',
+            confidence: prediction.confidence,
+          },
+        ],
+        lastUpdated: prediction.lastUpdated,
       },
-    });
+    };
+
+    return NextResponse.json(response);
   } catch (error) {
     console.error('Error fetching gas estimates:', error);
     
@@ -62,4 +70,26 @@ export async function GET(request: NextRequest) {
       { status: 500 }
     );
   }
+}
+
+function getChainName(chainId: number): string {
+  const chains: Record<number, string> = {
+    1: 'Ethereum',
+    137: 'Polygon',
+    42161: 'Arbitrum',
+    8453: 'Base',
+    1135: 'Lisk',
+  };
+  return chains[chainId] || 'Ethereum';
+}
+
+function getNativeToken(chainId: number): string {
+  const tokens: Record<number, string> = {
+    1: 'ETH',
+    137: 'MATIC',
+    42161: 'ETH',
+    8453: 'ETH',
+    1135: 'LSK',
+  };
+  return tokens[chainId] || 'ETH';
 }

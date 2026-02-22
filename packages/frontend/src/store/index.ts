@@ -218,3 +218,6 @@ export type { PaymentLinksSlice } from './payment-links.slice';
 export type { MultiChainSlice } from './multi-chain.slice';
 export type { AISlice } from './ai.slice';
 export type { UISlice, Toast, Modal } from './ui.slice';
+
+// Alias for backward compatibility
+export const useTransactionStore = useAppStore;

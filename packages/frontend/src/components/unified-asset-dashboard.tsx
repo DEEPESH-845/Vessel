@@ -120,9 +120,9 @@ export default function UnifiedAssetDashboard({
   // Handle send action - Navigate to pay page with asset pre-filled
   const handleSend = (asset: UnifiedAsset) => {
     const params = new URLSearchParams({
-      asset: asset.metadata.address || 'native',
+      asset: ('address' in asset.metadata && asset.metadata.address) ? asset.metadata.address : ('contractAddress' in asset.metadata ? asset.metadata.contractAddress : 'native'),
       chain: asset.chainId.toString(),
-      amount: asset.metadata.balance || '0',
+      amount: String(('balance' in asset.metadata) ? (asset.metadata.balance || '0') : ('totalValue' in asset.metadata ? asset.metadata.totalValue : '0')),
     });
     window.location.href = `/pay?${params.toString()}`;
   };
@@ -130,7 +130,7 @@ export default function UnifiedAssetDashboard({
   // Handle swap action - Navigate to swap page (would integrate with DEX)
   const handleSwap = (asset: UnifiedAsset) => {
     const params = new URLSearchParams({
-      fromAsset: asset.metadata.address || 'native',
+      fromAsset: ('address' in asset.metadata && asset.metadata.address) ? asset.metadata.address : ('contractAddress' in asset.metadata ? asset.metadata.contractAddress : 'native'),
       fromChain: asset.chainId.toString(),
     });
     window.location.href = `/swap?${params.toString()}`;
@@ -144,7 +144,7 @@ export default function UnifiedAssetDashboard({
       // 2. Submit via meta-transaction service
       // 3. Show pending state
       console.log('Claiming rewards for position:', position);
-      alert(`Claiming ${position.metadata.claimable || '0'} ${position.metadata.deposited ? 'rewards' : 'tokens'} from ${position.metadata.protocol}`);
+      const meta = position.metadata; alert(`Claiming ${('claimable' in meta && meta.claimable) || '0'} ${('deposited' in meta && meta.deposited) ? 'rewards' : 'tokens'} from ${('protocol' in meta && meta.protocol) || 'unknown'}`);
     } catch (error) {
       console.error('Failed to claim rewards:', error);
       alert('Failed to claim rewards. Please try again.');
@@ -153,7 +153,7 @@ export default function UnifiedAssetDashboard({
 
   // Handle view protocol - Navigate to protocol dashboard
   const handleViewProtocol = (position: UnifiedAsset) => {
-    const protocol = position.metadata.protocol?.toLowerCase() || '';
+    const protocol = ('protocol' in position.metadata && position.metadata.protocol) ? position.metadata.protocol.toLowerCase() : '';
     // Map protocol names to their dashboard URLs
     const protocolUrls: Record<string, string> = {
       aave: 'https://app.aave.com',

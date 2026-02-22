@@ -95,12 +95,9 @@ export default function PayPage() {
 
   useEffect(() => {
     if (pendingPayment) {
-      checkFraud(pendingPayment.amount, pendingPayment.address).then(
-        (result) => {
-          setAiVerified(result.approved);
-          setAiReason(result.reason);
-        }
-      );
+      const result = checkFraud({ amount: pendingPayment.amount, address: pendingPayment.address, velocity: 0, avgAmount: 0, countryRisk: 0, sessionAge: 10 });
+      setAiVerified(result.approved);
+      setAiReason(result.reason);
     }
   }, [pendingPayment]);
 

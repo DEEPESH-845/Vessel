@@ -4,6 +4,7 @@ pragma solidity ^0.8.28;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 
 /**
@@ -15,7 +16,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * - Payment events for indexing
  * - Webhook notifications
  */
-contract PaymentProcessor is Ownable {
+contract PaymentProcessor is Ownable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     // Custom pause state
@@ -342,7 +343,7 @@ contract PaymentProcessor is Ownable {
     /**
      * @dev Complete a payment - transfer to merchant
      */
-    function completePayment(bytes32 _paymentId) external whenNotPaused {
+    function completePayment(bytes32 _paymentId) external whenNotPaused nonReentrant {
         Payment storage payment = payments[_paymentId];
         require(payment.payer != address(0), "PaymentProcessor: payment not found");
         require(payment.status == PaymentStatus.Pending, "PaymentProcessor: not pending");
@@ -536,7 +537,7 @@ contract PaymentProcessor is Ownable {
     /**
      * @dev Process subscription payment (called by anyone)
      */
-    function processSubscriptionPayment(bytes32 _subscriptionId) external whenNotPaused returns (bytes32 paymentId) {
+    function processSubscriptionPayment(bytes32 _subscriptionId) external whenNotPaused nonReentrant returns (bytes32 paymentId) {
         Subscription storage sub = subscriptions[_subscriptionId];
         require(sub.subscriber != address(0), "PaymentProcessor: subscription not found");
         require(sub.isActive, "PaymentProcessor: subscription not active");
@@ -648,7 +649,7 @@ contract PaymentProcessor is Ownable {
     /**
      * @dev Complete a batch payment
      */
-    function completeBatchPayment(bytes32 _batchId) external {
+    function completeBatchPayment(bytes32 _batchId) external nonReentrant {
         BatchPayment storage batch = batchPayments[_batchId];
         require(batch.createdAt > 0, "PaymentProcessor: batch not found");
         require(batch.status == PaymentStatus.Pending, "PaymentProcessor: not pending");

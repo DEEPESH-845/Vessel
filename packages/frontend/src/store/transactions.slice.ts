@@ -80,3 +80,6 @@ export const createTransactionsSlice: StateCreator<TransactionsSlice> = (set) =>
 
   setLastFetchedAt: (date) => set({ lastFetchedAt: date }),
 });
+
+// Alias for backward compatibility - re-export from main store
+export { useAppStore as useTransactionStore } from "./index";
