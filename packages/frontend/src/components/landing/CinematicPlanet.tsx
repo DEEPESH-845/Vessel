@@ -1,12 +1,11 @@
 'use client';
 
 /**
- * CinematicPlanet Component
- * Awwwards-level 3D planetary hero with custom GLSL shaders
- * Features: vertex displacement, Fresnel rim lighting, atmospheric glow, 
- * custom starfield with twinkle, orbital rings, scroll-reactive camera
+ * CinematicPlanet Component - IMAX Grade
+ * Awwwards-level 3D planetary hero with physical atmospheric scattering
+ * Features: HDR pipeline, cinematic 3-point lighting, stable rendering
  * 
- * RENDER STABILITY: High-precision, clamped values, stable animations
+ * RENDER STABILITY: High-precision, clamped values, single RAF loop
  */
 
 import { useRef, useMemo, useEffect, useState, useCallback } from 'react';
@@ -19,6 +18,7 @@ import {
   planetFragmentShader,
   atmosphereVertexShader,
   atmosphereFragmentShader,
+  outerGlowFragmentShader,
   starfieldVertexShader,
   starfieldFragmentShader,
   orbitalRingVertexShader,
@@ -26,28 +26,48 @@ import {
 } from '@/shaders/planet.shader';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// RENDER STABILITY CONSTANTS
+// IMAX HDR CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const RENDER_CONFIG = {
+const HDR_CONFIG = {
+  // Renderer settings
+  outputColorSpace: THREE.SRGBColorSpace,
+  toneMapping: THREE.ACESFilmicToneMapping,
+  toneMappingExposure: 1.05,
+  
+  // Stability limits
   pixelRatioMax: 1.5,
   cameraNear: 0.1,
   cameraFar: 1000,
-  displacementScale: 0.04, // FURTHER REDUCED for stability
-  waveSpeed: 0.08, // FURTHER REDUCED for stability
-  atmosphereIntensity: 0.4, // REDUCED for edge stability
-  outerGlowIntensity: 0.12, // REDUCED to prevent edge bleeding
+};
+
+const RENDER_CONFIG = {
+  // Geometry
+  planetRadius: 2.8,
+  atmosphereRadius: 3.1,
+  outerGlowRadius: 3.4,
+  
+  // Animation speeds (very slow for stability)
+  planetRotationSpeed: 0.0008,
+  waveSpeed: 0.06,
+  displacementScale: 0.035,
+  
+  // Atmospheric scattering
+  rayleighCoeff: 1.2,
+  mieCoeff: 0.8,
+  atmosphereIntensity: 0.35,
+  outerGlowIntensity: 0.10,
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// COLOR PALETTE
+// CINEMATIC COLOR PALETTE
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const COLORS = {
-  // Planet colors
-  primary: new THREE.Color('#c1440e'),      // Deep Mars orange
-  secondary: new THREE.Color('#e07830'),    // Lighter orange
-  accent: new THREE.Color('#22d3ee'),       // Cyan rim light
+  // Planet colors (Mars-like warm palette)
+  primary: new THREE.Color('#c1440e'),
+  secondary: new THREE.Color('#e07830'),
+  accent: new THREE.Color('#22d3ee'),
   
   // Atmosphere colors
   atmosphereInner: new THREE.Color('#e07830'),
@@ -60,7 +80,15 @@ const COLORS = {
   
   // Star color
   star: new THREE.Color('#f8fafc'),
+  
+  // Lighting colors
+  keyLight: new THREE.Color('#fff5e6'),      // Warm key
+  fillLight: new THREE.Color('#1a1a2e'),     // Dark fill
+  rimLight: new THREE.Color('#4a90d9'),      // Cool rim
 };
+
+// Sun direction (normalized)
+const SUN_DIRECTION = new THREE.Vector3(1, 0.5, 0.8).normalize();
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // PLANET COMPONENT
@@ -70,7 +98,6 @@ function Planet({ scrollProgress }: { scrollProgress: React.MutableRefObject<num
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   
-  // STABILIZED: Reduced displacement and wave speed for stability
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
     uDisplacementScale: { value: RENDER_CONFIG.displacementScale },
@@ -80,8 +107,9 @@ function Planet({ scrollProgress }: { scrollProgress: React.MutableRefObject<num
     uColorAccent: { value: COLORS.accent },
     uMouse: { value: new THREE.Vector2(0, 0) },
     uResolution: { value: new THREE.Vector2(1920, 1080) },
-    uRimPower: { value: 3.0 },
-    uRimIntensity: { value: 1.0 }, // REDUCED for stability
+    uRimPower: { value: 3.2 },
+    uRimIntensity: { value: 0.9 },
+    uSunDirection: { value: SUN_DIRECTION },
   }), []);
 
   useFrame((state) => {
@@ -91,17 +119,17 @@ function Planet({ scrollProgress }: { scrollProgress: React.MutableRefObject<num
     
     if (meshRef.current) {
       // Slow Y-axis rotation
-      meshRef.current.rotation.y += 0.001;
+      meshRef.current.rotation.y += RENDER_CONFIG.planetRotationSpeed;
       
-      // STABILIZED: Scroll-based scale adjustment (more subtle, clamped)
-      const scale = Math.max(1, Math.min(1.05, 1 + scrollProgress.current * 0.05));
+      // STABILIZED: Scroll-based scale (clamped)
+      const scale = Math.max(1, Math.min(1.04, 1 + scrollProgress.current * 0.04));
       meshRef.current.scale.setScalar(scale);
     }
   });
 
   return (
     <mesh ref={meshRef} position={[-3.5, 0, 0]}>
-      <sphereGeometry args={[2.8, 128, 128]} />
+      <sphereGeometry args={[RENDER_CONFIG.planetRadius, 128, 128]} />
       <shaderMaterial
         ref={materialRef}
         vertexShader={planetVertexShader}
@@ -116,20 +144,22 @@ function Planet({ scrollProgress }: { scrollProgress: React.MutableRefObject<num
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// ATMOSPHERE COMPONENT
+// ATMOSPHERE COMPONENT (Physical Scattering)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function Atmosphere({ scrollProgress }: { scrollProgress: React.MutableRefObject<number> }) {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   
-  // STABILIZED: Use RENDER_CONFIG intensity, reduced for edge stability
   const uniforms = useMemo(() => ({
     uColorInner: { value: COLORS.atmosphereInner },
     uColorOuter: { value: COLORS.atmosphereOuter },
     uIntensity: { value: RENDER_CONFIG.atmosphereIntensity },
-    uPower: { value: 2.5 },
+    uPower: { value: 2.2 },
     uTime: { value: 0 },
+    uSunDirection: { value: SUN_DIRECTION },
+    uRayleighCoeff: { value: RENDER_CONFIG.rayleighCoeff },
+    uMieCoeff: { value: RENDER_CONFIG.mieCoeff },
   }), []);
 
   useFrame((state) => {
@@ -138,17 +168,16 @@ function Atmosphere({ scrollProgress }: { scrollProgress: React.MutableRefObject
     }
     
     if (meshRef.current) {
-      // STABILIZED: Very slow, subtle breathing - almost imperceptible
-      const pulse = Math.sin(state.clock.elapsedTime * 0.1) * 0.01 + 1.07;
-      // STABILIZED: Strictly clamped scale
-      const scale = Math.max(1.05, Math.min(1.10, pulse + scrollProgress.current * 0.015));
+      // STABILIZED: Very slow, subtle breathing
+      const pulse = Math.sin(state.clock.elapsedTime * 0.08) * 0.008 + 1.06;
+      const scale = Math.max(1.04, Math.min(1.08, pulse + scrollProgress.current * 0.012));
       meshRef.current.scale.setScalar(scale);
     }
   });
 
   return (
     <mesh ref={meshRef} position={[-3.5, 0, 0]}>
-      <sphereGeometry args={[2.8, 64, 64]} />
+      <sphereGeometry args={[RENDER_CONFIG.planetRadius, 64, 64]} />
       <shaderMaterial
         ref={materialRef}
         vertexShader={atmosphereVertexShader}
@@ -172,13 +201,12 @@ function OuterGlow() {
   const meshRef = useRef<THREE.Mesh>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   
-  // STABILIZED: Use RENDER_CONFIG intensity for edge stability
   const uniforms = useMemo(() => ({
     uColorInner: { value: new THREE.Color('#f4a460') },
     uColorOuter: { value: new THREE.Color('#3b82f6') },
     uIntensity: { value: RENDER_CONFIG.outerGlowIntensity },
-    uPower: { value: 1.8 },
     uTime: { value: 0 },
+    uSunDirection: { value: SUN_DIRECTION },
   }), []);
 
   useFrame((state) => {
@@ -187,19 +215,19 @@ function OuterGlow() {
     }
     
     if (meshRef.current) {
-      // STABILIZED: Very slow, subtle pulse - almost static
-      const pulse = Math.sin(state.clock.elapsedTime * 0.08) * 0.01 + 1.12;
+      // STABILIZED: Very slow pulse
+      const pulse = Math.sin(state.clock.elapsedTime * 0.06) * 0.006 + 1.10;
       meshRef.current.scale.setScalar(pulse);
     }
   });
 
   return (
     <mesh ref={meshRef} position={[-3.5, 0, 0]}>
-      <sphereGeometry args={[2.8, 32, 32]} />
+      <sphereGeometry args={[RENDER_CONFIG.planetRadius, 32, 32]} />
       <shaderMaterial
         ref={materialRef}
         vertexShader={atmosphereVertexShader}
-        fragmentShader={atmosphereFragmentShader}
+        fragmentShader={outerGlowFragmentShader}
         uniforms={uniforms}
         side={THREE.BackSide}
         transparent
@@ -239,6 +267,7 @@ function OrbitalRing({
     uColor: { value: color },
     uOpacity: { value: opacity },
     uTime: { value: 0 },
+    uSunDirection: { value: SUN_DIRECTION },
   }), [color, opacity]);
 
   useFrame((state) => {
@@ -318,10 +347,10 @@ function OrbitalParticles({
           />
         </bufferGeometry>
         <pointsMaterial
-          size={0.04}
+          size={0.035}
           color={color}
           transparent
-          opacity={0.8}
+          opacity={0.7}
           sizeAttenuation
           blending={THREE.AdditiveBlending}
           depthWrite={false}
@@ -377,7 +406,7 @@ function Moon({
         <meshBasicMaterial
           color={color}
           transparent
-          opacity={0.15}
+          opacity={0.12}
           side={THREE.BackSide}
           blending={THREE.AdditiveBlending}
         />
@@ -390,7 +419,7 @@ function Moon({
 // STARFIELD COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function Starfield({ count = 3000 }) {
+function Starfield({ count = 2500 }) {
   const pointsRef = useRef<THREE.Points>(null);
   const materialRef = useRef<THREE.ShaderMaterial>(null);
   
@@ -400,16 +429,15 @@ function Starfield({ count = 3000 }) {
     const phaseArr = new Float32Array(count);
     
     for (let i = 0; i < count; i++) {
-      // Distribute stars in a sphere around the scene
       const theta = Math.random() * Math.PI * 2;
       const phi = Math.acos(2 * Math.random() - 1);
-      const radius = 40 + Math.random() * 60;
+      const radius = 35 + Math.random() * 55;
       
       pos[i * 3] = radius * Math.sin(phi) * Math.cos(theta);
       pos[i * 3 + 1] = radius * Math.sin(phi) * Math.sin(theta);
       pos[i * 3 + 2] = radius * Math.cos(phi);
       
-      sizeArr[i] = Math.random() * 1.5 + 0.5;
+      sizeArr[i] = Math.random() * 1.2 + 0.4;
       phaseArr[i] = Math.random();
     }
     
@@ -428,8 +456,7 @@ function Starfield({ count = 3000 }) {
     }
     
     if (pointsRef.current) {
-      // Very slow drift
-      pointsRef.current.rotation.y += 0.00005;
+      pointsRef.current.rotation.y += 0.00004;
       pointsRef.current.rotation.x += 0.00002;
     }
   });
@@ -455,14 +482,7 @@ function Starfield({ count = 3000 }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// DEPTH GLOWS COMPONENT - REMOVED
-// Eliminated to prevent edge bleeding and viewport boundary glow overflow
-// The Atmosphere and OuterGlow provide sufficient depth cues
-// ═══════════════════════════════════════════════════════════════════════════════
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// CAMERA CONTROLLER
-// STABILIZED: Smooth easing, clamped values, no abrupt jumps
+// CAMERA CONTROLLER (STABILIZED)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function CameraController({ 
@@ -476,28 +496,25 @@ function CameraController({
   const targetPosition = useRef(new THREE.Vector3(0, 2, 12));
   const baseZ = 12;
   
-  // STABILIZED: Very smooth lerp factors for buttery movement
-  const lerpFactorX = 0.02;
-  const lerpFactorY = 0.02;
-  const lerpFactorZ = 0.015;
+  // STABILIZED: Very smooth lerp factors
+  const lerpFactorX = 0.018;
+  const lerpFactorY = 0.018;
+  const lerpFactorZ = 0.012;
   
   useFrame(() => {
     // STABILIZED: Cursor parallax (very subtle, strictly clamped)
-    const targetX = Math.max(-2, Math.min(2, cursorPosition.x * 1.2));
-    const targetY = Math.max(0.5, Math.min(3.5, 2 + cursorPosition.y * 0.6));
+    const targetX = Math.max(-1.8, Math.min(1.8, cursorPosition.x * 1.0));
+    const targetY = Math.max(0.6, Math.min(3.2, 2 + cursorPosition.y * 0.5));
     
-    // STABILIZED: Scroll-based camera push-in (max 3% for stability)
-    const scrollZ = baseZ - Math.min(scrollProgress.current * 1.5, 1.5);
+    // STABILIZED: Scroll-based camera push-in
+    const scrollZ = baseZ - Math.min(scrollProgress.current * 1.2, 1.2);
     
-    // Smooth lerp with different factors for each axis
+    // Smooth lerp
     targetPosition.current.x += (targetX - targetPosition.current.x) * lerpFactorX;
     targetPosition.current.y += (targetY - targetPosition.current.y) * lerpFactorY;
     targetPosition.current.z += (scrollZ - targetPosition.current.z) * lerpFactorZ;
     
-    // STABILIZED: Round to avoid micro-jitter
-    camera.position.x = targetPosition.current.x;
-    camera.position.y = targetPosition.current.y;
-    camera.position.z = targetPosition.current.z;
+    camera.position.copy(targetPosition.current);
     camera.lookAt(-2, 0, 0);
   });
   
@@ -505,7 +522,27 @@ function CameraController({
 }
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// SCENE COMPOSITION
+// HDR RENDERER SETUP
+// ═══════════════════════════════════════════════════════════════════════════════
+
+function HDRSetup() {
+  const { gl } = useThree();
+  
+  useEffect(() => {
+    // IMAX HDR Configuration
+    gl.outputColorSpace = HDR_CONFIG.outputColorSpace;
+    gl.toneMapping = HDR_CONFIG.toneMapping;
+    gl.toneMappingExposure = HDR_CONFIG.toneMappingExposure;
+    
+    // Performance optimization
+    gl.setPixelRatio(Math.min(window.devicePixelRatio, HDR_CONFIG.pixelRatioMax));
+  }, [gl]);
+  
+  return null;
+}
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// SCENE COMPOSITION (3-POINT LIGHTING)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 function Scene({ 
@@ -517,16 +554,47 @@ function Scene({
 }) {
   return (
     <>
-      {/* Lighting */}
-      <ambientLight intensity={0.2} />
-      <pointLight position={[15, 10, 10]} intensity={1.0} color="#ffffff" />
-      <pointLight position={[-15, -5, 5]} intensity={0.5} color="#e07830" />
-      <pointLight position={[5, 5, -10]} intensity={0.3} color="#3b82f6" />
-
+      {/* HDR Setup */}
+      <HDRSetup />
+      
+      {/* ═══════════════════ CINEMATIC 3-POINT LIGHTING ═══════════════════ */}
+      
+      {/* KEY LIGHT - Warm main light from upper right */}
+      <directionalLight
+        position={[15, 10, 8]}
+        intensity={1.1}
+        color={COLORS.keyLight}
+        castShadow={false}
+      />
+      
+      {/* FILL LIGHT - Low ambient to prevent crushed shadows */}
+      <ambientLight intensity={0.12} color={COLORS.fillLight} />
+      
+      {/* RIM LIGHT - Cool edge separation from behind */}
+      <pointLight
+        position={[-12, 5, -8]}
+        intensity={0.35}
+        color={COLORS.rimLight}
+        distance={50}
+        decay={2}
+      />
+      
+      {/* Accent warm light for planet */}
+      <pointLight
+        position={[8, 5, 5]}
+        intensity={0.4}
+        color="#f97316"
+        distance={30}
+        decay={2}
+      />
+      
+      {/* FOG - FogExp2 for depth integration */}
+      <fogExp2 attach="fog" args={['#060b14', 0.012]} />
+      
+      {/* ═══════════════════ SCENE OBJECTS ═══════════════════ */}
+      
       {/* Starfield */}
-      <Starfield count={3000} />
-
-      {/* REMOVED: DepthGlows - caused edge bleeding */}
+      <Starfield count={2500} />
 
       {/* Planet with atmosphere */}
       <Planet scrollProgress={scrollProgress} />
@@ -534,23 +602,23 @@ function Scene({
       <OuterGlow />
 
       {/* Orbital Rings */}
-      <OrbitalRing radius={4.2} tiltX={1.2} tiltZ={0.3} color={COLORS.ring1} speed={0.0003} opacity={0.5} />
-      <OrbitalRing radius={4.8} tiltX={0.8} tiltZ={0.6} color={COLORS.ring2} speed={0.0002} opacity={0.45} />
-      <OrbitalRing radius={5.4} tiltX={1.5} tiltZ={0.2} color={COLORS.ring3} speed={0.0004} opacity={0.4} />
-      <OrbitalRing radius={6.0} tiltX={0.5} tiltZ={1.0} color={COLORS.ring1} speed={0.00025} opacity={0.35} />
-      <OrbitalRing radius={6.6} tiltX={1.0} tiltZ={0.8} color={COLORS.ring2} speed={0.00035} opacity={0.3} />
-      <OrbitalRing radius={7.2} tiltX={0.6} tiltZ={0.4} color={COLORS.ring3} speed={0.0002} opacity={0.25} />
+      <OrbitalRing radius={4.2} tiltX={1.2} tiltZ={0.3} color={COLORS.ring1} speed={0.00025} opacity={0.45} />
+      <OrbitalRing radius={4.8} tiltX={0.8} tiltZ={0.6} color={COLORS.ring2} speed={0.00018} opacity={0.40} />
+      <OrbitalRing radius={5.4} tiltX={1.5} tiltZ={0.2} color={COLORS.ring3} speed={0.0003} opacity={0.35} />
+      <OrbitalRing radius={6.0} tiltX={0.5} tiltZ={1.0} color={COLORS.ring1} speed={0.0002} opacity={0.30} />
+      <OrbitalRing radius={6.6} tiltX={1.0} tiltZ={0.8} color={COLORS.ring2} speed={0.00028} opacity={0.25} />
+      <OrbitalRing radius={7.2} tiltX={0.6} tiltZ={0.4} color={COLORS.ring3} speed={0.00015} opacity={0.20} />
 
       {/* Particle rings */}
-      <OrbitalParticles radius={4.5} tiltX={1.2} tiltZ={0.3} count={30} speed={0.15} color="#f4a460" />
-      <OrbitalParticles radius={5.5} tiltX={0.8} tiltZ={0.6} count={25} speed={0.12} color="#e07830" />
-      <OrbitalParticles radius={6.5} tiltX={1.0} tiltZ={0.8} count={20} speed={0.1} color="#cd853f" />
+      <OrbitalParticles radius={4.5} tiltX={1.2} tiltZ={0.3} count={25} speed={0.12} color="#f4a460" />
+      <OrbitalParticles radius={5.5} tiltX={0.8} tiltZ={0.6} count={20} speed={0.10} color="#e07830" />
+      <OrbitalParticles radius={6.5} tiltX={1.0} tiltZ={0.8} count={15} speed={0.08} color="#cd853f" />
 
       {/* Moons */}
-      <Moon orbitRadius={4.2} orbitTilt={1.2} speed={0.25} offset={0} color="#4a5568" size={0.1} />
-      <Moon orbitRadius={5.0} orbitTilt={0.8} speed={0.2} offset={2} color="#374151" size={0.14} />
-      <Moon orbitRadius={5.8} orbitTilt={1.5} speed={0.18} offset={4} color="#1f2937" size={0.08} />
-      <Moon orbitRadius={6.4} orbitTilt={0.5} speed={0.15} offset={1} color="#4b5563" size={0.11} />
+      <Moon orbitRadius={4.2} orbitTilt={1.2} speed={0.22} offset={0} color="#4a5568" size={0.09} />
+      <Moon orbitRadius={5.0} orbitTilt={0.8} speed={0.18} offset={2} color="#374151" size={0.12} />
+      <Moon orbitRadius={5.8} orbitTilt={1.5} speed={0.15} offset={4} color="#1f2937" size={0.07} />
+      <Moon orbitRadius={6.4} orbitTilt={0.5} speed={0.12} offset={1} color="#4b5563" size={0.10} />
 
       {/* Camera parallax */}
       <CameraController cursorPosition={cursorPosition} scrollProgress={scrollProgress} />
@@ -564,7 +632,7 @@ function Scene({
 
 export function CinematicPlanet() {
   // STABILIZED: Very smooth cursor parallax
-  const cursorPosition = useCursorParallax({ smoothing: 0.05 });
+  const cursorPosition = useCursorParallax({ smoothing: 0.045 });
   const scrollProgress = useRef(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const [mounted, setMounted] = useState(false);
@@ -573,7 +641,7 @@ export function CinematicPlanet() {
     setMounted(true);
   }, []);
 
-  // GSAP ScrollTrigger for scroll-reactive camera
+  // GSAP ScrollTrigger
   useEffect(() => {
     if (!mounted || typeof window === 'undefined') return;
 
@@ -583,12 +651,12 @@ export function CinematicPlanet() {
 
       if (!containerRef.current) return;
 
-      // STABILIZED: Higher scrub value for smoother scroll response
+      // STABILIZED: Higher scrub value for smoother response
       ScrollTrigger.create({
         trigger: containerRef.current,
         start: 'top top',
         end: 'bottom top',
-        scrub: 2, // Increased for smoother response
+        scrub: 2.5,
         onUpdate: (self) => {
           scrollProgress.current = self.progress;
         },
@@ -617,16 +685,30 @@ export function CinematicPlanet() {
         className="absolute inset-0 pointer-events-none"
         style={{
           background: `
-            radial-gradient(ellipse 80% 50% at 50% 50%, transparent 0%, rgba(0,0,0,0.3) 100%),
-            radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.08) 0%, transparent 40%),
-            radial-gradient(circle at 70% 80%, rgba(34, 211, 238, 0.05) 0%, transparent 40%)
+            radial-gradient(ellipse 80% 50% at 50% 50%, transparent 0%, rgba(0,0,0,0.25) 100%),
+            radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.06) 0%, transparent 40%),
+            radial-gradient(circle at 70% 80%, rgba(34, 211, 238, 0.04) 0%, transparent 40%)
           `,
           zIndex: 1,
         }}
       />
       
+      {/* Cinematic vignette overlay */}
+      <div 
+        className="absolute inset-0 pointer-events-none"
+        style={{
+          background: 'radial-gradient(ellipse 120% 100% at 50% 50%, transparent 40%, rgba(0,0,0,0.15) 100%)',
+          zIndex: 2,
+        }}
+      />
+      
       <Canvas
-        camera={{ position: [0, 2, 12], fov: 50, near: RENDER_CONFIG.cameraNear, far: RENDER_CONFIG.cameraFar }}
+        camera={{ 
+          position: [0, 2, 12], 
+          fov: 50, 
+          near: HDR_CONFIG.cameraNear, 
+          far: HDR_CONFIG.cameraFar 
+        }}
         gl={{ 
           antialias: true, 
           alpha: true,
