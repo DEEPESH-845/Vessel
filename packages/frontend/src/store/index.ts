@@ -5,6 +5,7 @@
 
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
+import { useShallow } from 'zustand/react/shallow';
 import { createAuthSlice, AuthSlice } from './auth.slice';
 import { createWalletSlice, WalletSlice } from './wallet.slice';
 import { createTransactionsSlice, TransactionsSlice } from './transactions.slice';
@@ -70,144 +71,165 @@ export const useAppStore = create<AppStore>()(
 );
 
 // Selector hooks for better performance
+// Using useShallow to prevent infinite loops and unnecessary re-renders
 export const useAuth = () =>
-  useAppStore((state) => ({
-    isAuthenticated: state.isAuthenticated,
-    user: state.user,
-    session: state.session,
-    isLoading: state.isLoading,
-    error: state.error,
-    login: state.login,
-    logout: state.logout,
-    updateUser: state.updateUser,
-    setLoading: state.setLoading,
-    setError: state.setError,
-    clearError: state.clearError,
-  }));
+  useAppStore(
+    useShallow((state) => ({
+      isAuthenticated: state.isAuthenticated,
+      user: state.user,
+      session: state.session,
+      isLoading: state.isLoading,
+      error: state.error,
+      login: state.login,
+      logout: state.logout,
+      updateUser: state.updateUser,
+      setLoading: state.setLoading,
+      setError: state.setError,
+      clearError: state.clearError,
+    }))
+  );
 
 export const useWallet = () =>
-  useAppStore((state) => ({
-    wallet: state.wallet,
-    sessionKeys: state.sessionKeys,
-    isDeploying: state.isDeploying,
-    deploymentTxHash: state.deploymentTxHash,
-    setWallet: state.setWallet,
-    clearWallet: state.clearWallet,
-    addSessionKey: state.addSessionKey,
-    removeSessionKey: state.removeSessionKey,
-    updateSessionKey: state.updateSessionKey,
-    clearExpiredSessionKeys: state.clearExpiredSessionKeys,
-    setDeploying: state.setDeploying,
-  }));
+  useAppStore(
+    useShallow((state) => ({
+      wallet: state.wallet,
+      sessionKeys: state.sessionKeys,
+      isDeploying: state.isDeploying,
+      deploymentTxHash: state.deploymentTxHash,
+      pendingPayment: state.pendingPayment,
+      setWallet: state.setWallet,
+      clearWallet: state.clearWallet,
+      addSessionKey: state.addSessionKey,
+      removeSessionKey: state.removeSessionKey,
+      updateSessionKey: state.updateSessionKey,
+      clearExpiredSessionKeys: state.clearExpiredSessionKeys,
+      setDeploying: state.setDeploying,
+      setPendingPayment: state.setPendingPayment,
+      updatePendingAmount: state.updatePendingAmount,
+      clearPendingPayment: state.clearPendingPayment,
+    }))
+  );
 
 export const useTransactions = () =>
-  useAppStore((state) => ({
-    transactions: state.transactions,
-    pendingTransactions: state.pendingTransactions,
-    isLoading: state.isLoading,
-    lastFetchedAt: state.lastFetchedAt,
-    setTransactions: state.setTransactions,
-    addTransaction: state.addTransaction,
-    updateTransaction: state.updateTransaction,
-    removeTransaction: state.removeTransaction,
-    addPendingTransaction: state.addPendingTransaction,
-    updatePendingTransaction: state.updatePendingTransaction,
-    removePendingTransaction: state.removePendingTransaction,
-    clearPendingTransactions: state.clearPendingTransactions,
-    setLoading: state.setLoading,
-    setLastFetchedAt: state.setLastFetchedAt,
-  }));
+  useAppStore(
+    useShallow((state) => ({
+      transactions: state.transactions,
+      pendingTransactions: state.pendingTransactions,
+      isLoading: state.isLoading,
+      lastFetchedAt: state.lastFetchedAt,
+      setTransactions: state.setTransactions,
+      addTransaction: state.addTransaction,
+      updateTransaction: state.updateTransaction,
+      removeTransaction: state.removeTransaction,
+      addPendingTransaction: state.addPendingTransaction,
+      updatePendingTransaction: state.updatePendingTransaction,
+      removePendingTransaction: state.removePendingTransaction,
+      clearPendingTransactions: state.clearPendingTransactions,
+      setLoading: state.setLoading,
+      setLastFetchedAt: state.setLastFetchedAt,
+    }))
+  );
 
 export const useContacts = () =>
-  useAppStore((state) => ({
-    contacts: state.contacts,
-    isLoading: state.isLoading,
-    lastSyncedAt: state.lastSyncedAt,
-    setContacts: state.setContacts,
-    addContact: state.addContact,
-    updateContact: state.updateContact,
-    deleteContact: state.deleteContact,
-    updateContactUsage: state.updateContactUsage,
-    setLoading: state.setLoading,
-    setLastSyncedAt: state.setLastSyncedAt,
-  }));
+  useAppStore(
+    useShallow((state) => ({
+      contacts: state.contacts,
+      isLoading: state.isLoading,
+      lastSyncedAt: state.lastSyncedAt,
+      setContacts: state.setContacts,
+      addContact: state.addContact,
+      updateContact: state.updateContact,
+      deleteContact: state.deleteContact,
+      updateContactUsage: state.updateContactUsage,
+      setLoading: state.setLoading,
+      setLastSyncedAt: state.setLastSyncedAt,
+    }))
+  );
 
 export const usePaymentLinks = () =>
-  useAppStore((state) => ({
-    paymentLinks: state.paymentLinks,
-    activePaymentLink: state.activePaymentLink,
-    payments: state.payments,
-    isLoading: state.isLoading,
-    setPaymentLinks: state.setPaymentLinks,
-    addPaymentLink: state.addPaymentLink,
-    updatePaymentLink: state.updatePaymentLink,
-    deletePaymentLink: state.deletePaymentLink,
-    setActivePaymentLink: state.setActivePaymentLink,
-    addPayment: state.addPayment,
-    setPayments: state.setPayments,
-    setLoading: state.setLoading,
-  }));
+  useAppStore(
+    useShallow((state) => ({
+      paymentLinks: state.paymentLinks,
+      activePaymentLink: state.activePaymentLink,
+      payments: state.payments,
+      isLoading: state.isLoading,
+      setPaymentLinks: state.setPaymentLinks,
+      addPaymentLink: state.addPaymentLink,
+      updatePaymentLink: state.updatePaymentLink,
+      deletePaymentLink: state.deletePaymentLink,
+      setActivePaymentLink: state.setActivePaymentLink,
+      addPayment: state.addPayment,
+      setPayments: state.setPayments,
+      setLoading: state.setLoading,
+    }))
+  );
 
 export const useMultiChain = () =>
-  useAppStore((state) => ({
-    assetDashboard: state.assetDashboard,
-    isLoadingBalances: state.isLoadingBalances,
-    activeChains: state.activeChains,
-    availableRoutes: state.availableRoutes,
-    activeRouteExecution: state.activeRouteExecution,
-    lastBalanceUpdate: state.lastBalanceUpdate,
-    setAssetDashboard: state.setAssetDashboard,
-    updateAssets: state.updateAssets,
-    setLoadingBalances: state.setLoadingBalances,
-    setActiveChains: state.setActiveChains,
-    addActiveChain: state.addActiveChain,
-    removeActiveChain: state.removeActiveChain,
-    setAvailableRoutes: state.setAvailableRoutes,
-    setActiveRouteExecution: state.setActiveRouteExecution,
-    updateRouteExecution: state.updateRouteExecution,
-    setLastBalanceUpdate: state.setLastBalanceUpdate,
-  }));
+  useAppStore(
+    useShallow((state) => ({
+      assetDashboard: state.assetDashboard,
+      isLoadingBalances: state.isLoadingBalances,
+      activeChains: state.activeChains,
+      availableRoutes: state.availableRoutes,
+      activeRouteExecution: state.activeRouteExecution,
+      lastBalanceUpdate: state.lastBalanceUpdate,
+      setAssetDashboard: state.setAssetDashboard,
+      updateAssets: state.updateAssets,
+      setLoadingBalances: state.setLoadingBalances,
+      setActiveChains: state.setActiveChains,
+      addActiveChain: state.addActiveChain,
+      removeActiveChain: state.removeActiveChain,
+      setAvailableRoutes: state.setAvailableRoutes,
+      setActiveRouteExecution: state.setActiveRouteExecution,
+      updateRouteExecution: state.updateRouteExecution,
+      setLastBalanceUpdate: state.setLastBalanceUpdate,
+    }))
+  );
 
 export const useAI = () =>
-  useAppStore((state) => ({
-    currentSession: state.currentSession,
-    sessions: state.sessions,
-    isProcessing: state.isProcessing,
-    currentIntent: state.currentIntent,
-    suggestions: state.suggestions,
-    walletContext: state.walletContext,
-    createSession: state.createSession,
-    setCurrentSession: state.setCurrentSession,
-    addMessage: state.addMessage,
-    updateMessage: state.updateMessage,
-    setProcessing: state.setProcessing,
-    setCurrentIntent: state.setCurrentIntent,
-    setSuggestions: state.setSuggestions,
-    addSuggestion: state.addSuggestion,
-    removeSuggestion: state.removeSuggestion,
-    setWalletContext: state.setWalletContext,
-    clearSession: state.clearSession,
-  }));
+  useAppStore(
+    useShallow((state) => ({
+      currentSession: state.currentSession,
+      sessions: state.sessions,
+      isProcessing: state.isProcessing,
+      currentIntent: state.currentIntent,
+      suggestions: state.suggestions,
+      walletContext: state.walletContext,
+      createSession: state.createSession,
+      setCurrentSession: state.setCurrentSession,
+      addMessage: state.addMessage,
+      updateMessage: state.updateMessage,
+      setProcessing: state.setProcessing,
+      setCurrentIntent: state.setCurrentIntent,
+      setSuggestions: state.setSuggestions,
+      addSuggestion: state.addSuggestion,
+      removeSuggestion: state.removeSuggestion,
+      setWalletContext: state.setWalletContext,
+      clearSession: state.clearSession,
+    }))
+  );
 
 export const useUI = () =>
-  useAppStore((state) => ({
-    modals: state.modals,
-    toasts: state.toasts,
-    isLoading: state.isLoading,
-    loadingMessage: state.loadingMessage,
-    sidebarOpen: state.sidebarOpen,
-    theme: state.theme,
-    openModal: state.openModal,
-    closeModal: state.closeModal,
-    closeAllModals: state.closeAllModals,
-    showToast: state.showToast,
-    removeToast: state.removeToast,
-    clearToasts: state.clearToasts,
-    setLoading: state.setLoading,
-    setSidebarOpen: state.setSidebarOpen,
-    toggleSidebar: state.toggleSidebar,
-    setTheme: state.setTheme,
-  }));
+  useAppStore(
+    useShallow((state) => ({
+      modals: state.modals,
+      toasts: state.toasts,
+      isLoading: state.isLoading,
+      loadingMessage: state.loadingMessage,
+      sidebarOpen: state.sidebarOpen,
+      theme: state.theme,
+      openModal: state.openModal,
+      closeModal: state.closeModal,
+      closeAllModals: state.closeAllModals,
+      showToast: state.showToast,
+      removeToast: state.removeToast,
+      clearToasts: state.clearToasts,
+      setLoading: state.setLoading,
+      setSidebarOpen: state.setSidebarOpen,
+      toggleSidebar: state.toggleSidebar,
+      setTheme: state.setTheme,
+    }))
+  );
 
 // Export all types
 export type { AuthSlice } from './auth.slice';

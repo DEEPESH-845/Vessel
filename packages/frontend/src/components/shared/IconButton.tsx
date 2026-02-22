@@ -1,58 +1,40 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+/**
+ * IconButton - Circular dark pill button
+ * 40×40px circle with glassmorphism style
+ */
+
+import { motion } from 'framer-motion';
 
 interface IconButtonProps {
   icon: React.ReactNode;
+  isActive?: boolean;
   onClick?: () => void;
-  active?: boolean;
   className?: string;
-  size?: number;
+  ariaLabel?: string;
 }
 
-/**
- * IconButton — Circular dark pill button
- * 
- * Shape: 40×40px circle
- * Background: var(--bg-elevated)
- * Border: 1px var(--border-subtle)
- * Hover: border becomes accent-blue, subtle scale(1.05)
- * Icon color: var(--accent-cyan) or var(--text-secondary)
- * Active state: filled accent-blue background
- */
 export function IconButton({
   icon,
+  isActive = false,
   onClick,
-  active = false,
-  className,
-  size = 40,
+  className = '',
+  ariaLabel,
 }: IconButtonProps) {
   return (
     <motion.button
       onClick={onClick}
+      aria-label={ariaLabel}
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
-      className={cn(
-        "relative flex items-center justify-center rounded-full",
-        "transition-all duration-200 ease-smooth",
-        active
-          ? "bg-[var(--color-accent-blue)] border-[var(--color-accent-blue)]"
-          : "bg-[var(--color-bg-elevated)] border-[var(--color-border-subtle)]",
-        "hover:border-[var(--color-accent-blue)]",
-        className
-      )}
+      className={`relative w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200 ${className}`}
       style={{
-        width: size,
-        height: size,
+        backgroundColor: isActive ? '#3b82f6' : '#101c2e',
+        border: `1px solid ${isActive ? 'transparent' : 'rgba(59,130,246,0.12)'}`,
       }}
     >
-      <span
-        className={cn(
-          "transition-colors duration-200",
-          active ? "text-white" : "text-[var(--accent-cyan)]"
-        )}
-      >
+      <span className={isActive ? 'text-white' : 'text-[#22d3ee]'}>
         {icon}
       </span>
     </motion.button>

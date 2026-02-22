@@ -97,7 +97,7 @@ export default function ScanPage() {
       <ParticleField count={15} color="rgba(204, 255, 0, 0.15)" />
 
       {/* Content wrapper */}
-      <div className="relative z-10" style={{ padding: "24px" }}>
+      <div className="relative z-10 px-4 py-6 sm:px-6">
         {/* ── Header ── */}
         <motion.div
           initial={{ opacity: 0, y: -10, filter: "blur(4px)" }}

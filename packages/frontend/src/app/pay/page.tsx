@@ -2,7 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { useApp } from "@/lib/store";
+import { useWallet, useTransactions, useMultiChain, useAuth, useUI } from "@/store";
 import { checkFraud } from "@/lib/fraud-check";
 import PullToRefresh from "@/components/pull-to-refresh";
 import SkeletonLoader from "@/components/skeleton-loader";
@@ -28,16 +28,24 @@ type PaymentState = "confirm" | "processing" | "success" | "error";
 
 export default function PayPage() {
   const router = useRouter();
-  const { pendingPayment, updatePendingAmount, addTransaction, balances } = useApp();
+  const { pendingPayment, updatePendingAmount } = useWallet();
+  const { addTransaction } = useTransactions();
+  const { assetDashboard } = useMultiChain();
+  const { user, isAuthenticated: authAuthenticated } = useAuth();
   const [state, setState] = useState<PaymentState>("confirm");
   const [aiVerified, setAiVerified] = useState(false);
   const [aiReason, setAiReason] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get max balance for the selected token
-  const maxBalance = pendingPayment
-    ? balances.find((b) => b.symbol === pendingPayment.token)?.balance ?? 0
+  // Get max balance for the selected token from asset dashboard
+  const maxBalance = pendingPayment && assetDashboard?.tokens
+    ? parseFloat(assetDashboard.tokens
+        .filter(t => t.type === 'token')
+        .find((t) => {
+          const meta = t.metadata as import('@/types/multi-chain.types').TokenMetadata;
+          return meta.symbol === pendingPayment.token;
+        })?.value || '0')
     : 0;
 
   // Check authentication status
@@ -101,18 +109,25 @@ export default function PayPage() {
 
     if (pendingPayment) {
       addTransaction({
-        id: Date.now().toString(),
-        merchant: pendingPayment.name,
-        amount: pendingPayment.amount,
+        id: `tx-${Date.now()}`,
+        hash: "0xf6760d52e4a1234567890abcdef123456789abcdef",
+        type: 'send',
+        from: user?.walletAddress || '0x0',
+        to: pendingPayment.address,
+        value: pendingPayment.amount.toString(),
         token: pendingPayment.token,
-        timestamp: "Just now",
-        status: "completed",
-        txHash: "0xf6760d52e4a1234567890abcdef123456789abcdef",
+        chainId: 1,
+        status: 'completed',
+        timestamp: new Date(),
+        metadata: {
+          isMetaTx: true,
+          usedSessionKey: true,
+        },
       });
     }
 
     setState("success");
-  }, [pendingPayment, addTransaction]);
+  }, [pendingPayment, addTransaction, user?.walletAddress]);
 
   // Handle retry
   const handleRetry = useCallback(() => {
@@ -150,7 +165,7 @@ export default function PayPage() {
         <ParticleField count={12} color="rgba(204, 255, 0, 0.08)" />
 
         {/* Content wrapper */}
-        <div className="relative z-10" style={{ padding: "24px" }}>
+        <div className="relative z-10 px-4 py-6 sm:px-6">
           <AnimatePresence mode="wait">
             {/* ═══════════ CONFIRM STATE ═══════════ */}
             {state === "confirm" && (
@@ -201,8 +216,8 @@ export default function PayPage() {
                     <MerchantCard
                       name={pendingPayment.name}
                       address={pendingPayment.address}
-                      avatar={pendingPayment.avatar}
-                      verified={pendingPayment.verified}
+                      avatar={pendingPayment.avatar || ''}
+                      verified={pendingPayment.verified || false}
                     />
                   </div>
                 </ErrorBoundary>
@@ -275,7 +290,7 @@ export default function PayPage() {
                 amount={pendingPayment.amount}
                 token={pendingPayment.token}
                 merchantName={pendingPayment.name}
-                merchantVerified={pendingPayment.verified}
+                merchantVerified={pendingPayment.verified || false}
                 txHash="0xf6760d52e4a1234567890abcdef123456789abcdef"
                 onDone={handleDone}
               />

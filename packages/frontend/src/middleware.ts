@@ -8,7 +8,7 @@ import type { NextRequest } from 'next/server';
 import { jwtVerify } from 'jose';
 
 // Paths that require authentication
-const protectedPaths = ['/wallet', '/activity', '/pay', '/scan'];
+const protectedPaths = ['/activity', '/pay', '/scan', '/app'];
 
 // Paths that should redirect to wallet if authenticated
 const authPaths = ['/login'];
@@ -47,8 +47,8 @@ export async function middleware(request: NextRequest) {
     } catch (error) {
       // Token is invalid or expired
       if (isProtectedPath) {
-        // Redirect to home page
-        const response = NextResponse.redirect(new URL('/', request.url));
+        // Redirect to login page
+        const response = NextResponse.redirect(new URL('/login', request.url));
         // Clear invalid token
         response.cookies.delete('auth_session');
         return response;
@@ -57,11 +57,12 @@ export async function middleware(request: NextRequest) {
   } else {
     // No token
     if (isProtectedPath) {
-      // Redirect to home page
-      return NextResponse.redirect(new URL('/', request.url));
+      // Redirect to login page
+      return NextResponse.redirect(new URL('/login', request.url));
     }
   }
   
+  // Allow access to public paths (including landing page /)
   return NextResponse.next();
 }
 

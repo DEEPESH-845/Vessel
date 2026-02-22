@@ -1,83 +1,42 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { cn } from "@/lib/utils";
+/**
+ * CryptoValueDisplay - Large numeric price display
+ * Font: JetBrains Mono bold, 28-34px
+ */
 
 interface CryptoValueDisplayProps {
-  value: string;
-  prefix?: string;
-  suffix?: string;
-  usdEquivalent?: string;
-  size?: "sm" | "md" | "lg";
-  trend?: "up" | "down" | "neutral";
+  value: string | number;
+  prefix?: '~' | '|' | '';
+  usdValue?: string;
+  symbol?: string;
   className?: string;
 }
 
-/**
- * CryptoValueDisplay — Large numeric price display
- * 
- * Font: var(--font-mono) bold
- * Size: 28–34px
- * Color: var(--text-value)
- * Prefix symbol (~, |) in var(--text-secondary) slightly smaller
- * USD equivalent below in 14px var(--text-secondary)
- */
 export function CryptoValueDisplay({
   value,
-  prefix,
-  suffix,
-  usdEquivalent,
-  size = "md",
-  trend = "neutral",
-  className,
+  prefix = '',
+  usdValue,
+  symbol,
+  className = '',
 }: CryptoValueDisplayProps) {
-  const sizeClasses = {
-    sm: "text-lg",
-    md: "text-xl",
-    lg: "text-2xl",
-  };
-
-  const trendColors = {
-    up: "text-[var(--color-green-pos)]",
-    down: "text-[var(--color-red-neg)]",
-    neutral: "text-[var(--color-text-value)]",
-  };
-
+  const displayValue = typeof value === 'number' ? value.toFixed(8) : value;
+  
   return (
-    <div className={cn("flex flex-col", className)}>
+    <div className={`flex flex-col ${className}`}>
       <div className="flex items-baseline gap-1">
         {prefix && (
-          <span className="text-[var(--color-text-secondary)] text-sm font-normal">
-            {prefix}
-          </span>
+          <span className="text-[#6b7fa3] text-xl font-mono">{prefix}</span>
         )}
-        <motion.span
-          className={cn(
-            "font-mono font-bold tabular-nums",
-            sizeClasses[size],
-            trendColors[trend]
-          )}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.3 }}
-        >
-          {value}
-        </motion.span>
-        {suffix && (
-          <span className="text-[var(--color-text-secondary)] text-sm font-normal">
-            {suffix}
-          </span>
+        <span className="font-mono font-bold text-white text-[28px]">
+          {displayValue}
+        </span>
+        {symbol && (
+          <span className="text-[#6b7fa3] text-sm font-mono ml-1">{symbol}</span>
         )}
       </div>
-      {usdEquivalent && (
-        <motion.span
-          className="text-xs text-[var(--color-text-secondary)] font-mono mt-1"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.1, duration: 0.3 }}
-        >
-          {usdEquivalent}
-        </motion.span>
+      {usdValue && (
+        <span className="text-[#6b7fa3] text-sm font-mono mt-1">{usdValue}</span>
       )}
     </div>
   );
