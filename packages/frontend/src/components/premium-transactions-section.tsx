@@ -8,7 +8,7 @@
 
 import { motion } from "framer-motion";
 import { Transaction } from "@/types/wallet";
-import AnimatedTransactionCard from "./animated-transaction-card";
+import TransactionCard from "./transaction-card";
 
 interface PremiumTransactionsSectionProps {
   transactions: Transaction[];
@@ -208,9 +208,10 @@ export default function PremiumTransactionsSection({
       {/* Transaction list */}
       <div className="flex flex-col gap-3">
         {validTransactions.map((transaction, index) => (
-          <AnimatedTransactionCard
+          <TransactionCard
             key={transaction.id}
             transaction={transaction}
+            animated={true}
             index={index}
           />
         ))}

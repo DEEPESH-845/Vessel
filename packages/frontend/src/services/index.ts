@@ -3,6 +3,10 @@
  * Central export for all services
  */
 
+// AWS Cognito Authentication Service
+export { cognitoAuthService, CognitoAuthService } from './cognito-auth.service';
+export type { CognitoUser, AuthResult, SessionData } from './cognito-auth.service';
+
 // Session Key Service
 export { sessionKeyService, SessionKeyService } from './session-key.service';
 
@@ -19,7 +23,7 @@ export type { MetaTransaction, SignedMetaTransaction, RelayerStatus } from './me
 
 // Paymaster Service
 export { paymasterService, PaymasterService } from './paymaster.service';
-export type { GasEstimate, UserOperation, PaymasterConfig } from './paymaster.service';
+export type { UserOperation, PaymasterConfig, GasEstimate } from './paymaster.service';
 
 // Payment Link Service
 export { paymentLinkService, PaymentLinkService } from './payment-link.service';
@@ -55,13 +59,11 @@ export { aggregateMultiChainBalances, clearBalanceCache, batchRPCRequests } from
 export { backendAPI, BackendAPIClient } from '@/lib/backend-client';
 export type { 
   APIResponse, 
-  UserOperation, 
   Payment, 
   CreatePaymentRequest, 
   Merchant, 
   CreateMerchantRequest,
-  SessionKeyData,
-  GasEstimate 
+  SessionKeyData
 } from '@/lib/backend-client';
 
 // Session Key Backend Sync - Syncs session keys with DynamoDB

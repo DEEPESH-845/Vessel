@@ -23,3 +23,18 @@ build/
 
 .env
 .DS_Store
+
+# Infrastructure compiled files (should only commit .ts sources)
+packages/infra/**/*.js
+packages/infra/**/*.d.ts
+packages/infra/test/*.js
+packages/infra/test/*.d.ts
+packages/infra/bin/*.js
+packages/infra/bin/*.d.ts
+
+# Nested packages (should not exist)
+packages/backend/packages/
+
+# Frontend compiled (next.js outputs to .next)
+packages/frontend/src/app/*.js
+!packages/frontend/src/app/*.tsx

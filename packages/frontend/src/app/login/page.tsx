@@ -10,7 +10,6 @@ import { SocialLoginButtons } from '@/components/social-login-buttons';
 
 export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
-  const [emailSent, setEmailSent] = useState(false);
 
   return (
     <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center p-4">
@@ -27,37 +26,19 @@ export default function LoginPage() {
 
         {/* Login Card */}
         <div className="bg-[#18181B] border border-[#27272A] rounded-lg p-8">
-          {emailSent ? (
-            <div className="text-center">
-              <div className="w-16 h-16 mx-auto mb-4 bg-[#CCFF00] rounded-full flex items-center justify-center">
-                <svg className="w-8 h-8 text-black" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Check your email</h2>
-              <p className="text-gray-400 mb-6">
-                We've sent you a magic link to sign in. Click the link in your email to continue.
-              </p>
-              <button
-                onClick={() => setEmailSent(false)}
-                className="text-[#CCFF00] hover:underline"
-              >
-                Try another method
-              </button>
-            </div>
-          ) : (
-            <>
-              <SocialLoginButtons
-                onError={setError}
-                onEmailSent={() => setEmailSent(true)}
-              />
+          <SocialLoginButtons
+            mode="login"
+            onError={setError}
+            onSuccess={() => {
+              // Redirect to wallet dashboard on successful login
+              window.location.href = '/wallet';
+            }}
+          />
 
-              {error && (
-                <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                  <p className="text-red-400 text-sm">{error}</p>
-                </div>
-              )}
-            </>
+          {error && (
+            <div className="mt-4 p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
+              <p className="text-red-400 text-sm">{error}</p>
+            </div>
           )}
         </div>
 
