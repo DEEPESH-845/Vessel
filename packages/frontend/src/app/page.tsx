@@ -22,9 +22,10 @@ const fadeUp = {
   show: {
     opacity: 1,
     y: 0,
-    transition: { type: "spring", damping: 25, stiffness: 100 },
+    transition: { type: "spring" as const, damping: 25, stiffness: 100 },
   },
 };
+
 
 const cardVariants = {
   hidden: { opacity: 0, y: 30 },
@@ -33,12 +34,13 @@ const cardVariants = {
     y: 0,
     transition: {
       delay: 0.3 + i * 0.15,
-      type: "spring",
+      type: "spring" as const,
       damping: 20,
       stiffness: 80,
     },
   }),
 };
+
 
 const features = [
   {
@@ -492,14 +494,3 @@ export default function LandingPage() {
     </div>
   );
 }
-</parameter>
-<task_progress>
-- [x] Explore codebase structure
-- [x] Find Pencil MCP configuration in Kiro settings
-- [x] Review current Vessel landing page design
-- [x] Locate "pencil-demo.pen" with "Habit tracker - NYC Rebel" design
-- [x] Add Pencil MCP server to Cline configuration
-- [x] Create design inspired by NYC Rebel template
-- [x] Implement design in React components
-</task_progress>
-</invoke>
