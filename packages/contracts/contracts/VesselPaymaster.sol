@@ -264,7 +264,7 @@ contract VesselPaymaster is BasePaymaster, Pausable {
         PackedUserOperation calldata userOp,
         bytes32 userOpHash,
         uint256 maxCost
-    ) internal view override whenNotPausedCustom returns (bytes memory context, uint256 validationData) {
+    ) internal override whenNotPausedCustom returns (bytes memory context, uint256 validationData) {
         // First do basic validation (signature check)
         bytes memory validationContext = _validateSignature(userOp, userOpHash);
         
