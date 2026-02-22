@@ -12,9 +12,11 @@ import {
     getMerchantByAddress,
     createSessionKey,
     getSessionKeysByUser,
+    getSessionKey,
     deleteSessionKey,
     getUser,
     createUser,
+    getUserByWallet,
 } from '../lib/dynamodb';
 import { ethers } from 'ethers';
 
@@ -484,6 +486,141 @@ export const handler = async (event: any) => {
 
         // ==================== USER OPERATIONS ====================
 
+        // ==================== GAS OPERATIONS ====================
+
+        if (action === 'get_gas_prices') {
+            const { chainId } = body;
+            const chainIdNum = parseInt(chainId) || 1;
+            
+            const gasPrices = await getGasPrices(chainIdNum);
+            
+            return {
+                statusCode: 200,
+                body: JSON.stringify(gasPrices),
+            };
+        }
+
+        if (action === 'estimate_transaction_gas') {
+            const { from, to, value, data, chainId } = body;
+            const chainIdNum = parseInt(chainId) || 1;
+            
+            if (!from || !to) {
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({ error: 'from and to are required' }),
+                };
+            }
+            
+            const estimate = await estimateTransactionGas(from, to, value || '0', data || '0x', chainIdNum);
+            
+            return {
+                statusCode: 200,
+                body: JSON.stringify(estimate),
+            };
+        }
+
+        // ==================== SESSION KEY VALIDATION ====================
+
+        if (action === 'validate_session_key') {
+            const { sessionKeyId, permissions, requiredPermissions } = body;
+            
+            if (!sessionKeyId) {
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({ error: 'sessionKeyId is required' }),
+                };
+            }
+            
+            const validation = await validateSessionKey(sessionKeyId, permissions, requiredPermissions);
+            
+            return {
+                statusCode: 200,
+                body: JSON.stringify(validation),
+            };
+        }
+
+        // ==================== USER WALLET OPERATIONS ====================
+
+        if (action === 'get_user_by_wallet') {
+            const { walletAddress } = body;
+            
+            if (!walletAddress) {
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({ error: 'walletAddress is required' }),
+                };
+            }
+            
+            const user = await getUserByWallet(walletAddress);
+            
+            if (!user) {
+                return {
+                    statusCode: 404,
+                    body: JSON.stringify({ error: 'User not found' }),
+                };
+            }
+            
+            return {
+                statusCode: 200,
+                body: JSON.stringify(user),
+            };
+        }
+
+        // ==================== AI AGENT OPERATIONS ====================
+
+        if (action === 'fraud_score') {
+            const { walletAddress, transactionAmount, merchantId, chainId } = body;
+            
+            if (!walletAddress || !transactionAmount) {
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({ error: 'walletAddress and transactionAmount are required' }),
+                };
+            }
+            
+            // This would call the AI agent Lambda in production
+            const fraudResult = {
+                score: 0,
+                riskLevel: 'low',
+                factors: [],
+                recommendation: 'approve',
+            };
+            
+            return {
+                statusCode: 200,
+                body: JSON.stringify(fraudResult),
+            };
+        }
+
+        if (action === 'route_recommendation') {
+            const { fromChain, toChain, fromToken, toToken, amount } = body;
+            
+            if (!fromChain || !toChain || !fromToken || !toToken || !amount) {
+                return {
+                    statusCode: 400,
+                    body: JSON.stringify({ error: 'Missing required parameters for route recommendation' }),
+                };
+            }
+            
+            // Placeholder for AI route recommendation
+            const route = {
+                fromChain,
+                toChain,
+                fromToken,
+                toToken,
+                estimatedOutput: amount,
+                gasEstimate: '0.001',
+                timeEstimate: '5-10 minutes',
+                savings: '15%',
+                route: [],
+            };
+            
+            return {
+                statusCode: 200,
+                body: JSON.stringify(route),
+            };
+        }
+
         if (action === 'get_user') {
             const { userId } = body;
             
@@ -569,3 +706,165 @@ export const handler = async (event: any) => {
         };
     }
 };
+
+// ==================== HELPER FUNCTIONS ====================
+
+// RPC URLs for different chains
+const RPC_URLS: Record<number, string> = {
+  1: process.env.ETHEREUM_RPC_URL || 'https://eth.llamarpc.com',
+  137: process.env.POLYGON_RPC_URL || 'https://polygon.llamarpc.com',
+  42161: process.env.ARBITRUM_RPC_URL || 'https://arbitrum.llamarpc.com',
+  8453: process.env.BASE_RPC_URL || 'https://base.llamarpc.com',
+  4202: process.env.LISK_RPC_URL || 'https://rpc.sepolia.lisk.com',
+};
+
+/**
+ * Get current gas prices for a chain
+ */
+async function getGasPrices(chainId: number): Promise<{
+  slow: string;
+  standard: string;
+  fast: string;
+}> {
+  const rpcUrl = RPC_URLS[chainId];
+  
+  if (!rpcUrl) {
+    // Return default values for unsupported chains
+    return {
+      slow: '20000000000', // 20 Gwei
+      standard: '30000000000', // 30 Gwei
+      fast: '50000000000', // 50 Gwei
+    };
+  }
+
+  try {
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    const feeData = await provider.getFeeData();
+    
+    const baseFee = feeData.gasPrice || 0n;
+    const slow = (baseFee * 80n) / 100n;
+    const standard = baseFee;
+    const fast = (baseFee * 150n) / 100n;
+    
+    return {
+      slow: slow.toString(),
+      standard: standard.toString(),
+      fast: fast.toString(),
+    };
+  } catch (error) {
+    console.error('Error fetching gas prices:', error);
+    // Return default values on error
+    return {
+      slow: '20000000000',
+      standard: '30000000000',
+      fast: '50000000000',
+    };
+  }
+}
+
+/**
+ * Estimate gas for a transaction
+ */
+async function estimateTransactionGas(
+  from: string,
+  to: string,
+  value: string,
+  data: string,
+  chainId: number
+): Promise<{
+  gasLimit: string;
+  gasPrice: string;
+}> {
+  const rpcUrl = RPC_URLS[chainId];
+  
+  if (!rpcUrl) {
+    return {
+      gasLimit: '21000',
+      gasPrice: '30000000000',
+    };
+  }
+
+  try {
+    const provider = new ethers.JsonRpcProvider(rpcUrl);
+    
+    const estimate = await provider.estimateGas({
+      from,
+      to,
+      value: BigInt(value),
+      data,
+    });
+    
+    const feeData = await provider.getFeeData();
+    const gasPrice = feeData.gasPrice || 0n;
+    
+    // Add 20% buffer
+    const gasLimit = (estimate * 120n) / 100n;
+    
+    return {
+      gasLimit: gasLimit.toString(),
+      gasPrice: gasPrice.toString(),
+    };
+  } catch (error) {
+    console.error('Error estimating gas:', error);
+    return {
+      gasLimit: '21000',
+      gasPrice: '30000000000',
+    };
+  }
+}
+
+/**
+ * Validate session key permissions
+ */
+async function validateSessionKey(
+  sessionKeyId: string,
+  permissions?: Record<string, unknown>,
+  requiredPermissions?: Record<string, unknown>
+): Promise<{ valid: boolean; reason?: string }> {
+  try {
+    const sessionKey = await getSessionKey(sessionKeyId);
+    
+    if (!sessionKey) {
+      return { valid: false, reason: 'Session key not found' };
+    }
+    
+    // Check if expired
+    if (new Date(sessionKey.expiresAt) < new Date()) {
+      return { valid: false, reason: 'Session key has expired' };
+    }
+    
+    // Check permissions if required
+    if (requiredPermissions && permissions) {
+      for (const [key, value] of Object.entries(requiredPermissions)) {
+        const sessionValue = sessionKey.permissions[key as keyof typeof sessionKey.permissions];
+        
+        if (key === 'spendingLimit' && typeof value === 'string') {
+          const limit = BigInt(value);
+          const sessionLimit = sessionValue ? BigInt(sessionValue as string) : 0n;
+          if (sessionLimit < limit) {
+            return { valid: false, reason: `Spending limit too low: ${sessionLimit}` };
+          }
+        }
+        
+        if (key === 'allowedContracts' && Array.isArray(value)) {
+          const allowed = sessionValue as string[] | undefined;
+          if (!allowed || !value.every(v => allowed.includes(v))) {
+            return { valid: false, reason: 'Contract not in allowed list' };
+          }
+        }
+        
+        if (key === 'chainIds' && Array.isArray(value)) {
+          const chains = sessionValue as number[] | undefined;
+          if (!chains || !value.every(v => chains.includes(v))) {
+            return { valid: false, reason: 'Chain not in allowed list' };
+          }
+        }
+      }
+    }
+    
+    return { valid: true };
+  } catch (error) {
+    console.error('Error validating session key:', error);
+    return { valid: false, reason: 'Validation error' };
+  }
+}

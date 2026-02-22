@@ -3,85 +3,87 @@
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-import {
-  ArrowRight,
-  TrendingUp,
-  Shield,
-  Sparkles,
-  Zap,
-} from "lucide-react";
-import Spotlight from "@/components/aceternity/spotlight";
-import TextGenerateEffect from "@/components/aceternity/text-generate-effect";
-import BackgroundBeams from "@/components/aceternity/background-beams";
-import MovingBorder from "@/components/aceternity/moving-border";
-import { BentoGrid, BentoGridItem } from "@/components/aceternity/bento-grid";
+import { Zap, Shield, TrendingUp, ArrowRight } from "lucide-react";
+
+// NYC Rebel-inspired design - dark theme with card-based UI
+// Color palette: #0A0A0A (background), #18181B (cards), #27272A (borders), #FFFFFF (text)
+// Typography: Space Grotesk (headings), Inter (body)
 
 const stagger = {
   hidden: { opacity: 0 },
   show: {
     opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.2 },
+    transition: { staggerChildren: 0.1, delayChildren: 0.2 },
   },
 };
 
 const fadeUp = {
-  hidden: { opacity: 0, y: 24, filter: "blur(6px)" },
+  hidden: { opacity: 0, y: 20 },
   show: {
     opacity: 1,
     y: 0,
-    filter: "blur(0px)",
-    transition: { type: "spring" as const, damping: 28, stiffness: 100 },
+    transition: { type: "spring", damping: 25, stiffness: 100 },
   },
 };
 
-const scaleIn = {
-  hidden: { opacity: 0, scale: 0.9 },
-  show: {
+const cardVariants = {
+  hidden: { opacity: 0, y: 30 },
+  show: (i: number) => ({
     opacity: 1,
-    scale: 1,
-    transition: { type: "spring" as const, damping: 20, stiffness: 120 },
-  },
+    y: 0,
+    transition: {
+      delay: 0.3 + i * 0.15,
+      type: "spring",
+      damping: 20,
+      stiffness: 80,
+    },
+  }),
 };
 
 const features = [
   {
-    icon: <Zap className="w-5 h-5 text-amber-400" />,
-    label: "Zero Gas",
-    desc: "Paymaster sponsors every transaction",
-    gradient: "from-amber-500/20 to-orange-500/10",
+    icon: Zap,
+    iconBg: "rgba(99, 102, 241, 0.12)",
+    iconColor: "#6366F1",
+    title: "Zero Gas Fees",
+    desc: "Paymaster sponsors every transaction. Never pay gas again.",
   },
   {
-    icon: <Shield className="w-5 h-5 text-primary" />,
-    label: "AI-Secured",
-    desc: "Bedrock-powered fraud detection",
-    gradient: "from-primary/20 to-violet-500/10",
+    icon: Shield,
+    iconBg: "rgba(6, 214, 160, 0.08)",
+    iconColor: "#06D6A0",
+    title: "AI Security",
+    desc: "Bedrock-powered fraud detection keeps your funds safe.",
   },
   {
-    icon: <TrendingUp className="w-5 h-5 text-accent" />,
-    label: "Any Stablecoin",
-    desc: "USDC · USDT · DAI & more",
-    gradient: "from-accent/20 to-emerald-500/10",
+    icon: TrendingUp,
+    iconBg: "rgba(245, 158, 11, 0.12)",
+    iconColor: "#F59E0B",
+    title: "Any Stablecoin",
+    desc: "USDC · USDT · DAI and more supported out of the box.",
   },
-] as const;
+];
+
+const stats = [
+  { value: "$2.5B+", label: "Volume Processed" },
+  { value: "500K+", label: "Active Users" },
+  { value: "99.9%", label: "Uptime" },
+];
 
 export default function LandingPage() {
   const router = useRouter();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
-  // Check if user is already authenticated and auto-redirect
   useEffect(() => {
     const checkAuthAndRedirect = async () => {
       try {
-        // Quick check: if has_logged_in cookie exists, check session
         const hasLoggedIn = document.cookie.includes('has_logged_in=true');
         
         if (hasLoggedIn) {
-          // Verify session is still valid
           const response = await fetch('/api/auth/me');
           const data = await response.json();
           
           if (data.user) {
-            // User is authenticated, redirect to wallet
             router.push('/wallet');
             return;
           }
@@ -97,14 +99,15 @@ export default function LandingPage() {
   }, [router]);
 
   const handleLogin = () => {
-    // Redirect to Auth0 Google login
     window.location.href = '/api/auth/login?connection=google-oauth2';
   };
 
-  // Show loading state while checking authentication
   if (isCheckingAuth) {
     return (
-      <div className="relative flex items-center justify-center min-h-dvh" style={{ background: "#0A0A0A" }}>
+      <div 
+        className="flex items-center justify-center min-h-dvh"
+        style={{ backgroundColor: '#0A0A0A' }}
+      >
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -137,164 +140,366 @@ export default function LandingPage() {
   }
 
   return (
-    <div className="relative flex flex-col items-center justify-center min-h-dvh px-6 pb-8 pt-safe overflow-hidden">
-      {/* Aceternity UI Effects */}
-      <Spotlight />
-      <BackgroundBeams />
+    <div 
+      className="relative flex flex-col w-full overflow-x-hidden"
+      style={{ backgroundColor: '#0A0A0A', minHeight: '100vh' }}
+    >
+      {/* Hero Section */}
+      <section className="relative flex flex-col items-center justify-center w-full px-6 py-24 md:py-32">
+        {/* Gradient Background */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: 'radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08) 0%, transparent 50%)',
+          }}
+        />
 
-      {/* Gradient background */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            "radial-gradient(circle at 50% 0%, rgba(99, 102, 241, 0.08), transparent 50%), radial-gradient(circle at 80% 20%, rgba(204, 255, 0, 0.04), transparent 40%)",
-        }}
-        aria-hidden="true"
-      />
-
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        animate="show"
-        className="relative z-10 flex flex-col items-center text-center w-full max-w-[380px]"
-      >
-        {/* Logo */}
-        <motion.div variants={scaleIn} className="relative mb-10">
-          <motion.div
-            className="absolute -inset-4 rounded-[30px] opacity-40"
-            style={{
-              background:
-                "radial-gradient(circle, rgba(99,102,241,0.25), transparent 70%)",
-            }}
-            animate={{
-              scale: [1, 1.15, 1],
-              opacity: [0.3, 0.5, 0.3],
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-            aria-hidden="true"
-          />
-
-          <motion.div
-            className="relative w-[72px] h-[72px] rounded-[20px] flex items-center justify-center overflow-hidden"
-            style={{
-              background: "linear-gradient(145deg, #6366f1, #8b5cf6, #06d6a0)",
-            }}
-            animate={{
-              boxShadow: [
-                "0 0 24px rgba(99,102,241,0.3), 0 12px 40px rgba(0,0,0,0.4)",
-                "0 0 48px rgba(6,214,160,0.3), 0 12px 40px rgba(0,0,0,0.4)",
-                "0 0 24px rgba(99,102,241,0.3), 0 12px 40px rgba(0,0,0,0.4)",
-              ],
-            }}
-            transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
-          >
-            <span className="text-[28px] font-extrabold text-white tracking-tighter">
-              V
-            </span>
-          </motion.div>
-        </motion.div>
-
-        {/* Hero Text with Text Generate Effect */}
-        <motion.div variants={fadeUp} className="mb-8">
-          <h1 className="text-display mb-3">
-            <span className="text-gradient">Vessel</span>
-          </h1>
-          <TextGenerateEffect
-            words="The gasless payment layer for the stablecoin economy. Zero gas. One tap. Instant."
-            className="text-body text-muted-foreground font-light leading-relaxed max-w-[280px] mx-auto"
-            delay={0.5}
-          />
-        </motion.div>
-
-        {/* Features with Bento Grid */}
-        <motion.div variants={fadeUp} className="w-full mb-10">
-          <BentoGrid>
-            {features.map((feature, idx) => (
-              <motion.div
-                key={feature.label}
-                initial={{ opacity: 0, x: idx % 2 === 0 ? -30 : 30 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{
-                  delay: 0.8 + idx * 0.12,
-                  type: "spring",
-                  damping: 20,
-                  stiffness: 90,
-                }}
-              >
-                <BentoGridItem
-                  title={feature.label}
-                  description={feature.desc}
-                  icon={feature.icon}
-                  gradient={feature.gradient}
-                />
-              </motion.div>
-            ))}
-          </BentoGrid>
-        </motion.div>
-
-        {/* CTA Button with Moving Border */}
-        <motion.div variants={fadeUp} className="w-full">
-          <MovingBorder
-            onClick={handleLogin}
-            duration={3000}
-            containerClassName="w-full"
-            className="w-full py-4 px-6 flex items-center justify-center gap-3 cursor-pointer"
-          >
-            <motion.div
-              className="flex items-center justify-center gap-3 w-full"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 48 48"
-                fill="none"
-                className="flex-shrink-0"
-                aria-hidden="true"
-              >
-                <path
-                  d="M43.6 20.5H42V20.3H24v7.4h11.3C34 32.1 29.5 35.1 24 35.1c-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.3-5.3C33.5 5.4 29 3.1 24 3.1 12.4 3.1 3 12.5 3 24.1s9.4 21 21 21c11.6 0 21-9.4 21-21 0-1.2-.1-2.4-.4-3.6z"
-                  fill="#FFC107"
-                />
-                <path
-                  d="M5.3 14.7l6.1 4.5c1.6-4.2 5.7-7.1 10.6-7.1 3 0 5.8 1.1 7.9 3l5.3-5.3C31.5 6.4 28 4.1 24 4.1c-7.2 0-13.4 4.1-16.7 10.6z"
-                  fill="#FF3D00"
-                />
-                <path
-                  d="M24 44.1c4.9 0 9.3-1.7 12.8-4.6l-5.9-5c-1.9 1.3-4.3 2.2-6.9 2.2-5.4 0-10-3.6-11.6-8.5l-6.1 4.7C9.5 39.5 16.2 44.1 24 44.1z"
-                  fill="#4CAF50"
-                />
-                <path
-                  d="M43.6 20.5H42V20.3H24v7.4h11.3C34.8 29.7 34 31.5 32.9 33l5.9 5c-.4.4 5.2-3.8 5.2-14 0-1.2-.1-2.4-.4-3.5z"
-                  fill="#1976D2"
-                />
-              </svg>
-              <span
-                className="font-semibold text-[15px]"
-                style={{
-                  fontFamily: "'Inter', sans-serif",
-                  color: "#FFFFFF",
-                }}
-              >
-                Continue with Google
-              </span>
-              <ArrowRight className="w-4 h-4 opacity-70" />
-            </motion.div>
-          </MovingBorder>
-        </motion.div>
-
-        {/* Footer */}
         <motion.div
-          variants={fadeUp}
-          className="flex items-center gap-2 mt-6"
+          variants={stagger}
+          initial="hidden"
+          animate="show"
+          className="relative z-10 flex flex-col items-center text-center w-full max-w-3xl"
         >
-          <Sparkles className="w-3 h-3 text-primary/40" aria-hidden="true" />
-          <p className="text-[10px] text-muted-foreground/40 tracking-wide">
-            ERC-4337 on Lisk · Non-custodial · Open Source
-          </p>
+          {/* Logo */}
+          <motion.div variants={fadeUp} className="mb-8">
+            <div className="relative">
+              <div
+                className="w-16 h-16 rounded-2xl flex items-center justify-center"
+                style={{
+                  background: 'linear-gradient(145deg, #6366F1, #8B5CF6, #06D6A0)',
+                }}
+              >
+                <span className="text-3xl font-bold text-white tracking-tight">V</span>
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Headline */}
+          <motion.h1 
+            variants={fadeUp}
+            className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6"
+            style={{ 
+              fontFamily: "'Space Grotesk', sans-serif",
+              color: '#FFFFFF',
+            }}
+          >
+            The gasless payment layer for{' '}
+            <span 
+              className="bg-clip-text text-transparent"
+              style={{
+                background: 'linear-gradient(135deg, #6366F1 0%, #8B5CF6 50%, #06D6A0 100%)',
+                WebkitBackgroundClip: 'text',
+              }}
+            >
+              stablecoins
+            </span>
+          </motion.h1>
+
+          {/* Subheadline */}
+          <motion.p 
+            variants={fadeUp}
+            className="text-lg md:text-xl mb-10 max-w-xl"
+            style={{ 
+              fontFamily: "'Inter', sans-serif",
+              color: '#A1A1AA',
+            }}
+          >
+            Zero gas. One tap. Instant. Experience the future of crypto payments with AI-powered security.
+          </motion.p>
+
+          {/* CTAs */}
+          <motion.div 
+            variants={fadeUp}
+            className="flex flex-col sm:flex-row gap-4 w-full max-w-md"
+          >
+            <button
+              onClick={handleLogin}
+              className="flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-lg transition-all hover:scale-105 active:scale-95"
+              style={{ 
+                backgroundColor: '#FFFFFF',
+                color: '#0A0A0A',
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              Get Started
+              <ArrowRight className="w-5 h-5" />
+            </button>
+            <button
+              className="flex items-center justify-center gap-2 px-8 py-4 rounded-full font-medium text-lg transition-all hover:bg-[#27272A] border border-[#27272A]"
+              style={{ 
+                backgroundColor: '#18181B',
+                color: '#FFFFFF',
+                borderColor: '#27272A',
+                fontFamily: "'Inter', sans-serif",
+              }}
+            >
+              Learn More
+            </button>
+          </motion.div>
+
+          {/* Trust Row */}
+          <motion.p 
+            variants={fadeUp}
+            className="mt-8 text-sm"
+            style={{ 
+              fontFamily: "'Inter', sans-serif",
+              color: '#71717A',
+            }}
+          >
+            ERC-4337 · Non-custodial · Open Source
+          </motion.p>
         </motion.div>
-      </motion.div>
+      </section>
+
+      {/* Features Section - NYC Rebel Card Style */}
+      <section 
+        className="flex flex-col items-center w-full px-6 py-20"
+        style={{ backgroundColor: '#0A0A0A' }}
+      >
+        <motion.div
+          variants={stagger}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true }}
+          className="flex flex-col items-center w-full max-w-5xl"
+        >
+          <motion.h2 
+            variants={fadeUp}
+            className="text-3xl md:text-4xl font-bold mb-4 text-center"
+            style={{ 
+              fontFamily: "'Space Grotesk', sans-serif",
+              color: '#FFFFFF',
+            }}
+          >
+            Why Vessel?
+          </motion.h2>
+          
+          <motion.p 
+            variants={fadeUp}
+            className="text-lg mb-12 text-center"
+            style={{ 
+              fontFamily: "'Inter', sans-serif",
+              color: '#71717A',
+            }}
+          >
+            The most advanced stablecoin payment infrastructure
+          </motion.p>
+
+          {/* Features Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full">
+            {features.map((feature, idx) => {
+              const Icon = feature.icon;
+              return (
+                <motion.div
+                  key={feature.title}
+                  custom={idx}
+                  variants={cardVariants}
+                  className="flex flex-col gap-3 p-6 rounded-2xl"
+                  style={{ 
+                    backgroundColor: '#18181B',
+                    border: '1px solid #27272A',
+                  }}
+                >
+                  <div 
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{ 
+                      backgroundColor: feature.iconBg,
+                    }}
+                  >
+                    <Icon className="w-6 h-6" style={{ color: feature.iconColor }} />
+                  </div>
+                  <h3 
+                    className="text-xl font-semibold"
+                    style={{ 
+                      fontFamily: "'Space Grotesk', sans-serif",
+                      color: '#FFFFFF',
+                    }}
+                  >
+                    {feature.title}
+                  </h3>
+                  <p 
+                    className="text-sm"
+                    style={{ 
+                      fontFamily: "'Inter', sans-serif",
+                      color: '#A1A1AA',
+                    }}
+                  >
+                    {feature.desc}
+                  </p>
+                </motion.div>
+              );
+            })}
+          </div>
+        </motion.div>
+      </section>
+
+      {/* Stats Section */}
+      <section 
+        className="flex flex-col items-center w-full px-6 py-16"
+        style={{ backgroundColor: '#0A0A0A' }}
+      >
+        <div className="flex flex-wrap justify-center gap-12 md:gap-24">
+          {stats.map((stat, idx) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.1 }}
+              className="flex flex-col items-center text-center"
+            >
+              <span 
+                className="text-4xl md:text-5xl font-bold"
+                style={{ 
+                  fontFamily: "'Space Grotesk', sans-serif",
+                  color: '#FFFFFF',
+                }}
+              >
+                {stat.value}
+              </span>
+              <span 
+                className="text-base mt-2"
+                style={{ 
+                  fontFamily: "'Inter', sans-serif",
+                  color: '#71717A',
+                }}
+              >
+                {stat.label}
+              </span>
+            </motion.div>
+          ))}
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section 
+        className="flex flex-col items-center w-full px-6 py-20"
+        style={{ backgroundColor: '#18181B' }}
+      >
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          className="flex flex-col items-center text-center max-w-2xl"
+        >
+          <h2 
+            className="text-3xl md:text-4xl font-bold mb-4"
+            style={{ 
+              fontFamily: "'Space Grotesk', sans-serif",
+              color: '#FFFFFF',
+            }}
+          >
+            Ready to get started?
+          </h2>
+          <p 
+            className="text-lg mb-8"
+            style={{ 
+              fontFamily: "'Inter', sans-serif",
+              color: '#A1A1AA',
+            }}
+          >
+            Join thousands of users experiencing the future of crypto payments.
+          </p>
+          <button
+            onClick={handleLogin}
+            className="flex items-center justify-center gap-2 px-8 py-4 rounded-full font-semibold text-lg transition-all hover:scale-105 active:scale-95"
+            style={{ 
+              backgroundColor: '#FFFFFF',
+              color: '#0A0A0A',
+              fontFamily: "'Inter', sans-serif",
+            }}
+          >
+            Start Now
+          </button>
+        </motion.div>
+      </section>
+
+      {/* Footer */}
+      <footer 
+        className="flex flex-col items-center w-full px-6 py-10"
+        style={{ 
+          backgroundColor: '#0A0A0A',
+          borderTop: '1px solid #27272A',
+        }}
+      >
+        <div className="flex flex-col md:flex-row items-center justify-between w-full max-w-5xl gap-6">
+          {/* Logo */}
+          <div className="flex items-center gap-3">
+            <div 
+              className="w-8 h-8 rounded-lg flex items-center justify-center"
+              style={{
+                background: 'linear-gradient(145deg, #6366F1, #8B5CF6, #06D6A0)',
+              }}
+            >
+              <span className="text-sm font-bold text-white">V</span>
+            </div>
+            <span 
+              className="text-lg font-semibold"
+              style={{ 
+                fontFamily: "'Space Grotesk', sans-serif",
+                color: '#FFFFFF',
+              }}
+            >
+              Vessel
+            </span>
+          </div>
+
+          {/* Links */}
+          <div className="flex gap-8">
+            <a 
+              href="#" 
+              className="text-sm hover:opacity-80 transition-opacity"
+              style={{ 
+                fontFamily: "'Inter', sans-serif",
+                color: '#71717A',
+              }}
+            >
+              Documentation
+            </a>
+            <a 
+              href="#" 
+              className="text-sm hover:opacity-80 transition-opacity"
+              style={{ 
+                fontFamily: "'Inter', sans-serif",
+                color: '#71717A',
+              }}
+            >
+              GitHub
+            </a>
+            <a 
+              href="#" 
+              className="text-sm hover:opacity-80 transition-opacity"
+              style={{ 
+                fontFamily: "'Inter', sans-serif",
+                color: '#71717A',
+              }}
+            >
+              Twitter
+            </a>
+          </div>
+        </div>
+
+        <p 
+          className="mt-8 text-xs"
+          style={{ 
+            fontFamily: "'Inter', sans-serif",
+            color: '#52525A',
+          }}
+        >
+          © 2025 Vessel. Built on ERC-4337.
+        </p>
+      </footer>
     </div>
   );
 }
+</parameter>
+<task_progress>
+- [x] Explore codebase structure
+- [x] Find Pencil MCP configuration in Kiro settings
+- [x] Review current Vessel landing page design
+- [x] Locate "pencil-demo.pen" with "Habit tracker - NYC Rebel" design
+- [x] Add Pencil MCP server to Cline configuration
+- [x] Create design inspired by NYC Rebel template
+- [x] Implement design in React components
+</task_progress>
+</invoke>

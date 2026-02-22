@@ -3,10 +3,13 @@
  * Manages session key generation, validation, and storage
  * SECURE VERSION - Private keys are encrypted and never stored in plaintext
  * Requirements: FR-6.1, FR-6.2, FR-6.4
+ * 
+ * Updated to sync with AWS DynamoDB backend
  */
 
 import { ethers } from 'ethers';
 import { SessionKey, SessionPermissions } from '@/types/wallet.types';
+import { backendAPI, SessionKeyData } from '@/lib/backend-client';
 
 /**
  * Generate cryptographically secure random bytes
@@ -394,3 +397,63 @@ export class SessionKeyService {
 
 // Export singleton instance
 export const sessionKeyService = SessionKeyService.getInstance();
+
+// ==================== BACKEND SYNC METHODS ====================
+// These methods sync session keys with the AWS DynamoDB backend
+
+/**
+ * Sync session key to backend DynamoDB
+ */
+export async function syncSessionKeyToBackend(
+  userId: string,
+  sessionKey: SessionKey
+): Promise<boolean> {
+  try {
+    const result = await backendAPI.storeSessionKey({
+      userId,
+      publicKey: sessionKey.publicKey,
+      permissions: sessionKey.permissions,
+      expiresAt: new Date(sessionKey.expiresAt).toISOString(),
+    });
+
+    return result.success;
+  } catch (error) {
+    console.error('Failed to sync session key to backend:', error);
+    return false;
+  }
+}
+
+/**
+ * Get session keys from backend
+ */
+export async function getSessionKeysFromBackend(
+  userId: string
+): Promise<SessionKeyData[]> {
+  try {
+    const result = await backendAPI.getSessionKeysByUser(userId);
+    
+    if (result.success && result.data) {
+      return result.data;
+    }
+    
+    return [];
+  } catch (error) {
+    console.error('Failed to get session keys from backend:', error);
+    return [];
+  }
+}
+
+/**
+ * Delete session key from backend
+ */
+export async function deleteSessionKeyFromBackend(
+  sessionKeyId: string
+): Promise<boolean> {
+  try {
+    const result = await backendAPI.deleteSessionKey(sessionKeyId);
+    return result.success;
+  } catch (error) {
+    console.error('Failed to delete session key from backend:', error);
+    return false;
+  }
+}

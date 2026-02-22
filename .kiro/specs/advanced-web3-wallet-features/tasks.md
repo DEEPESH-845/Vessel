@@ -489,7 +489,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Test reduced motion support
   - _Requirements: FR-14.1, FR-14.2_
 
-- [~] 13.5 Checkpoint - Ensure all tests pass
+- [ ] 13.5 Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Phase 4: Multi-Chain & AI (Weeks 9-11)
@@ -702,7 +702,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Test risk assessment
   - _Requirements: FR-16.1, FR-16.3, FR-16.4_
 
-- [~] 18.6 Checkpoint - Ensure all tests pass
+- [ ] 18.6 Checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 
@@ -843,7 +843,7 @@ This implementation plan breaks down 17 advanced Web3 wallet features into actio
   - Validate against all acceptance criteria
   - _Requirements: All FRs, NFRs_
 
-- [~] 21.5 Checkpoint - Final validation
+- [ ] 21.5 Checkpoint - Final validation
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

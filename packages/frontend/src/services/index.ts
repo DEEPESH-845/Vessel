@@ -50,3 +50,23 @@ export type { FiatQuote, FiatPurchaseRequest, FiatTransactionStatus } from './fi
 
 // Chain Aggregator Service (existing)
 export { aggregateMultiChainBalances, clearBalanceCache, batchRPCRequests } from './multi-chain/chain-aggregator.service';
+
+// Backend API Client - Connects frontend to AWS Lambda backend
+export { backendAPI, BackendAPIClient } from '@/lib/backend-client';
+export type { 
+  APIResponse, 
+  UserOperation, 
+  Payment, 
+  CreatePaymentRequest, 
+  Merchant, 
+  CreateMerchantRequest,
+  SessionKeyData,
+  GasEstimate 
+} from '@/lib/backend-client';
+
+// Session Key Backend Sync - Syncs session keys with DynamoDB
+export { 
+  syncSessionKeyToBackend, 
+  getSessionKeysFromBackend, 
+  deleteSessionKeyFromBackend 
+} from './session-key.service';
