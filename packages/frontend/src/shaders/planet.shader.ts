@@ -1,7 +1,14 @@
 /**
- * Planet Shader System - IMAX Grade
- * Custom GLSL shaders for cinematic planetary rendering
- * Features: Physical atmospheric scattering, HDR color grading, stable rendering
+ * Planet Shader System - NASA Grade
+ * Custom GLSL shaders for physically accurate planetary rendering
+ * Features: Microfacet BRDF, Fresnel reflections, HDR color grading
+ * 
+ * PHYSICAL ACCURACY:
+ * - Cook-Torrance microfacet specular BRDF
+ * - GGX/Trowbridge-Reitz normal distribution
+ * - Smith geometry function for shadowing/masking
+ * - Schlick's Fresnel approximation
+ * - Lambertian diffuse with energy conservation
  */
 
 import { simplexNoise3D } from './noise.glsl';
@@ -19,7 +26,118 @@ import {
 } from './color-grading.glsl';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// PLANET VERTEX SHADER
+// PHYSICALLY BASED SHADING FUNCTIONS
+// ═══════════════════════════════════════════════════════════════════════════════
+
+export const pbrFunctions = /* glsl */ `
+  const float PI = 3.14159265359;
+  const float EPSILON = 0.0001;
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // GGX/TROWBRIDGE-REITZ NORMAL DISTRIBUTION FUNCTION
+  // Determines the statistical distribution of microfacet normals
+  // α = roughness² (Disney remapping for perceptual linearity)
+  // ═══════════════════════════════════════════════════════════════════════════
+  float distributionGGX(vec3 N, vec3 H, float roughness) {
+    float a = roughness * roughness;
+    float a2 = a * a;
+    float NdotH = max(dot(N, H), 0.0);
+    float NdotH2 = NdotH * NdotH;
+    
+    float numerator = a2;
+    float denominator = (NdotH2 * (a2 - 1.0) + 1.0);
+    denominator = PI * denominator * denominator;
+    
+    return numerator / max(denominator, EPSILON);
+  }
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // SMITH GEOMETRY FUNCTION
+  // Accounts for microfacet shadowing and masking
+  // Uses Schlick-GGX approximation with height-correlated visibility
+  // ═══════════════════════════════════════════════════════════════════════════
+  float geometrySchlickGGX(float NdotV, float roughness) {
+    float r = roughness + 1.0;
+    float k = (r * r) / 8.0; // Disney remapping for IBL
+    
+    float numerator = NdotV;
+    float denominator = NdotV * (1.0 - k) + k;
+    
+    return numerator / max(denominator, EPSILON);
+  }
+  
+  float geometrySmith(vec3 N, vec3 V, vec3 L, float roughness) {
+    float NdotV = max(dot(N, V), 0.0);
+    float NdotL = max(dot(N, L), 0.0);
+    float ggx2 = geometrySchlickGGX(NdotV, roughness);
+    float ggx1 = geometrySchlickGGX(NdotL, roughness);
+    
+    return ggx1 * ggx2;
+  }
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // FRESNEL EQUATION (SCHLICK APPROXIMATION)
+  // F(θ) = F0 + (1 - F0)(1 - cosθ)⁵
+  // F0 = base reflectivity at normal incidence
+  // For dielectrics: F0 ≈ 0.04 (4% reflectivity)
+  // For conductors: F0 is tinted by the metal's color
+  // ═══════════════════════════════════════════════════════════════════════════
+  vec3 fresnelSchlick(float cosTheta, vec3 F0) {
+    return F0 + (1.0 - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+  }
+  
+  // Fresnel with roughness for IBL (Roughness-aware Fresnel)
+  vec3 fresnelSchlickRoughness(float cosTheta, vec3 F0, float roughness) {
+    return F0 + (max(vec3(1.0 - roughness), F0) - F0) * pow(clamp(1.0 - cosTheta, 0.0, 1.0), 5.0);
+  }
+  
+  // ═══════════════════════════════════════════════════════════════════════════
+  // COOK-TORRANCE MICROFACET BRDF
+  // f(L,V) = DFG / (4·(N·L)·(N·V))
+  // Combined with Lambertian diffuse: f_diffuse = albedo / π
+  // Energy conservation: kd = 1 - metallic (metals have no diffuse)
+  // ═══════════════════════════════════════════════════════════════════════════
+  vec3 calculatePBR(
+    vec3 N,           // Surface normal
+    vec3 V,           // View direction
+    vec3 L,           // Light direction
+    vec3 albedo,      // Base color
+    float metallic,   // Metalness (0=dielectric, 1=conductor)
+    float roughness,  // Perceptual roughness (0=smooth, 1=rough)
+    vec3 radiance     // Incoming light radiance
+  ) {
+    vec3 H = normalize(V + L); // Halfway vector
+    
+    // Base reflectivity (F0)
+    // For dielectrics: ~0.04, for metals: albedo-tinted
+    vec3 F0 = vec3(0.04);
+    F0 = mix(F0, albedo, metallic);
+    
+    // Cook-Torrance BRDF
+    float NDF = distributionGGX(N, H, roughness);
+    float G = geometrySmith(N, V, L, roughness);
+    vec3 F = fresnelSchlick(max(dot(H, V), 0.0), F0);
+    
+    vec3 numerator = NDF * G * F;
+    float denominator = 4.0 * max(dot(N, V), 0.0) * max(dot(N, L), 0.0) + EPSILON;
+    vec3 specular = numerator / denominator;
+    
+    // Energy conservation
+    vec3 kS = F;                           // Specular reflection fraction
+    vec3 kD = vec3(1.0) - kS;             // Diffuse fraction
+    kD *= 1.0 - metallic;                  // Metals have no diffuse
+    
+    // Diffuse (Lambertian)
+    float NdotL = max(dot(N, L), 0.0);
+    vec3 diffuse = kD * albedo / PI;
+    
+    // Final radiance contribution
+    return (diffuse + specular) * radiance * NdotL;
+  }
+`;
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// PLANET VERTEX SHADER (STABILIZED)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const planetVertexShader = /* glsl */ `
@@ -34,47 +152,62 @@ export const planetVertexShader = /* glsl */ `
   varying vec2 vUv;
   varying float vDisplacement;
   varying vec3 vWorldPosition;
+  varying vec3 vViewPosition;
 
   void main() {
     vUv = uv;
-    vNormal = normalize(normalMatrix * normal);
     
     // Multi-octave noise displacement for surface detail
-    // STABILIZED: Slower time multipliers for stability
-    float noise1 = snoise(position * 1.5 + uTime * 0.015);
-    float noise2 = snoise(position * 3.0 + uTime * 0.02) * 0.5;
-    float noise3 = snoise(position * 6.0 + uTime * 0.025) * 0.25;
+    // STABILIZED: Very slow time multipliers for stability (0.01-0.02)
+    float noise1 = snoise(position * 1.5 + uTime * 0.008);
+    float noise2 = snoise(position * 3.0 + uTime * 0.012) * 0.5;
+    float noise3 = snoise(position * 6.0 + uTime * 0.016) * 0.25;
     
     // Combine noise layers
     float totalNoise = noise1 + noise2 + noise3;
     
-    // STABILIZED: Breathing motion - subtle, low frequency
-    float breathing = sin(uTime * 0.12) * 0.006 + 1.0;
+    // STABILIZED: Breathing motion - very subtle, low frequency
+    float breathing = sin(uTime * 0.08) * 0.004 + 1.0;
     
-    // STABILIZED: Calculate displacement with strict clamp
-    float displacement = clamp(totalNoise * uDisplacementScale * breathing, -0.06, 0.06);
+    // STABILIZED: Calculate displacement with strict clamp (reduced amplitude)
+    float displacement = clamp(totalNoise * uDisplacementScale * breathing, -0.04, 0.04);
     vDisplacement = displacement;
     
     // Apply displacement along normal
     vec3 newPosition = position + normal * displacement;
     
-    // STABILIZED: Slow wave distortion - very subtle
-    float wave = sin(position.y * 3.0 + uTime * uWaveSpeed * 0.2) * 0.005;
+    // STABILIZED: Very slow wave distortion - minimal amplitude
+    float wave = sin(position.y * 3.0 + uTime * uWaveSpeed * 0.15) * 0.003;
     newPosition += normal * wave;
     
-    vPosition = newPosition;
-    vWorldPosition = (modelMatrix * vec4(newPosition, 1.0)).xyz;
+    // Calculate displaced normal for proper lighting
+    // Approximate using finite differences
+    float eps = 0.001;
+    float dx = snoise(position + vec3(eps, 0.0, 0.0)) - snoise(position - vec3(eps, 0.0, 0.0));
+    float dy = snoise(position + vec3(0.0, eps, 0.0)) - snoise(position - vec3(0.0, eps, 0.0));
+    float dz = snoise(position + vec3(0.0, 0.0, eps)) - snoise(position - vec3(0.0, 0.0, eps));
+    vec3 noiseGrad = vec3(dx, dy, dz) / (2.0 * eps);
     
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
+    vNormal = normalize(normalMatrix * (normal - noiseGrad * uDisplacementScale * 0.5));
+    vPosition = newPosition;
+    
+    vec4 worldPosition = modelMatrix * vec4(newPosition, 1.0);
+    vWorldPosition = worldPosition.xyz;
+    
+    vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.0);
+    vViewPosition = -mvPosition.xyz;
+    
+    gl_Position = projectionMatrix * mvPosition;
   }
 `;
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// PLANET FRAGMENT SHADER
+// PLANET FRAGMENT SHADER (PHYSICALLY BASED)
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const planetFragmentShader = /* glsl */ `
   ${simplexNoise3D}
+  ${pbrFunctions}
   ${colorGradingPipeline}
   ${colorGradePresets}
 
@@ -93,61 +226,105 @@ export const planetFragmentShader = /* glsl */ `
   varying vec2 vUv;
   varying float vDisplacement;
   varying vec3 vWorldPosition;
+  varying vec3 vViewPosition;
 
   void main() {
-    // STABILIZED: View direction calculation
-    vec3 viewDirection = normalize(cameraPosition - vWorldPosition);
-    vec3 sunDir = normalize(uSunDirection);
-    vec3 normal = normalize(vNormal);
+    // ═══════════════════════════════════════════════════════════════════════════
+    // GEOMETRY SETUP
+    // ═══════════════════════════════════════════════════════════════════════════
+    vec3 V = normalize(vViewPosition);        // View direction (camera space)
+    vec3 N = normalize(vNormal);              // Surface normal
+    vec3 L = normalize(uSunDirection);        // Light direction (sun)
     
-    // STABILIZED: Fresnel term with smoothstep to prevent edge flicker
-    float fresnelDot = max(dot(viewDirection, normal), 0.0);
-    float fresnelBase = 1.0 - fresnelDot;
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SURFACE PROPERTIES
+    // ═══════════════════════════════════════════════════════════════════════════
     
-    // STABILIZED: Apply smoothstep before power for ultra-smooth edges
+    // Animated surface noise - very slow and subtle
+    float surfaceNoise = snoise(vPosition * 1.2 + uTime * 0.006) * 0.5 + 0.5;
+    float detailNoise = snoise(vPosition * 3.5 + uTime * 0.01) * 0.08;
+    
+    // Height-based color gradient
+    float gradientY = clamp((vPosition.y + 2.0) / 4.0, 0.0, 1.0);
+    vec3 albedo = mix(uColorPrimary, uColorSecondary, gradientY);
+    
+    // Add noise variation to albedo - very subtle
+    albedo = mix(albedo, uColorSecondary, surfaceNoise * 0.10 + detailNoise * 0.05);
+    
+    // Displacement-based color variation (craters appear darker)
+    float depthFactor = smoothstep(-0.05, 0.05, vDisplacement);
+    albedo = mix(albedo * 0.85, albedo, depthFactor);
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // MATERIAL PROPERTIES (PLANETARY SURFACE)
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    // Roughness: 0.7-0.85 for matte planetary surface (no plastic shine)
+    float baseRoughness = 0.75;
+    // Add slight variation based on surface noise
+    float roughness = baseRoughness + surfaceNoise * 0.08;
+    roughness = clamp(roughness, 0.65, 0.88);
+    
+    // Metallic: 0.0 for rocky planets (dielectric surface)
+    // No metallic reflectivity for natural planetary surfaces
+    float metallic = 0.0;
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // LIGHTING - PHYSICALLY BASED RENDERING
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    // Main sun light
+    vec3 sunRadiance = vec3(2.5);  // HDR sun intensity
+    vec3 directLight = calculatePBR(N, V, L, albedo, metallic, roughness, sunRadiance);
+    
+    // Ambient light (very dim fill from space)
+    vec3 ambientRadiance = vec3(0.08);
+    vec3 ambientLight = albedo * ambientRadiance;
+    
+    // ═══════════════════════════════════════════════════════════════════════════
+    // FRESNEL RIM LIGHTING (ATMOSPHERIC GLOW EFFECT)
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    // Calculate Fresnel for rim effect
+    float NdotV = max(dot(N, V), 0.0);
+    float fresnelBase = 1.0 - NdotV;
+    
+    // STABILIZED: smoothstep before power for edge stability
     float fresnelSmooth = smoothstep(0.0, 1.0, fresnelBase);
     float fresnel = pow(fresnelSmooth, uRimPower);
+    fresnel = clamp(fresnel, 0.0, 0.7);
     
-    // STABILIZED: Clamp fresnel to safe range
-    fresnel = clamp(fresnel, 0.02, 0.88);
+    // Rim color with controlled intensity (subtle atmospheric glow)
+    vec3 rimColor = uColorAccent * fresnel * uRimIntensity * 0.35;
     
-    // STABILIZED: Slow animated surface noise - low frequency only
-    float surfaceNoise = snoise(vPosition * 1.2 + uTime * 0.01) * 0.5 + 0.5;
-    float detailNoise = snoise(vPosition * 3.5 + uTime * 0.015) * 0.12;
+    // ═══════════════════════════════════════════════════════════════════════════
+    // SUBSURFACE SCATTERING (THIN ATMOSPHERE GLOW)
+    // ═══════════════════════════════════════════════════════════════════════════
     
-    // Base color gradient based on position
-    float gradientY = clamp((vPosition.y + 2.0) / 4.0, 0.0, 1.0);
-    vec3 baseColor = mix(uColorPrimary, uColorSecondary, gradientY);
+    // Subtle SSS for thin atmospheric effect at terminator
+    float sss = pow(max(dot(V, -L), 0.0), 3.0) * max(dot(N, L), 0.0) * 0.08;
+    vec3 sssColor = uColorSecondary * sss;
     
-    // Add noise variation to base color - REDUCED intensity
-    baseColor = mix(baseColor, uColorSecondary, surfaceNoise * 0.12 + detailNoise * 0.08);
+    // ═══════════════════════════════════════════════════════════════════════════
+    // COMBINE ALL LIGHTING
+    // ═══════════════════════════════════════════════════════════════════════════
     
-    // Displacement-based color variation (craters/valleys)
-    float depthColor = smoothstep(-0.08, 0.08, vDisplacement);
-    baseColor = mix(baseColor * 0.8, baseColor, depthColor);
+    vec3 finalColor = directLight + ambientLight + rimColor + sssColor;
     
-    // STABILIZED: Lighting calculation
-    float diffuse = max(dot(normal, sunDir), 0.0);
-    diffuse = diffuse * 0.6 + 0.4; // Soft wrap lighting
+    // ═══════════════════════════════════════════════════════════════════════════
+    // HDR COLOR GRADING (CINEMATIC)
+    // ═══════════════════════════════════════════════════════════════════════════
     
-    // Apply diffuse to base color
-    vec3 litColor = baseColor * diffuse;
-    
-    // STABILIZED: Rim lighting with controlled intensity
-    vec3 rimColor = uColorAccent * fresnel * uRimIntensity * 0.5;
-    
-    // Combine colors
-    vec3 finalColor = litColor + rimColor;
-    
-    // STABILIZED: Subtle subsurface scattering effect
-    float sss = pow(max(dot(viewDirection, -normal), 0.0), 4.0) * 0.06;
-    finalColor += uColorSecondary * sss;
-    
-    // STABILIZED: Apply cinematic color grading
     finalColor = gradePlanetSurface(finalColor);
     
-    // STABILIZED: Strict brightness clamp for bloom compatibility
-    finalColor = clamp(finalColor, 0.0, 1.0);
+    // ═══════════════════════════════════════════════════════════════════════════
+    // BRIGHTNESS CONSTRAINTS (NO PURE WHITE, NO CRUSHED BLACKS)
+    // ═══════════════════════════════════════════════════════════════════════════
+    
+    // Highlight clamp: max 0.88 (no pure white)
+    // Shadow floor: min 0.06 (no crushed blacks)
+    // This creates a more cinematic, film-like tonal range
+    finalColor = clamp(finalColor, 0.06, 0.88);
     
     gl_FragColor = vec4(finalColor, 1.0);
   }

@@ -26,37 +26,46 @@ import {
 } from '@/shaders/planet.shader';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// IMAX HDR CONFIGURATION
+// NASA-GRADE HDR CONFIGURATION
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const HDR_CONFIG = {
-  // Renderer settings
+  // Renderer settings - IMAX-grade
   outputColorSpace: THREE.SRGBColorSpace,
   toneMapping: THREE.ACESFilmicToneMapping,
-  toneMappingExposure: 1.05,
+  toneMappingExposure: 1.0,              // Target: 0.95-1.1 range
   
-  // Stability limits
-  pixelRatioMax: 1.5,
+  // Stability limits - prevent flicker
+  pixelRatioMax: 1.5,                    // Hard DPR cap
   cameraNear: 0.1,
-  cameraFar: 1000,
+  cameraFar: 500,                        // Balanced for depth precision
 };
 
 const RENDER_CONFIG = {
-  // Geometry
+  // Geometry - tighter atmosphere for realism
   planetRadius: 2.8,
-  atmosphereRadius: 3.1,
-  outerGlowRadius: 3.4,
+  atmosphereRadius: 2.87,                // 1.025x planet (realistic scale)
+  outerGlowRadius: 3.05,                 // Subtle outer glow
   
-  // Animation speeds (very slow for stability)
-  planetRotationSpeed: 0.0008,
-  waveSpeed: 0.06,
-  displacementScale: 0.035,
+  // Animation speeds - very slow for stability
+  planetRotationSpeed: 0.0006,           // Slower rotation
+  waveSpeed: 0.04,                       // Slower waves
+  displacementScale: 0.025,              // Reduced amplitude
   
-  // Atmospheric scattering
-  rayleighCoeff: 1.2,
-  mieCoeff: 0.8,
-  atmosphereIntensity: 0.35,
-  outerGlowIntensity: 0.10,
+  // Atmospheric scattering - physically accurate
+  rayleighCoeff: 1.4,                    // Enhanced Rayleigh for blue sky
+  mieCoeff: 0.6,                         // Controlled Mie for haze
+  atmosphereIntensity: 0.30,             // Subtle atmosphere
+  outerGlowIntensity: 0.08,              // Minimal outer glow
+  
+  // Render order for proper transparency
+  renderOrder: {
+    planet: 0,
+    atmosphere: 1,
+    outerGlow: 2,
+    rings: 3,
+    particles: 4,
+  },
 };
 
 // ═══════════════════════════════════════════════════════════════════════════════

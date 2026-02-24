@@ -1,7 +1,18 @@
 /**
  * IMAX HDR Color Grading Pipeline
- * Cinematic color grading with LUT-based transformation
- * Features: Teal-shadow / warm-highlight grade, contrast control, vignette
+ * NASA-grade cinematic color grading with ACES tone mapping
+ * Features: Natural cinematic grade, soft contrast, balanced saturation
+ * 
+ * COLOR DIRECTION:
+ * - Cool shadows (subtle teal shift)
+ * - Warm highlights (sun-like warmth)
+ * - Reduced saturation (natural look)
+ * - Soft contrast curve (film-like)
+ * 
+ * NO:
+ * - Neon cyan/purple glow
+ * - Hyper-saturated crypto colors
+ * - Artificial color bleeding
  */
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -9,13 +20,14 @@
 // ═══════════════════════════════════════════════════════════════════════════════
 
 export const colorSpaceUtils = /* glsl */ `
-  // sRGB to Linear conversion
+  // sRGB to Linear conversion (precision optimized)
   vec3 srgbToLinear(vec3 srgb) {
-    return pow(srgb, vec3(2.2));
+    return pow(max(srgb, vec3(0.0)), vec3(2.2));
   }
   
-  // Linear to sRGB conversion
+  // Linear to sRGB conversion (precision optimized)
   vec3 linearToSrgb(vec3 linear) {
+    linear = max(linear, vec3(0.0));
     return pow(linear, vec3(1.0 / 2.2));
   }
   
@@ -28,7 +40,7 @@ export const colorSpaceUtils = /* glsl */ `
       0.3395, 0.9164, 0.1097,
       0.0474, 0.0135, 0.8697
     );
-    return MATRIX * color;
+    return MATRIX * max(color, vec3(0.0));
   }
   
   // ACEScg to Rec.709
@@ -38,7 +50,12 @@ export const colorSpaceUtils = /* glsl */ `
       -0.8330, 1.1223, -0.1152,
       0.2020, -0.0006, 1.1261
     );
-    return MATRIX * color;
+    return MATRIX * max(color, vec3(0.0));
+  }
+  
+  // Luminance calculation (Rec.709 coefficients)
+  float luminance(vec3 color) {
+    return dot(color, vec3(0.2126, 0.7152, 0.0722));
   }
 `;
 

@@ -136,16 +136,16 @@ export function HeroSection() {
           }, '-=0.2');
       }
 
-      // Scroll-based zoom and fade - smoother transition to next section
+      // LUXURY: Scroll-based zoom and fade - very smooth transition
       gsap.to(contentRef.current, {
-        scale: 1.15,
+        scale: 1.12,
         opacity: 0,
-        ease: 'power1.inOut',
+        ease: 'power3.out',  // LUXURY: power3.out for cinematic feel
         scrollTrigger: {
           trigger: sectionRef.current,
           start: 'top top',
-          end: '70% top',
-          scrub: 1.5,
+          end: '80% top',    // LUXURY: Longer transition zone
+          scrub: 2,          // LUXURY: Higher scrub for smoother response
           pin: false,
         },
       });
