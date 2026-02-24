@@ -30,31 +30,33 @@ export function GasPredictionVisualizer() {
   const predictedY = height - ((gasPredicted - min) / range) * height;
 
   return (
-    <div className="card-cinematic p-5 relative overflow-hidden group">
+    // SPACING FIX: Standardized core padding `p-6 md:p-8`
+    <div className="card-cinematic p-6 md:p-8 relative overflow-hidden group h-full flex flex-col justify-between min-h-[300px]">
       {/* Background Glow */}
       <div 
         className={`absolute -inset-10 bg-accent-purple/10 blur-[80px] rounded-full transition-opacity duration-1000 ${
           isActive ? "opacity-100" : "opacity-0"
-        }`}
+        } pointer-events-none`}
       />
 
-      <div className="relative z-10 flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <Activity className="w-5 h-5 text-accent-purple" />
-          <h3 className="text-sm font-medium tracking-tight text-white/90">Lisk Gas Prediction</h3>
+      {/* SPACING FIX: Component header spacing standardized `mb-6 md:mb-8` */}
+      <div className="relative z-10 flex items-center justify-between mb-6 md:mb-8">
+        <div className="flex items-center gap-3">
+          <Activity className="w-5 h-5 md:w-6 md:h-6 text-accent-purple" />
+          <h3 className="text-sm md:text-base font-medium tracking-tight text-white/90">Lisk Gas Prediction</h3>
         </div>
         <div className="flex items-center gap-2">
            <div className="w-2 h-2 rounded-full bg-accent-purple animate-pulse" />
-           <span className="text-[10px] uppercase tracking-widest text-white/50">Oracle Live</span>
+           <span className="text-[10px] md:text-xs uppercase tracking-widest text-white/50">Oracle Live</span>
         </div>
       </div>
 
-      <div className="flex justify-between items-end mb-6">
+      <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-6 mb-6 md:mb-8 flex-1">
         <div>
-          <p className="text-xs text-white/50 uppercase tracking-widest mb-1">Predicted Max</p>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-mono text-white/90">{gasPredicted.toFixed(4)}</span>
-            <span className="text-xs text-white/40">ETH</span>
+          <p className="text-xs md:text-sm text-white/50 uppercase tracking-widest mb-2">Predicted Max</p>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-3xl md:text-4xl font-mono text-white/90 tracking-tighter">{gasPredicted.toFixed(4)}</span>
+            <span className="text-sm text-white/40">ETH</span>
           </div>
         </div>
         
@@ -62,22 +64,23 @@ export function GasPredictionVisualizer() {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="text-right"
+            className="sm:text-right"
           >
-            <p className="text-xs text-white/50 uppercase tracking-widest mb-1">Actual Settled</p>
-            <div className="flex items-baseline gap-1 justify-end">
-              <span className="text-2xl font-mono text-neon-green">{gasActual.toFixed(4)}</span>
-              <span className="text-xs text-white/40">ETH</span>
+            <p className="text-xs md:text-sm text-white/50 uppercase tracking-widest mb-2">Actual Settled</p>
+            <div className="flex items-baseline gap-1.5 sm:justify-end">
+              <span className="text-3xl md:text-4xl font-mono text-neon-green tracking-tighter">{gasActual.toFixed(4)}</span>
+              <span className="text-sm text-white/40">ETH</span>
             </div>
-            <p className="text-[10px] text-neon-green/80 mt-1 uppercase tracking-wider">
+            {/* SPACING FIX: Top margin adjustment `mt-2` */}
+            <p className="text-[10px] md:text-xs text-neon-green/80 mt-2 uppercase tracking-wider font-mono">
               Saved {(gasPredicted - gasActual).toFixed(4)} ETH
             </p>
           </motion.div>
         )}
       </div>
 
-      <div className="relative h-[80px] w-full mt-4 border-b border-white/5">
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible">
+      <div className="relative h-[80px] md:h-[100px] w-full mt-auto border-b border-white/5">
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full overflow-visible" preserveAspectRatio="none">
           {/* Threshold Line */}
           <line 
             x1="0" 
@@ -88,7 +91,7 @@ export function GasPredictionVisualizer() {
             strokeWidth="1" 
             strokeDasharray="4 4" 
           />
-          <text x={width - 40} y={predictedY - 5} fill="rgba(255,255,255,0.4)" fontSize="10" fontFamily="monospace">
+          <text x={width - 50} y={predictedY - 8} fill="rgba(255,255,255,0.4)" fontSize="10" fontFamily="monospace">
             Guard Thresh.
           </text>
           
@@ -119,7 +122,7 @@ export function GasPredictionVisualizer() {
         </svg>
 
         {/* Gradient Fade for SVG */}
-        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[#0b1422] to-transparent pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-[var(--color-bg-elevated)] to-transparent pointer-events-none opacity-40" />
       </div>
     </div>
   );

@@ -23,59 +23,63 @@ export function RealTimeMerchantDashboard() {
   }, [currentStep]);
 
   return (
-    <div className="card-cinematic p-5 relative overflow-hidden group">
-      <div className="relative z-10 flex items-center justify-between mb-6">
-        <div className="flex items-center gap-2">
+    // SPACING FIX: Standardized card padding
+    <div className="card-cinematic p-6 md:p-8 relative overflow-hidden group h-full flex flex-col justify-between min-h-[300px]">
+      
+      {/* SPACING FIX: Use consistent `mb-6 md:mb-8` */}
+      <div className="relative z-10 flex items-center justify-between mb-6 md:mb-8">
+        <div className="flex items-center gap-3">
           <BarChart3 className="w-5 h-5 text-neon-green" />
-          <h3 className="text-sm font-medium tracking-tight text-white/90">Merchant Telemetry</h3>
+          <h3 className="text-sm md:text-base font-medium tracking-tight text-white/90">Merchant Telemetry</h3>
         </div>
-        <div className="flex items-center gap-1.5 px-2 py-1 rounded-full border border-neon-green/30 bg-neon-green/10">
+        <div className="flex items-center gap-2 px-3 py-1.5 rounded-full border border-neon-green/30 bg-neon-green/10">
           <div className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse" />
-          <span className="text-[9px] uppercase tracking-widest text-neon-green font-mono">Live</span>
+          <span className="text-[10px] uppercase tracking-widest text-neon-green font-mono">Live</span>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
-        {/* Latency Metric */}
-        <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-          <div className="flex items-center gap-2 mb-2 text-white/50">
-            <Clock className="w-3.5 h-3.5" />
-            <span className="text-[10px] uppercase tracking-widest">P99 Latency</span>
+      <div className="grid grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
+        {/* SPACING FIX: Inner metric card padding standardized to `p-4 md:p-5` */}
+        <div className="bg-white/5 rounded-2xl p-4 md:p-5 border border-white/5">
+          <div className="flex items-center gap-2 mb-3 text-white/50">
+            <Clock className="w-4 h-4" />
+            <span className="text-[10px] md:text-xs uppercase tracking-widest">P99 Latency</span>
           </div>
-          <div className="flex items-baseline gap-1">
+          <div className="flex items-baseline gap-1.5">
             <motion.span 
               key={latencyNs}
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
-              className="text-2xl font-mono text-white/90 tracking-tighter"
+              className="text-2xl md:text-3xl font-mono text-white/90 tracking-tighter"
             >
               {currentStep === "complete" ? latencyNs : "---"}
             </motion.span>
-            <span className="text-[10px] text-white/40">ms</span>
+            <span className="text-xs text-white/40">ms</span>
           </div>
         </div>
 
         {/* Success Rate */}
-        <div className="bg-white/5 rounded-xl p-3 border border-white/5">
-          <div className="flex items-center gap-2 mb-2 text-white/50">
-            <CheckCircle2 className="w-3.5 h-3.5" />
-            <span className="text-[10px] uppercase tracking-widest">Success Rate</span>
+        <div className="bg-white/5 rounded-2xl p-4 md:p-5 border border-white/5">
+          <div className="flex items-center gap-2 mb-3 text-white/50">
+            <CheckCircle2 className="w-4 h-4" />
+            <span className="text-[10px] md:text-xs uppercase tracking-widest">Success Rate</span>
           </div>
-          <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-mono text-white/90 tracking-tighter">99.9</span>
-            <span className="text-[10px] text-white/40">%</span>
+          <div className="flex items-baseline gap-1.5">
+            <span className="text-2xl md:text-3xl font-mono text-white/90 tracking-tighter">99.9</span>
+            <span className="text-xs text-white/40">%</span>
           </div>
         </div>
       </div>
 
       {/* Transaction Feed */}
-      <div>
-        <div className="flex items-center justify-between mb-3 text-white/50 text-[10px] uppercase tracking-widest">
+      <div className="flex-1 flex flex-col justify-end">
+        <div className="flex items-center justify-between mb-4 text-white/50 text-[10px] md:text-xs uppercase tracking-widest">
           <span>Live Feed</span>
-          <Globe2 className="w-3.5 h-3.5" />
+          <Globe2 className="w-4 h-4" />
         </div>
         
-        <div className="space-y-2">
+        {/* SPACING FIX: Consistent gap spacing for list items */}
+        <div className="space-y-3">
           <AnimatePresence initial={false}>
             {transactions.map((tx, idx) => (
               <motion.div 
@@ -83,18 +87,19 @@ export function RealTimeMerchantDashboard() {
                 initial={{ opacity: 0, x: -10, height: 0 }}
                 animate={{ opacity: 1, x: 0, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
-                className="flex items-center justify-between p-2 rounded-lg bg-white/5 border border-white/5 text-xs font-mono"
+                // SPACING FIX: Inner row padding standardized
+                className="flex items-center justify-between p-3 md:p-4 rounded-xl bg-white/5 border border-white/5 text-xs font-mono"
               >
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-3">
                   {tx.status === "success" ? (
-                    <div className="w-1.5 h-1.5 rounded-full bg-neon-green" />
+                    <div className="w-2 h-2 rounded-full bg-neon-green" />
                   ) : (
-                    <div className="w-1.5 h-1.5 rounded-full bg-red-400" />
+                    <div className="w-2 h-2 rounded-full bg-red-400" />
                   )}
                   <span className="text-white/80">{tx.id}</span>
                 </div>
-                <div className="flex gap-4 items-center">
-                  <span className="text-white/40">{tx.time}</span>
+                <div className="flex gap-6 items-center">
+                  <span className="text-white/40 hidden sm:inline-block">{tx.time}</span>
                   <span className={tx.status === "success" ? "text-neon-green" : "text-red-400"}>
                     {tx.amount}
                   </span>
