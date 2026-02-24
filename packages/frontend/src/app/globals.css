@@ -36,13 +36,13 @@
   --container-max: 1440px;
 
   /* ═══════════════════════════════════════════════════════════════════════════
-     BACKGROUND COLORS
+     BACKGROUND COLORS - FINTECH PREMIUM DARK
      ═══════════════════════════════════════════════════════════════════════════ */
-  --color-bg-void: #060b14;
-  --color-bg-surface: #0b1422;
-  --color-bg-elevated: #101c2e;
-  --color-bg-overlay: rgba(11, 20, 34, 0.82);
-  --color-bg-modal: rgba(6, 11, 20, 0.95);
+  --color-bg-void: #0B0F17;
+  --color-bg-surface: #0E141E;
+  --color-bg-elevated: #131A26;
+  --color-bg-overlay: rgba(11, 15, 23, 0.85);
+  --color-bg-modal: rgba(11, 15, 23, 0.95);
 
   /* ═══════════════════════════════════════════════════════════════════════════
      BRAND / ACCENT COLORS
@@ -224,7 +224,7 @@ html {
 }
 
 body {
-  background: var(--color-background);
+  background: var(--color-bg-void);
   color: var(--color-foreground);
   font-family: var(--font-sans);
   font-size: var(--text-base);
