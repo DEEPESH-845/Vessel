@@ -19,6 +19,7 @@ import {
     getUserByWallet,
 } from '../lib/dynamodb';
 import { ethers } from 'ethers';
+import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 
 // Whitelist of allowed paymaster addresses per chain
 const ALLOWED_PAYMASTERS: Record<number, string> = {
@@ -34,6 +35,46 @@ const MAX_GAS_COST = BigInt(process.env.MAX_GAS_COST_PER_UOP || '100000000000000
 
 // Supported chains
 const SUPPORTED_CHAINS = [1, 137, 42161, 8453, 4202];
+
+// Lambda client for invoking AI agent
+const lambdaClient = new LambdaClient({ region: process.env.AWS_REGION || 'us-east-1' });
+const AI_AGENT_FUNCTION_NAME = process.env.AI_AGENT_FUNCTION_NAME || 'vessel-ai-agent';
+
+// CORS headers for all responses
+const CORS_HEADERS = {
+    'Access-Control-Allow-Origin': process.env.ALLOWED_ORIGIN || '*',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization,X-Amz-Date,X-Api-Key,X-Amz-Security-Token',
+    'Access-Control-Allow-Methods': 'OPTIONS,POST,GET',
+};
+
+/**
+ * Create a JSON response with CORS headers
+ */
+function respond(statusCode: number, body: Record<string, unknown>) {
+    return {
+        statusCode,
+        headers: CORS_HEADERS,
+        body: JSON.stringify(body),
+    };
+}
+
+/**
+ * Invoke the AI agent Lambda for fraud scoring and route recommendations
+ */
+async function invokeAIAgent(action: string, payload: Record<string, unknown>): Promise<Record<string, unknown>> {
+    const command = new InvokeCommand({
+        FunctionName: AI_AGENT_FUNCTION_NAME,
+        InvocationType: 'RequestResponse',
+        Payload: Buffer.from(JSON.stringify({
+            body: JSON.stringify({ action, ...payload }),
+        })),
+    });
+
+    const response = await lambdaClient.send(command);
+    const responsePayload = JSON.parse(Buffer.from(response.Payload || '{}').toString());
+    const responseBody = JSON.parse(responsePayload.body || '{}');
+    return responseBody;
+}
 
 export const handler = async (event: any) => {
     try {
@@ -570,55 +611,39 @@ export const handler = async (event: any) => {
 
         if (action === 'fraud_score') {
             const { walletAddress, transactionAmount, merchantId, chainId } = body;
-            
+
             if (!walletAddress || !transactionAmount) {
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({ error: 'walletAddress and transactionAmount are required' }),
-                };
+                return respond(400, { error: 'walletAddress and transactionAmount are required' });
             }
-            
-            // This would call the AI agent Lambda in production
-            const fraudResult = {
-                score: 0,
-                riskLevel: 'low',
-                factors: [],
-                recommendation: 'approve',
-            };
-            
-            return {
-                statusCode: 200,
-                body: JSON.stringify(fraudResult),
-            };
+
+            // Invoke the AI agent Lambda for real fraud scoring
+            const fraudResult = await invokeAIAgent('fraud_score', {
+                walletAddress,
+                transactionAmount,
+                merchantId,
+                chainId,
+            });
+
+            return respond(200, fraudResult);
         }
 
         if (action === 'route_recommendation') {
             const { fromChain, toChain, fromToken, toToken, amount } = body;
-            
+
             if (!fromChain || !toChain || !fromToken || !toToken || !amount) {
-                return {
-                    statusCode: 400,
-                    body: JSON.stringify({ error: 'Missing required parameters for route recommendation' }),
-                };
+                return respond(400, { error: 'Missing required parameters for route recommendation' });
             }
-            
-            // Placeholder for AI route recommendation
-            const route = {
+
+            // Invoke the AI agent Lambda for real route recommendation
+            const route = await invokeAIAgent('route_recommendation', {
                 fromChain,
                 toChain,
                 fromToken,
                 toToken,
-                estimatedOutput: amount,
-                gasEstimate: '0.001',
-                timeEstimate: '5-10 minutes',
-                savings: '15%',
-                route: [],
-            };
-            
-            return {
-                statusCode: 200,
-                body: JSON.stringify(route),
-            };
+                amount,
+            });
+
+            return respond(200, route);
         }
 
         if (action === 'get_user') {
@@ -700,10 +725,7 @@ export const handler = async (event: any) => {
 
     } catch (error: any) {
         console.error("Error:", error);
-        return {
-            statusCode: 500,
-            body: JSON.stringify({ error: error.message }),
-        };
+        return respond(500, { error: 'Internal server error' });
     }
 };
 
