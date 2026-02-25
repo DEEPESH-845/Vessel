@@ -369,6 +369,7 @@ export const atmosphereFragmentShader = /* glsl */ `
   uniform float uTime;
   uniform float uRayleighCoeff;
   uniform float uMieCoeff;
+  uniform float uPlanetRadius;
   
   varying vec3 vNormal;
   varying vec3 vWorldPosition;
@@ -397,6 +398,7 @@ export const atmosphereFragmentShader = /* glsl */ `
       vPositionLocal,
       -viewDir,
       sunDir,
+      uPlanetRadius,
       uRayleighCoeff,
       uMieCoeff
     );

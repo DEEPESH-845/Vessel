@@ -224,6 +224,45 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
         return y;
     }
 
+    function _get_y_D(
+        uint256 A_,
+        uint256 i,
+        uint256[N_COINS] memory xp,
+        uint256 D
+    ) internal pure returns (uint256) {
+        require(i < N_COINS, "StableSwapAMM: i above N_COINS");
+
+        uint256 Ann = A_ * N_COINS;
+        uint256 c = D;
+        uint256 S_ = 0;
+
+        for (uint256 k = 0; k < N_COINS; k++) {
+            if (k != i) {
+                uint256 _x = xp[k];
+                S_ += _x;
+                c = (c * D) / (_x * N_COINS);
+            }
+        }
+
+        c = (c * D * A_PRECISION) / (Ann * N_COINS);
+        uint256 b = S_ + (D * A_PRECISION) / Ann;
+
+        uint256 y = D;
+        uint256 yPrev;
+
+        for (uint256 iter = 0; iter < 255; iter++) {
+            yPrev = y;
+            y = (y * y + c) / (2 * y + b - D);
+            if (y > yPrev) {
+                if (y - yPrev <= 1) break;
+            } else {
+                if (yPrev - y <= 1) break;
+            }
+        }
+
+        return y;
+    }
+
     /**
      * @dev Calculate D (the StableSwap invariant) using Newton's method.
      * D satisfies: An^n * sum(x_i) + D = An^n * D + D^(n+1) / (n^n * prod(x_i))
@@ -373,11 +412,27 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
         require(amount > 0, "StableSwapAMM: amount must be > 0");
         require(i < N_COINS, "StableSwapAMM: invalid coin index");
 
-        uint256 totalLP = totalSupply;
-        uint256 dy = (balances[i] * amount) / totalLP;
+        uint256 dy;
+        uint256 diff;
+
+        {
+            uint256[N_COINS] memory rates_ = _currentRates();
+            uint256 currentA = _A();
+            uint256[N_COINS] memory xp = _xp_mem(rates_);
+            
+            uint256 D0 = _get_D(xp, currentA);
+            uint256 D1 = D0 * (totalSupply - amount) / totalSupply;
+            
+            uint256 new_y = _get_y_D(currentA, i, xp, D1);
+            
+            diff = balances[i] - ((new_y * PRECISION) / rates_[i]);
+            uint256 feeAmount = (diff * fee) / 1e10;
+            dy = diff - feeAmount;
+        }
+
         require(dy >= minAmount, "StableSwapAMM: dy < minAmount");
 
-        balances[i] -= dy;
+        balances[i] -= diff;
         lpToken.burnFrom(msg.sender, amount);
         totalSupply -= amount;
 

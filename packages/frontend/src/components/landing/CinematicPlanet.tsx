@@ -169,6 +169,7 @@ function Atmosphere({ scrollProgress }: { scrollProgress: React.MutableRefObject
     uSunDirection: { value: SUN_DIRECTION },
     uRayleighCoeff: { value: RENDER_CONFIG.rayleighCoeff },
     uMieCoeff: { value: RENDER_CONFIG.mieCoeff },
+    uPlanetRadius: { value: RENDER_CONFIG.planetRadius },
   }), []);
 
   useFrame((state) => {

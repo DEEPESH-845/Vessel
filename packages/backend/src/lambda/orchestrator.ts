@@ -23,11 +23,11 @@ import { LambdaClient, InvokeCommand } from '@aws-sdk/client-lambda';
 
 // Whitelist of allowed paymaster addresses per chain
 const ALLOWED_PAYMASTERS: Record<number, string> = {
-  1: process.env.PAYMASTER_ADDRESS_1 || '',
-  137: process.env.PAYMASTER_ADDRESS_137 || '',
-  42161: process.env.PAYMASTER_ADDRESS_42161 || '',
-  8453: process.env.PAYMASTER_ADDRESS_8453 || '',
-  4202: process.env.PAYMASTER_ADDRESS_4202 || '',
+    1: process.env.PAYMASTER_ADDRESS_1 || '',
+    137: process.env.PAYMASTER_ADDRESS_137 || '',
+    42161: process.env.PAYMASTER_ADDRESS_42161 || '',
+    8453: process.env.PAYMASTER_ADDRESS_8453 || '',
+    4202: process.env.PAYMASTER_ADDRESS_4202 || '',
 };
 
 // Maximum gas cost allowed per user operation (in wei)
@@ -72,7 +72,19 @@ async function invokeAIAgent(action: string, payload: Record<string, unknown>): 
 
     const response = await lambdaClient.send(command);
     const responsePayload = JSON.parse(Buffer.from(response.Payload || '{}').toString());
+
+    // Check for Lambda-level execution errors (e.g. timeouts, syntax errors)
+    if (response.FunctionError) {
+        throw new Error(`Lambda execution failed: ${responsePayload.errorType || 'Unknown'} - ${responsePayload.errorMessage || 'Unknown Error'}`);
+    }
+
     const responseBody = JSON.parse(responsePayload.body || '{}');
+
+    // Check for internal status codes returned by the invoked function payload
+    if (responseBody.statusCode && (responseBody.statusCode < 200 || responseBody.statusCode >= 300)) {
+        throw new Error(responseBody.error || responseBody.message || `AI Agent failed with status ${responseBody.statusCode}`);
+    }
+
     return responseBody;
 }
 
@@ -89,7 +101,7 @@ export const handler = async (event: any) => {
             // SECURITY FIX 1: Validate paymaster address is whitelisted
             const chainIdNum = parseInt(chainId) || 1;
             const allowedAddress = ALLOWED_PAYMASTERS[chainIdNum];
-            
+
             if (!allowedAddress) {
                 return {
                     statusCode: 403,
@@ -108,7 +120,7 @@ export const handler = async (event: any) => {
             // SECURITY FIX 2: Validate UserOperation before signing
             if (sender && chainId && maxCost) {
                 const maxCostBigInt = BigInt(maxCost);
-                
+
                 // Check gas cost limit
                 if (maxCostBigInt > MAX_GAS_COST) {
                     return {
@@ -178,7 +190,7 @@ export const handler = async (event: any) => {
         if (action === 'get_paymaster_config') {
             const config = getPaymasterConfig();
             const bundler = getBundlerConfig();
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify({
@@ -193,9 +205,9 @@ export const handler = async (event: any) => {
 
         if (action === 'validate_userop') {
             const { userOpHash, sender } = body;
-            
+
             const validation = await validateUserOpForSponsorship(userOpHash, sender);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(validation),
@@ -206,16 +218,16 @@ export const handler = async (event: any) => {
 
         if (action === 'get_userop_status') {
             const { userOpHash, chainId } = body;
-            
+
             if (!userOpHash) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'userOpHash is required' }),
                 };
             }
-            
+
             const status = await getUserOpStatus(userOpHash, chainId || 1);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(status),
@@ -224,16 +236,16 @@ export const handler = async (event: any) => {
 
         if (action === 'estimate_userop_gas') {
             const { userOp } = body;
-            
+
             if (!userOp) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'userOp is required' }),
                 };
             }
-            
+
             const estimate = await estimateUserOpGas(userOp);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify({
@@ -248,19 +260,19 @@ export const handler = async (event: any) => {
 
         if (action === 'create_payment') {
             const { merchantId, userId, token, amount, metadata } = body;
-            
+
             if (!merchantId || !userId || !token || !amount) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'merchantId, userId, token, and amount are required' }),
                 };
             }
-            
+
             const paymentId = `pay_${Date.now()}_${Math.random().toString(36).substring(7)}`;
             const feeBps = 30; // 0.3% fee
             const feeAmount = (BigInt(amount) * BigInt(feeBps)) / 10000n;
             const netAmount = BigInt(amount) - feeAmount;
-            
+
             const payment = await createPayment({
                 paymentId,
                 merchantId,
@@ -274,7 +286,7 @@ export const handler = async (event: any) => {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             });
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(payment),
@@ -283,23 +295,23 @@ export const handler = async (event: any) => {
 
         if (action === 'get_payment') {
             const { paymentId } = body;
-            
+
             if (!paymentId) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'paymentId is required' }),
                 };
             }
-            
+
             const payment = await getPayment(paymentId);
-            
+
             if (!payment) {
                 return {
                     statusCode: 404,
                     body: JSON.stringify({ error: 'Payment not found' }),
                 };
             }
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(payment),
@@ -308,23 +320,23 @@ export const handler = async (event: any) => {
 
         if (action === 'update_payment_status') {
             const { paymentId, status, txHash } = body;
-            
+
             if (!paymentId || !status) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'paymentId and status are required' }),
                 };
             }
-            
+
             const payment = await updatePaymentStatus(paymentId, status, txHash);
-            
+
             if (!payment) {
                 return {
                     statusCode: 404,
                     body: JSON.stringify({ error: 'Payment not found' }),
                 };
             }
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(payment),
@@ -333,16 +345,16 @@ export const handler = async (event: any) => {
 
         if (action === 'get_payments_by_user') {
             const { userId } = body;
-            
+
             if (!userId) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'userId is required' }),
                 };
             }
-            
+
             const payments = await getPaymentsByUser(userId);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(payments),
@@ -351,16 +363,16 @@ export const handler = async (event: any) => {
 
         if (action === 'get_payments_by_merchant') {
             const { merchantId } = body;
-            
+
             if (!merchantId) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'merchantId is required' }),
                 };
             }
-            
+
             const payments = await getPaymentsByMerchant(merchantId);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(payments),
@@ -369,9 +381,9 @@ export const handler = async (event: any) => {
 
         if (action === 'get_payment_stats') {
             const { merchantId, startDate, endDate } = body;
-            
+
             const stats = await getPaymentStats(merchantId, startDate, endDate);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(stats),
@@ -382,16 +394,16 @@ export const handler = async (event: any) => {
 
         if (action === 'create_merchant') {
             const { address, name, settlementToken, webhookUrl, feeBps } = body;
-            
+
             if (!address || !name || !settlementToken) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'address, name, and settlementToken are required' }),
                 };
             }
-            
+
             const merchantId = `merch_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-            
+
             const merchant = await createMerchant({
                 merchantId,
                 address,
@@ -403,7 +415,7 @@ export const handler = async (event: any) => {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             });
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(merchant),
@@ -412,23 +424,23 @@ export const handler = async (event: any) => {
 
         if (action === 'get_merchant') {
             const { merchantId } = body;
-            
+
             if (!merchantId) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'merchantId is required' }),
                 };
             }
-            
+
             const merchant = await getMerchant(merchantId);
-            
+
             if (!merchant) {
                 return {
                     statusCode: 404,
                     body: JSON.stringify({ error: 'Merchant not found' }),
                 };
             }
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(merchant),
@@ -437,23 +449,23 @@ export const handler = async (event: any) => {
 
         if (action === 'get_merchant_by_address') {
             const { address } = body;
-            
+
             if (!address) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'address is required' }),
                 };
             }
-            
+
             const merchant = await getMerchantByAddress(address);
-            
+
             if (!merchant) {
                 return {
                     statusCode: 404,
                     body: JSON.stringify({ error: 'Merchant not found' }),
                 };
             }
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(merchant),
@@ -464,16 +476,16 @@ export const handler = async (event: any) => {
 
         if (action === 'store_session_key') {
             const { userId, publicKey, permissions, expiresAt } = body;
-            
+
             if (!userId || !publicKey || !expiresAt) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'userId, publicKey, and expiresAt are required' }),
                 };
             }
-            
+
             const sessionKeyId = `session_${Date.now()}_${Math.random().toString(36).substring(7)}`;
-            
+
             const sessionKey = await createSessionKey({
                 sessionKeyId,
                 userId,
@@ -482,7 +494,7 @@ export const handler = async (event: any) => {
                 expiresAt,
                 createdAt: new Date().toISOString(),
             });
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(sessionKey),
@@ -491,16 +503,16 @@ export const handler = async (event: any) => {
 
         if (action === 'get_session_keys_by_user') {
             const { userId } = body;
-            
+
             if (!userId) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'userId is required' }),
                 };
             }
-            
+
             const sessionKeys = await getSessionKeysByUser(userId);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(sessionKeys),
@@ -509,16 +521,16 @@ export const handler = async (event: any) => {
 
         if (action === 'delete_session_key') {
             const { sessionKeyId } = body;
-            
+
             if (!sessionKeyId) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'sessionKeyId is required' }),
                 };
             }
-            
+
             await deleteSessionKey(sessionKeyId);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify({ success: true }),
@@ -532,9 +544,9 @@ export const handler = async (event: any) => {
         if (action === 'get_gas_prices') {
             const { chainId } = body;
             const chainIdNum = parseInt(chainId) || 1;
-            
+
             const gasPrices = await getGasPrices(chainIdNum);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(gasPrices),
@@ -544,16 +556,16 @@ export const handler = async (event: any) => {
         if (action === 'estimate_transaction_gas') {
             const { from, to, value, data, chainId } = body;
             const chainIdNum = parseInt(chainId) || 1;
-            
+
             if (!from || !to) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'from and to are required' }),
                 };
             }
-            
+
             const estimate = await estimateTransactionGas(from, to, value || '0', data || '0x', chainIdNum);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(estimate),
@@ -564,16 +576,16 @@ export const handler = async (event: any) => {
 
         if (action === 'validate_session_key') {
             const { sessionKeyId, permissions, requiredPermissions } = body;
-            
+
             if (!sessionKeyId) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'sessionKeyId is required' }),
                 };
             }
-            
+
             const validation = await validateSessionKey(sessionKeyId, permissions, requiredPermissions);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(validation),
@@ -584,23 +596,23 @@ export const handler = async (event: any) => {
 
         if (action === 'get_user_by_wallet') {
             const { walletAddress } = body;
-            
+
             if (!walletAddress) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'walletAddress is required' }),
                 };
             }
-            
+
             const user = await getUserByWallet(walletAddress);
-            
+
             if (!user) {
                 return {
                     statusCode: 404,
                     body: JSON.stringify({ error: 'User not found' }),
                 };
             }
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(user),
@@ -648,23 +660,23 @@ export const handler = async (event: any) => {
 
         if (action === 'get_user') {
             const { userId } = body;
-            
+
             if (!userId) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'userId is required' }),
                 };
             }
-            
+
             const user = await getUser(userId);
-            
+
             if (!user) {
                 return {
                     statusCode: 404,
                     body: JSON.stringify({ error: 'User not found' }),
                 };
             }
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(user),
@@ -673,14 +685,14 @@ export const handler = async (event: any) => {
 
         if (action === 'create_user') {
             const { userId, walletAddress, email } = body;
-            
+
             if (!userId || !walletAddress) {
                 return {
                     statusCode: 400,
                     body: JSON.stringify({ error: 'userId and walletAddress are required' }),
                 };
             }
-            
+
             const user = await createUser({
                 userId,
                 walletAddress,
@@ -688,7 +700,7 @@ export const handler = async (event: any) => {
                 createdAt: new Date().toISOString(),
                 updatedAt: new Date().toISOString(),
             });
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify(user),
@@ -707,9 +719,9 @@ export const handler = async (event: any) => {
         if (action === 'check_bundler') {
             const { chainId } = body;
             const chainIdNum = parseInt(chainId) || 1;
-            
+
             const available = isChainSupported(chainIdNum);
-            
+
             return {
                 statusCode: 200,
                 body: JSON.stringify({ available }),
@@ -733,160 +745,160 @@ export const handler = async (event: any) => {
 
 // RPC URLs for different chains
 const RPC_URLS: Record<number, string> = {
-  1: process.env.ETHEREUM_RPC_URL || 'https://eth.llamarpc.com',
-  137: process.env.POLYGON_RPC_URL || 'https://polygon.llamarpc.com',
-  42161: process.env.ARBITRUM_RPC_URL || 'https://arbitrum.llamarpc.com',
-  8453: process.env.BASE_RPC_URL || 'https://base.llamarpc.com',
-  4202: process.env.LISK_RPC_URL || 'https://rpc.sepolia.lisk.com',
+    1: process.env.ETHEREUM_RPC_URL || 'https://eth.llamarpc.com',
+    137: process.env.POLYGON_RPC_URL || 'https://polygon.llamarpc.com',
+    42161: process.env.ARBITRUM_RPC_URL || 'https://arbitrum.llamarpc.com',
+    8453: process.env.BASE_RPC_URL || 'https://base.llamarpc.com',
+    4202: process.env.LISK_RPC_URL || 'https://rpc.sepolia.lisk.com',
 };
 
 /**
  * Get current gas prices for a chain
  */
 async function getGasPrices(chainId: number): Promise<{
-  slow: string;
-  standard: string;
-  fast: string;
+    slow: string;
+    standard: string;
+    fast: string;
 }> {
-  const rpcUrl = RPC_URLS[chainId];
-  
-  if (!rpcUrl) {
-    // Return default values for unsupported chains
-    return {
-      slow: '20000000000', // 20 Gwei
-      standard: '30000000000', // 30 Gwei
-      fast: '50000000000', // 50 Gwei
-    };
-  }
+    const rpcUrl = RPC_URLS[chainId];
 
-  try {
-    const provider = new ethers.JsonRpcProvider(rpcUrl);
-    const feeData = await provider.getFeeData();
-    
-    const baseFee = feeData.gasPrice || 0n;
-    const slow = (baseFee * 80n) / 100n;
-    const standard = baseFee;
-    const fast = (baseFee * 150n) / 100n;
-    
-    return {
-      slow: slow.toString(),
-      standard: standard.toString(),
-      fast: fast.toString(),
-    };
-  } catch (error) {
-    console.error('Error fetching gas prices:', error);
-    // Return default values on error
-    return {
-      slow: '20000000000',
-      standard: '30000000000',
-      fast: '50000000000',
-    };
-  }
+    if (!rpcUrl) {
+        // Return default values for unsupported chains
+        return {
+            slow: '20000000000', // 20 Gwei
+            standard: '30000000000', // 30 Gwei
+            fast: '50000000000', // 50 Gwei
+        };
+    }
+
+    try {
+        const provider = new ethers.JsonRpcProvider(rpcUrl);
+        const feeData = await provider.getFeeData();
+
+        const baseFee = feeData.gasPrice || 0n;
+        const slow = (baseFee * 80n) / 100n;
+        const standard = baseFee;
+        const fast = (baseFee * 150n) / 100n;
+
+        return {
+            slow: slow.toString(),
+            standard: standard.toString(),
+            fast: fast.toString(),
+        };
+    } catch (error) {
+        console.error('Error fetching gas prices:', error);
+        // Return default values on error
+        return {
+            slow: '20000000000',
+            standard: '30000000000',
+            fast: '50000000000',
+        };
+    }
 }
 
 /**
  * Estimate gas for a transaction
  */
 async function estimateTransactionGas(
-  from: string,
-  to: string,
-  value: string,
-  data: string,
-  chainId: number
+    from: string,
+    to: string,
+    value: string,
+    data: string,
+    chainId: number
 ): Promise<{
-  gasLimit: string;
-  gasPrice: string;
+    gasLimit: string;
+    gasPrice: string;
 }> {
-  const rpcUrl = RPC_URLS[chainId];
-  
-  if (!rpcUrl) {
-    return {
-      gasLimit: '21000',
-      gasPrice: '30000000000',
-    };
-  }
+    const rpcUrl = RPC_URLS[chainId];
 
-  try {
-    const provider = new ethers.JsonRpcProvider(rpcUrl);
-    
-    const estimate = await provider.estimateGas({
-      from,
-      to,
-      value: BigInt(value),
-      data,
-    });
-    
-    const feeData = await provider.getFeeData();
-    const gasPrice = feeData.gasPrice || 0n;
-    
-    // Add 20% buffer
-    const gasLimit = (estimate * 120n) / 100n;
-    
-    return {
-      gasLimit: gasLimit.toString(),
-      gasPrice: gasPrice.toString(),
-    };
-  } catch (error) {
-    console.error('Error estimating gas:', error);
-    return {
-      gasLimit: '21000',
-      gasPrice: '30000000000',
-    };
-  }
+    if (!rpcUrl) {
+        return {
+            gasLimit: '21000',
+            gasPrice: '30000000000',
+        };
+    }
+
+    try {
+        const provider = new ethers.JsonRpcProvider(rpcUrl);
+
+        const estimate = await provider.estimateGas({
+            from,
+            to,
+            value: BigInt(value),
+            data,
+        });
+
+        const feeData = await provider.getFeeData();
+        const gasPrice = feeData.gasPrice || 0n;
+
+        // Add 20% buffer
+        const gasLimit = (estimate * 120n) / 100n;
+
+        return {
+            gasLimit: gasLimit.toString(),
+            gasPrice: gasPrice.toString(),
+        };
+    } catch (error) {
+        console.error('Error estimating gas:', error);
+        return {
+            gasLimit: '21000',
+            gasPrice: '30000000000',
+        };
+    }
 }
 
 /**
  * Validate session key permissions
  */
 async function validateSessionKey(
-  sessionKeyId: string,
-  permissions?: Record<string, unknown>,
-  requiredPermissions?: Record<string, unknown>
+    sessionKeyId: string,
+    permissions?: Record<string, unknown>,
+    requiredPermissions?: Record<string, unknown>
 ): Promise<{ valid: boolean; reason?: string }> {
-  try {
-    const sessionKey = await getSessionKey(sessionKeyId);
-    
-    if (!sessionKey) {
-      return { valid: false, reason: 'Session key not found' };
-    }
-    
-    // Check if expired
-    if (new Date(sessionKey.expiresAt) < new Date()) {
-      return { valid: false, reason: 'Session key has expired' };
-    }
-    
-    // Check permissions if required
-    if (requiredPermissions && permissions) {
-      for (const [key, value] of Object.entries(requiredPermissions)) {
-        const sessionValue = sessionKey.permissions[key as keyof typeof sessionKey.permissions];
-        
-        if (key === 'spendingLimit' && typeof value === 'string') {
-          const limit = BigInt(value);
-          const sessionLimit = sessionValue ? BigInt(sessionValue as string) : 0n;
-          if (sessionLimit < limit) {
-            return { valid: false, reason: `Spending limit too low: ${sessionLimit}` };
-          }
+    try {
+        const sessionKey = await getSessionKey(sessionKeyId);
+
+        if (!sessionKey) {
+            return { valid: false, reason: 'Session key not found' };
         }
-        
-        if (key === 'allowedContracts' && Array.isArray(value)) {
-          const allowed = sessionValue as string[] | undefined;
-          if (!allowed || !value.every(v => allowed.includes(v))) {
-            return { valid: false, reason: 'Contract not in allowed list' };
-          }
+
+        // Check if expired
+        if (new Date(sessionKey.expiresAt) < new Date()) {
+            return { valid: false, reason: 'Session key has expired' };
         }
-        
-        if (key === 'chainIds' && Array.isArray(value)) {
-          const chains = sessionValue as number[] | undefined;
-          if (!chains || !value.every(v => chains.includes(v))) {
-            return { valid: false, reason: 'Chain not in allowed list' };
-          }
+
+        // Check permissions if required
+        if (requiredPermissions && permissions) {
+            for (const [key, value] of Object.entries(requiredPermissions)) {
+                const sessionValue = sessionKey.permissions[key as keyof typeof sessionKey.permissions];
+
+                if (key === 'spendingLimit' && typeof value === 'string') {
+                    const limit = BigInt(value);
+                    const sessionLimit = sessionValue ? BigInt(sessionValue as string) : 0n;
+                    if (sessionLimit < limit) {
+                        return { valid: false, reason: `Spending limit too low: ${sessionLimit}` };
+                    }
+                }
+
+                if (key === 'allowedContracts' && Array.isArray(value)) {
+                    const allowed = sessionValue as string[] | undefined;
+                    if (!allowed || !value.every(v => allowed.includes(v))) {
+                        return { valid: false, reason: 'Contract not in allowed list' };
+                    }
+                }
+
+                if (key === 'chainIds' && Array.isArray(value)) {
+                    const chains = sessionValue as number[] | undefined;
+                    if (!chains || !value.every(v => chains.includes(v))) {
+                        return { valid: false, reason: 'Chain not in allowed list' };
+                    }
+                }
+            }
         }
-      }
+
+        return { valid: true };
+    } catch (error) {
+        console.error('Error validating session key:', error);
+        return { valid: false, reason: 'Validation error' };
     }
-    
-    return { valid: true };
-  } catch (error) {
-    console.error('Error validating session key:', error);
-    return { valid: false, reason: 'Validation error' };
-  }
 }

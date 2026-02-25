@@ -261,6 +261,7 @@ export const atmosphericScattering = /* glsl */ `
     vec3 position,
     vec3 viewDir,
     vec3 lightDir,
+    float planetRadius,
     float rayleighCoeff,
     float mieCoeff
   ) {
@@ -268,7 +269,7 @@ export const atmosphericScattering = /* glsl */ `
     viewDir = normalize(viewDir);
     lightDir = normalize(lightDir);
     
-    float altitude = length(position) - 1.0; // Assuming normalized planet radius
+    float altitude = length(position) - planetRadius; // Computed against actual planet bounds
     altitude = max(altitude, 0.0);
     
     // STABILIZED: Cosine angle with safe clamping
@@ -356,6 +357,7 @@ export const atmosphereFragmentShaderPhysical = /* glsl */ `
       vPositionLocal,
       -viewDir,  // Direction from camera to surface
       sunDir,
+      uPlanetRadius,
       uRayleighCoeff,
       uMieCoeff
     );
