@@ -40,10 +40,10 @@ export function useSectionReveal(
 
         // Create a gsap context bound to this component's DOM scope 
         // This is CRITICAL for React 18+ strict mode and cleanup
-        const ctx = gsap.context(() => {
+        const ctx = gsap.context((self) => {
             const targets = Array.isArray(selectors)
-                ? selectors.map(s => ctx.selector ? ctx.selector(s) : gsap.utils.toArray(s, currentRef.current)).flat()
-                : selectors === "" ? [currentRef.current] : (ctx.selector ? ctx.selector(selectors) : gsap.utils.toArray(selectors, currentRef.current));
+                ? selectors.map(s => self.selector ? self.selector(s) : gsap.utils.toArray(s, currentRef.current)).flat()
+                : selectors === "" ? [currentRef.current] : (self.selector ? self.selector(selectors) : gsap.utils.toArray(selectors, currentRef.current));
 
             if (!targets || targets.length === 0 || targets[0] === null) return;
 
