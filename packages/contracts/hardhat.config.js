@@ -1,8 +1,7 @@
-require("dotenv").config();
-require("typechain");
+import "dotenv/config";
 
-/** @type import('hardhat/config').HardhatUserConfig */
-module.exports = {
+/** @type {import('hardhat/config').HardhatUserConfig} */
+export default {
     solidity: {
         compilers: [
             {
@@ -35,8 +34,14 @@ module.exports = {
             }
         ]
     },
+    // Exclude Forge-style test files (.t.sol) from Hardhat compilation
+    paths: {
+        tests: "./test",
+        sources: "./contracts",
+    },
     networks: {
         "lisk-sepolia": {
+            type: "http",
             url: process.env.LISK_RPC_URL || "https://rpc.sepolia-api.lisk.com",
             accounts: process.env.PRIVATE_KEY ? [process.env.PRIVATE_KEY] : [],
             chainId: 4202,

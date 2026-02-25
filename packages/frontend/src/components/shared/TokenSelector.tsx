@@ -1,84 +1,57 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
+/**
+ * TokenSelector - Circular token icon + ticker
+ * 48px outer ring with dropdown chevron
+ */
+
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
 
 interface TokenSelectorProps {
-  ticker: string;
+  symbol: string;
   icon?: React.ReactNode;
-  name?: string;
-  showChevron?: boolean;
-  onClick?: () => void;
+  onToggle?: () => void;
+  isOpen?: boolean;
   className?: string;
 }
 
-/**
- * TokenSelector — Circular token icon + ticker
- * 
- * Outer ring: 48px circle, dark background
- * Inner icon: SVG or image of the coin
- * Ticker label below: 12px mono, text-secondary
- * Animated chevron if dropdown
- */
+const tokenIcons: Record<string, { color: string; bgColor: string }> = {
+  BTC: { color: '#F7931A', bgColor: '#F7931A20' },
+  ETH: { color: '#627EEA', bgColor: '#627EEA20' },
+  USDT: { color: '#26A17B', bgColor: '#26A17B20' },
+  BNB: { color: '#F3BA2F', bgColor: '#F3BA2F20' },
+  SOL: { color: '#9945FF', bgColor: '#9945FF20' },
+};
+
 export function TokenSelector({
-  ticker,
+  symbol,
   icon,
-  name,
-  showChevron = true,
-  onClick,
-  className,
+  onToggle,
+  isOpen = false,
+  className = '',
 }: TokenSelectorProps) {
+  const tokenStyle = tokenIcons[symbol] || { color: '#6b7fa3', bgColor: '#6b7fa320' };
+  
   return (
-    <motion.button
-      onClick={onClick}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      className={cn(
-        "flex flex-col items-center gap-1.5",
-        "bg-[var(--color-bg-elevated)] rounded-2xl",
-        "border border-[var(--color-border-subtle)]",
-        "p-3 transition-all duration-200",
-        "hover:border-[var(--color-accent-blue)] hover:shadow-[0_0_20px_rgba(59,130,246,0.15)]",
-        onClick && "cursor-pointer",
-        className
-      )}
+    <button
+      onClick={onToggle}
+      className={`flex flex-col items-center gap-1 p-2 rounded-xl hover:bg-white/5 transition-colors ${className}`}
     >
-      {/* Token Icon Circle */}
-      <div className="relative w-12 h-12 rounded-full bg-[var(--color-bg-surface)] flex items-center justify-center overflow-hidden">
-        {icon ? (
-          icon
-        ) : (
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[var(--color-accent-blue)] to-[var(--color-accent-cyan)] flex items-center justify-center">
-            <span className="text-white font-bold text-sm">{ticker.slice(0, 2)}</span>
-          </div>
-        )}
-        
-        {/* Glow effect on hover */}
-        <div className="absolute inset-0 rounded-full opacity-0 hover:opacity-100 transition-opacity duration-200 bg-gradient-to-br from-[var(--color-accent-blue)] to-[var(--color-accent-cyan)] blur-md -z-10" />
+      <div
+        className="w-12 h-12 rounded-full flex items-center justify-center text-lg font-bold"
+        style={{ backgroundColor: tokenStyle.bgColor, color: tokenStyle.color }}
+      >
+        {icon || symbol.charAt(0)}
       </div>
-
-      {/* Ticker + Name */}
-      <div className="flex flex-col items-center">
-        <span className="text-xs font-mono font-medium text-[var(--color-text-value)]">
-          {ticker}
-        </span>
-        {name && (
-          <span className="text-[10px] text-[var(--color-text-muted)]">
-            {name}
-          </span>
+      <div className="flex items-center gap-1">
+        <span className="text-xs font-mono text-[#6b7fa3]">{symbol}</span>
+        {onToggle && (
+          isOpen ? 
+            <ChevronUp className="w-3 h-3 text-[#6b7fa3]" /> : 
+            <ChevronDown className="w-3 h-3 text-[#6b7fa3]" />
         )}
       </div>
-
-      {/* Animated Chevron */}
-      {showChevron && (
-        <motion.div
-          animate={{ y: [0, 2, 0] }}
-          transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
-        >
-          <ChevronDown className="w-3 h-3 text-[var(--color-text-muted)]" />
-        </motion.div>
-      )}
-    </motion.button>
+    </button>
   );
 }

@@ -93,39 +93,46 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} font-sans antialiased bg-[#0f0f0f] text-white selection:bg-primary/30 selection:text-white`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} font-sans antialiased bg-[#060b14] text-white selection:bg-primary/30 selection:text-white`}
         suppressHydrationWarning
       >
-        <div className="layout-shell">
+        {/* Background Effects - Fixed to viewport */}
+        <div
+          className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none"
+          aria-hidden="true"
+        >
+          {/* Top left purple glow */}
           <div
-            className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none"
-            aria-hidden="true"
-          >
-            <div
-              className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full blur-[120px] opacity-[0.15]"
-              style={{
-                background:
-                  "radial-gradient(circle, #6366f1 0%, transparent 70%)",
-              }}
-            />
-            <div
-              className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] rounded-full blur-[100px] opacity-[0.10]"
-              style={{
-                background:
-                  "radial-gradient(circle, #06d6a0 0%, transparent 70%)",
-              }}
-            />
-          </div>
-
-          <UserProvider>
-            <AppProvider>
-              <SmoothScrollProvider>
-                {children}
-                <PerformanceMonitor />
-              </SmoothScrollProvider>
-            </AppProvider>
-          </UserProvider>
+            className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full blur-[120px] opacity-[0.12]"
+            style={{
+              background: "radial-gradient(circle, #6366f1 0%, transparent 70%)",
+            }}
+          />
+          {/* Bottom right teal glow */}
+          <div
+            className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] rounded-full blur-[100px] opacity-[0.08]"
+            style={{
+              background: "radial-gradient(circle, #14b8a6 0%, transparent 70%)",
+            }}
+          />
+          {/* Center subtle blue glow */}
+          <div
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[150px] opacity-[0.05]"
+            style={{
+              background: "radial-gradient(circle, #3b82f6 0%, transparent 70%)",
+            }}
+          />
         </div>
+
+        {/* Main Content */}
+        <UserProvider>
+          <AppProvider>
+            <SmoothScrollProvider>
+              {children}
+              <PerformanceMonitor />
+            </SmoothScrollProvider>
+          </AppProvider>
+        </UserProvider>
       </body>
     </html>
   );

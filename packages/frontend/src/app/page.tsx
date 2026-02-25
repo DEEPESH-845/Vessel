@@ -1,303 +1,252 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
-import { 
-  Zap, 
-  Shield, 
-  TrendingUp, 
-  ArrowRight, 
-  Wallet, 
-  Activity,
-  Globe,
-  Layers,
-  ChevronRight,
-  Bitcoin,
-  Send,
-  ArrowDownLeft,
-  Star
-} from "lucide-react";
+import { useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
+import { Navbar } from "@/components/landing/Navbar";
+import { HeroMesh } from "@/components/fintech/HeroMesh";
+import { ProblemSolution } from "@/components/fintech/ProblemSolution";
+import { useSectionReveal } from "@/hooks/useSectionReveal";
 
-// Web3 Dashboard Design System
-const COLORS = {
-  background: "#0B0F19",
-  backgroundAlt: "#0E1320",
-  card: "rgba(14, 19, 32, 0.8)",
-  primary: "#3B82F6",
-  primaryPurple: "#8B5CF6",
-  accent: "#06B6D4",
-  success: "#10B981",
-  warning: "#F59E0B",
-  text: "#FFFFFF",
-  textMuted: "#94A3B8",
-};
+// High-Fidelity Interactive Components
+import { InteractivePaymentSimulation } from "@/components/aws-demo/InteractivePaymentSimulation";
+import { SecurityTransparencyDrawer } from "@/components/aws-demo/SecurityTransparencyDrawer";
+import { AIAgentFlowVisualizer } from "@/components/aws-demo/AIAgentFlowVisualizer";
+import { AIFraudInsightPanel } from "@/components/aws-demo/AIFraudInsightPanel";
+import { GasPredictionVisualizer } from "@/components/aws-demo/GasPredictionVisualizer";
+import { RealTimeMerchantDashboard } from "@/components/aws-demo/RealTimeMerchantDashboard";
 
-// Animation variants
-const staggerContainer = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.08, delayChildren: 0.15 },
-  },
-};
+// Minimal Demo Toggle
+import { DemoToggle } from "@/components/aws-demo/DemoToggle";
 
-const fadeInUp = {
-  hidden: { opacity: 0, y: 24 },
-  show: { 
-    opacity: 1, 
-    y: 0,
-    transition: { type: "spring" as const, damping: 20, stiffness: 100 }
-  },
-};
+// Icons 
+import { Sparkles, TerminalSquare, ShieldCheck, DatabaseZap, Network, Shield } from "lucide-react";
 
-const features = [
-  {
-    icon: Zap,
-    title: "Zero Gas Fees",
-    desc: "Paymaster sponsors every transaction. Never pay gas again.",
-  },
-  {
-    icon: Shield,
-    title: "AI Security",
-    desc: "Bedrock-powered fraud detection keeps your funds safe.",
-  },
-  {
-    icon: TrendingUp,
-    title: "Any Stablecoin",
-    desc: "USDC · USDT · DAI and more supported out of the box.",
-  },
-];
-
-const stats = [
-  { value: "$2.5B+", label: "Volume Processed" },
-  { value: "500K+", label: "Active Users" },
-  { value: "99.9%", label: "Uptime" },
-];
-
-const assets = [
-  { symbol: "ETH", name: "Ethereum", balance: "2.45", value: "$4,182.50", icon: Bitcoin },
-  { symbol: "USDC", name: "USD Coin", balance: "1,250.00", value: "$1,250.00", icon: Wallet },
-  { symbol: "USDT", name: "Tether", balance: "500.00", value: "$500.00", icon: Wallet },
-];
+// Dynamically import smooth scroll
+const SmoothScrollProvider = dynamic(
+  () => import("@/components/smooth-scroll-provider").then((mod) => mod.SmoothScrollProvider)
+);
+import { useInteractiveFlow } from "@/hooks/useInteractiveFlow";
 
 export default function LandingPage() {
-  const router = useRouter();
-  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const checkAuthAndRedirect = async () => {
-      try {
-        const hasLoggedIn = document.cookie.includes('has_logged_in=true');
-        if (hasLoggedIn) {
-          const response = await fetch('/api/auth/me');
-          const data = await response.json();
-          if (data.user) {
-            router.push('/wallet');
-            return;
-          }
-        }
-      } catch (error) {
-        console.error('Auth check failed:', error);
-      } finally {
-        setIsCheckingAuth(false);
-      }
-    };
-    checkAuthAndRedirect();
-  }, [router]);
+  // Initialize the GSAP Interactive Master Orchestrator Event engine
+  useInteractiveFlow();
 
-  const handleLogin = () => {
-    window.location.href = '/api/auth/login?connection=google-oauth2';
-  };
+  // Apply premium cinematic reveals to section components safely
+  useSectionReveal(containerRef, ".hero-anim", {
+    yOffset: 40,
+    stagger: 0.15,
+    delay: 0.2,
+  });
 
-  if (isCheckingAuth) {
-    return (
-      <div className="flex items-center justify-center min-h-dvh" style={{ backgroundColor: COLORS.background }}>
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-            className="w-12 h-12"
-          >
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="#06B6D4" strokeWidth="2">
-              <path d="M21.5 2v6h-6M2.5 22v-6h6M2 11.5a10 10 0 0 1 18.8-4.3M22 12.5a10 10 0 0 1-18.8 4.2" />
-            </svg>
-          </motion.div>
-        </motion.div>
-      </div>
-    );
-  }
+  useSectionReveal(containerRef, ".cinematic-section", {
+    yOffset: 60,
+    duration: 1.2,
+    triggerHook: "top 85%"
+  });
 
   return (
-    <div className="relative min-h-screen overflow-hidden" style={{ backgroundColor: COLORS.background }}>
-      {/* Background Effects */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute inset-0" style={{
-          background: `radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.15), transparent),
-            radial-gradient(ellipse 60% 40% at 80% 50%, rgba(139, 92, 246, 0.1), transparent),
-            radial-gradient(ellipse 50% 30% at 20% 80%, rgba(6, 182, 212, 0.08), transparent)`,
-        }} />
-      </div>
+    <SmoothScrollProvider>
+      <main ref={containerRef} className="relative min-h-screen bg-[#0B0F17] text-white font-sans selection:bg-accent-cyan/30">
+        
+        <DemoToggle />
+        <Navbar />
 
-      {/* Header */}
-      <header className="relative z-10 px-6 py-4 md:px-12">
-        <motion.nav initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} className="flex items-center justify-between max-w-7xl mx-auto">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #06B6D4 100%)' }}>
-              <span className="text-xl font-bold text-white">V</span>
+        {/* ========================================================= */}
+        {/* SEC 1: HERO CINEMATIC (THE HOOK) */}
+        {/* ========================================================= */}
+        <section className="relative min-h-screen flex items-center py-16 md:py-24 lg:py-32 overflow-hidden">
+          <HeroMesh />
+          
+          <div className="relative z-10 w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-center">
+            {/* Left Column: Copy & CTAs */}
+            <div className="text-left w-full md:min-w-[480px]">
+              <div className="hero-anim inline-flex items-center gap-2 px-4 py-2 mb-6 md:mb-8 rounded-full border border-white/10 bg-white/5 backdrop-blur-md text-xs font-mono text-white/60 tracking-widest uppercase">
+                <Sparkles className="w-4 h-4 text-accent-cyan" />
+                <span>Production-Ready Web3 Architecture</span>
+              </div>
+
+              <h1 className="hero-anim text-5xl md:text-6xl lg:text-7xl font-black tracking-tighter leading-tight mb-6 md:mb-8 max-w-4xl">
+                Gasless Execution.<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-cyan via-white/90 to-accent-purple/60">
+                  Infinite Scale.
+                </span>
+              </h1>
+
+              <p className="hero-anim text-base md:text-lg text-white/50 max-w-xl font-light mb-8 md:mb-10 leading-relaxed tracking-wide">
+                Vessel abstracts the friction of crypto via <span className="text-white/80 font-medium">ERC-4337</span> and <span className="text-white/80 font-medium">AWS Bedrock</span>. Zero gas limits. Instant deterministic settlement. Enterprise security.
+              </p>
+
+              <div className="hero-anim flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6 w-full justify-start">
+                <button 
+                  className="group relative inline-flex items-center justify-center gap-3 px-8 py-4 bg-white text-bg-void rounded-full font-bold text-sm tracking-widest uppercase transition-transform hover:scale-[1.03]"
+                  onClick={() => {
+                     document.getElementById('engine-section')?.scrollIntoView({ behavior: 'smooth' });
+                  }}
+                >
+                  <TerminalSquare className="w-5 h-5 fill-bg-void" />
+                  Initialize Simulation
+                  <div className="absolute inset-0 rounded-full ring-2 ring-white/20 ring-offset-2 ring-offset-bg-void opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+              </div>
             </div>
-            <span className="text-xl font-semibold" style={{ fontFamily: "'Space Grotesk', sans-serif", color: COLORS.text }}>Vessel</span>
-          </div>
-          <div className="hidden md:flex items-center gap-8">
-            {['Features', 'Security', 'Pricing', 'Docs'].map((item) => (
-              <a key={item} href="#" className="text-sm font-medium transition-colors hover:text-white" style={{ color: COLORS.textMuted }}>{item}</a>
-            ))}
-          </div>
-          <div className="flex items-center gap-4">
-            <button onClick={handleLogin} className="px-5 py-2.5 text-sm font-semibold rounded-lg transition-all hover:bg-white/10" style={{ color: COLORS.text }}>Sign In</button>
-            <button onClick={handleLogin} className="px-5 py-2.5 text-sm font-semibold rounded-lg text-white transition-all" style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)' }}>Get Started</button>
-          </div>
-        </motion.nav>
-      </header>
 
-      {/* Hero */}
-      <section className="relative z-10 px-6 py-16 md:py-24 md:px-12">
-        <motion.div variants={staggerContainer} initial="hidden" animate="show" className="max-w-5xl mx-auto text-center">
-          <motion.div variants={fadeInUp} className="mb-6">
-            <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)', color: '#60A5FA' }}>
-              <Star className="w-3 h-3" />Now live on Lisk Mainnet
-            </span>
-          </motion.div>
-          <motion.h1 variants={fadeInUp} className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6" style={{ fontFamily: "'Space Grotesk', sans-serif", color: COLORS.text }}>
-            The gasless payment layer <span className="bg-clip-text text-transparent" style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 50%, #06B6D0 100%)', WebkitBackgroundClip: 'text' }}>for stablecoins</span>
-          </motion.h1>
-          <motion.p variants={fadeInUp} className="text-lg md:text-xl mb-10 max-w-2xl mx-auto" style={{ fontFamily: "'Inter', sans-serif", color: COLORS.textMuted }}>
-            Zero gas. One tap. Instant. Experience the future of crypto payments with AI-powered security built on ERC-4337.
-          </motion.p>
-          <motion.div variants={fadeInUp} className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12">
-            <button onClick={handleLogin} className="flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)', boxShadow: '0 4px 24px rgba(59, 130, 246, 0.3)' }}>
-              Start Now<ArrowRight className="w-5 h-5" />
-            </button>
-            <button className="flex items-center gap-2 px-8 py-4 rounded-xl font-medium transition-all hover:bg-white/5" style={{ border: '1px solid rgba(255, 255, 255, 0.1)', color: COLORS.text }}>
-              <Globe className="w-5 h-5" />View Documentation
-            </button>
-          </motion.div>
-          <motion.div variants={fadeInUp} className="flex flex-wrap items-center justify-center gap-6 text-sm" style={{ color: COLORS.textMuted }}>
-            <span className="flex items-center gap-2"><Shield className="w-4 h-4 text-emerald-400" />Non-custodial</span>
-            <span className="flex items-center gap-2"><Activity className="w-4 h-4 text-cyan-400" />ERC-4337</span>
-            <span className="flex items-center gap-2"><Layers className="w-4 h-4 text-purple-400" />Open Source</span>
-          </motion.div>
-        </motion.div>
-      </section>
-
-      {/* Features */}
-      <section className="relative z-10 px-6 py-16 md:px-12" style={{ backgroundColor: COLORS.backgroundAlt }}>
-        <div className="max-w-6xl mx-auto">
-          <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true }} className="text-center mb-12">
-            <motion.h2 variants={fadeInUp} className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif", color: COLORS.text }}>Why choose Vessel?</motion.h2>
-            <motion.p variants={fadeInUp} className="text-lg" style={{ color: COLORS.textMuted }}>The most advanced stablecoin payment infrastructure</motion.p>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {features.map((feature, idx) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div key={feature.title} variants={fadeInUp} className="p-6 rounded-2xl cursor-pointer" style={{ background: COLORS.card, border: '1px solid rgba(255, 255, 255, 0.05)', backdropFilter: 'blur(20px)' }}>
-                  <div className="flex flex-col gap-4">
-                    <div className="w-12 h-12 rounded-xl flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.1)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                      <Icon className="w-6 h-6" style={{ color: '#60A5FA' }} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-semibold mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", color: COLORS.text }}>{feature.title}</h3>
-                      <p className="text-sm" style={{ color: COLORS.textMuted }}>{feature.desc}</p>
-                    </div>
+            {/* Right Column: Visual Anchor / Breathing Space */}
+            <div className="hidden md:flex relative w-full h-[500px] items-center justify-center">
+               <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(59,130,246,0.1)_0%,transparent_70%)] opacity-50 blur-3xl rounded-full pointer-events-none" />
+               <div className="hero-anim relative w-64 h-64 lg:w-80 lg:h-80 rounded-full border border-white/5 bg-white/[0.02] backdrop-blur-3xl shadow-[0_0_80px_rgba(59,130,246,0.1)] flex items-center justify-center">
+                  <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-full border border-white/10 bg-void shadow-inner flex items-center justify-center">
+                    <div className="w-16 h-16 rounded-full bg-accent-cyan/20 animate-pulse blur-xl" />
                   </div>
-                </motion.div>
-              );
-            })}
+               </div>
+            </div>
           </div>
-        </div>
-      </section>
 
-      {/* Stats */}
-      <section className="relative z-10 px-6 py-16 md:px-12">
-        <div className="max-w-4xl mx-auto">
-          <div className="grid grid-cols-3 gap-8 text-center">
-            {stats.map((stat, idx) => (
-              <motion.div key={stat.label} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: idx * 0.1 }}>
-                <div className="text-4xl md:text-5xl font-bold mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif", background: 'linear-gradient(135deg, #FFFFFF 0%, #94A3B8 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>{stat.value}</div>
-                <div className="text-sm" style={{ color: COLORS.textMuted }}>{stat.label}</div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
+          <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-t from-[#0B0F17] to-transparent z-10 pointer-events-none" />
+        </section>
 
-      {/* Wallet Preview */}
-      <section className="relative z-10 px-6 py-16 md:px-12" style={{ backgroundColor: COLORS.backgroundAlt }}>
-        <div className="max-w-6xl mx-auto">
-          <motion.div variants={staggerContainer} initial="hidden" whileInView="show" viewport={{ once: true }}>
-            <motion.div variants={fadeInUp} className="text-center mb-12">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif", color: COLORS.text }}>Your assets, beautifully organized</h2>
-              <p className="text-lg" style={{ color: COLORS.textMuted }}>Track your portfolio across all chains in real-time</p>
-            </motion.div>
-            <motion.div variants={fadeInUp} className="rounded-2xl p-6 max-w-md mx-auto" style={{ background: 'rgba(14, 19, 32, 0.9)', border: '1px solid rgba(59, 130, 246, 0.2)', boxShadow: '0 0 60px rgba(59, 130, 246, 0.1)' }}>
-              <div className="rounded-xl p-5 mb-6" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm" style={{ color: COLORS.textMuted }}>Total Balance</span>
-                  <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-emerald-400"></div><span className="text-xs text-emerald-400">Live</span></div>
-                </div>
-                <div className="text-4xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif", color: COLORS.text }}>$6,182.50</div>
-                <div className="flex gap-3">
-                  <button className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium" style={{ background: 'rgba(59, 130, 246, 0.2)', color: '#60A5FA' }}><Send className="w-4 h-4" />Send</button>
-                  <button className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-lg text-sm font-medium" style={{ background: 'rgba(16, 185, 129, 0.2)', color: '#34D399' }}><ArrowDownLeft className="w-4 h-4" />Receive</button>
+        {/* ========================================================= */}
+        {/* SEC 2: PROBLEM/SOLUTION (FRICTION DIAGNOSIS) */}
+        {/* ========================================================= */}
+        <section className="cinematic-section py-16 md:py-24 lg:py-32 border-b border-white/[0.02]">
+           <ProblemSolution />
+        </section>
+
+        {/* ========================================================= */}
+        {/* SEC 3: THE ENGINE (CENTRAL INTERACTIVE FOCAL POINT) */}
+        {/* ========================================================= */}
+        <section id="engine-section" className="cinematic-section py-16 md:py-24 lg:py-32 relative border-b border-white/[0.02] bg-[#0A0D13]">
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(59,130,246,0.03),transparent_70%)] pointer-events-none" />
+          
+          <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative z-10">
+            <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
+              
+              <div className="text-left mb-12 md:mb-0">
+                 <DatabaseZap className="w-10 h-10 md:w-12 md:h-12 text-accent-purple mb-6 md:mb-8 opacity-80" />
+                 <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 md:mb-8 text-white max-w-4xl">
+                   The Vessel Core Engine
+                 </h2>
+                 <p className="text-base md:text-lg text-white/60 font-light leading-relaxed mb-6 md:mb-8 max-w-2xl">
+                   A fully autonomous cloud pipeline leveraging predictive ML for gas optimization and zero-trust perimeter defense. Execute a payload to visualize the sequence.
+                 </p>
+              </div>
+
+              <div className="relative w-full flex justify-center md:justify-start">
+                <div className="absolute -inset-4 bg-gradient-to-r from-accent-purple/20 via-primary/20 to-accent-cyan/20 blur-2xl opacity-40 rounded-[3rem] pointer-events-none" />
+                <div className="bg-bg-elevated/80 border border-white/10 rounded-3xl overflow-hidden backdrop-blur-2xl shadow-2xl relative min-h-[450px] w-full">
+                   <InteractivePaymentSimulation />
                 </div>
               </div>
-              <div className="space-y-3">
-                {assets.map((asset) => {
-                  const Icon = asset.icon;
-                  return (
-                    <div key={asset.symbol} className="flex items-center justify-between p-3 rounded-lg transition-colors hover:bg-white/5">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full flex items-center justify-center" style={{ background: 'rgba(59, 130, 246, 0.1)' }}><Icon className="w-5 h-5 text-blue-400" /></div>
-                        <div><div className="font-medium" style={{ color: COLORS.text }}>{asset.symbol}</div><div className="text-xs" style={{ color: COLORS.textMuted }}>{asset.name}</div></div>
-                      </div>
-                      <div className="text-right"><div className="font-medium" style={{ color: COLORS.text }}>{asset.balance}</div><div className="text-xs" style={{ color: COLORS.textMuted }}>{asset.value}</div></div>
+
+            </div>
+          </div>
+        </section>
+
+        {/* ========================================================= */}
+        {/* SEC 4: SECURITY LAYER (KMS TRANSPARENCY) */}
+        {/* ========================================================= */}
+        <section className="cinematic-section py-16 md:py-24 lg:py-32 relative border-b border-white/[0.02]">
+           <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative z-10">
+              <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
+                 <div className="text-left mb-12 md:mb-0">
+                    <Shield className="w-8 h-8 md:w-10 md:h-10 text-accent-cyan mb-6 md:mb-8" />
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 md:mb-8 text-white max-w-4xl">
+                      Zero-Trust Perimeter
+                    </h2>
+                    <p className="text-base md:text-lg text-white/60 font-light leading-relaxed mb-6 md:mb-8 max-w-2xl">
+                       Every transaction is wrapped in an ERC-4337 UserOperation. AWS KMS generates ephemeral signers via federated enclaves, completely eliminating the need for user seed phrases.
+                    </p>
+                 </div>
+                 <div className="w-full flex justify-center md:justify-start">
+                    <div className="bg-bg-elevated/40 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-xl w-full">
+                       <SecurityTransparencyDrawer />
                     </div>
-                  );
-                })}
+                 </div>
               </div>
-              <button className="w-full mt-4 py-3 rounded-lg text-sm font-medium transition-colors flex items-center justify-center gap-1" style={{ color: COLORS.textMuted }}>View All Assets<ChevronRight className="w-4 h-4" /></button>
-            </motion.div>
-          </motion.div>
-        </div>
-      </section>
+           </div>
+        </section>
 
-      {/* CTA */}
-      <section className="relative z-10 px-6 py-20 md:px-12">
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="max-w-3xl mx-auto text-center">
-          <div className="rounded-3xl p-10" style={{ background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%)', border: '1px solid rgba(59, 130, 246, 0.2)' }}>
-            <h2 className="text-3xl md:text-4xl font-bold mb-4" style={{ fontFamily: "'Space Grotesk', sans-serif", color: COLORS.text }}>Ready to get started?</h2>
-            <p className="text-lg mb-8" style={{ color: COLORS.textMuted }}>Join thousands of users experiencing the future of crypto payments.</p>
-            <button onClick={handleLogin} className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-white transition-all hover:scale-105" style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)', boxShadow: '0 4px 24px rgba(59, 130, 246, 0.4)' }}>Create Wallet<ArrowRight className="w-5 h-5" /></button>
-          </div>
-        </motion.div>
-      </section>
+        {/* ========================================================= */}
+        {/* SEC 5: AI INTELLIGENCE & ROUTING */}
+        {/* ========================================================= */}
+        <section className="cinematic-section py-16 md:py-24 lg:py-32 relative border-b border-white/[0.02] bg-[#0A0D13]">
+           <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative z-10">
+              <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start mb-12 md:mb-16">
+                 <div className="text-left">
+                    <Network className="w-8 h-8 md:w-10 md:h-10 text-neon-green mb-6 md:mb-8" />
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 md:mb-8 text-white max-w-4xl">
+                      Autonomous Routing & Bedrock Analysis
+                    </h2>
+                 </div>
+                 <div className="text-left">
+                    <p className="text-base md:text-lg text-white/60 font-light leading-relaxed mb-6 md:mb-8 max-w-2xl">
+                      Traffic is continuously analyzed by AWS Bedrock for anomaly detection before being deterministically routed via our decentralized intent solver network.
+                    </p>
+                 </div>
+              </div>
 
-      {/* Footer */}
-      <footer className="relative z-10 px-6 py-10 md:px-12" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
-        <div className="max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #3B82F6 0%, #8B5CF6 100%)' }}><span className="text-sm font-bold text-white">V</span></div>
-              <span className="font-semibold" style={{ color: COLORS.text }}>Vessel</span>
+              <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
+                 <div className="bg-bg-elevated/40 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-xl w-full h-full">
+                    <AIAgentFlowVisualizer />
+                 </div>
+                 <div className="bg-bg-elevated/40 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-xl w-full h-full">
+                    <AIFraudInsightPanel />
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* ========================================================= */}
+        {/* SEC 6: ECONOMICS & TELEMETRY */}
+        {/* ========================================================= */}
+        <section className="cinematic-section py-16 md:py-24 lg:py-32 relative">
+           <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 relative z-10">
+              <div className="grid md:grid-cols-2 gap-8 md:gap-12 items-start mb-12 md:mb-16">
+                 <div className="text-left">
+                    <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 md:mb-8 text-white max-w-4xl">
+                      Predictive Gas Oracle & Merchant Telemetry
+                    </h2>
+                 </div>
+                 <div className="text-left">
+                    <p className="text-base md:text-lg text-white/60 font-light leading-relaxed mb-6 md:mb-8 max-w-2xl">
+                      Real-time monitoring of network conditions ensures optimal execution timing and deep visibility into transaction success rates.
+                    </p>
+                 </div>
+              </div>
+              
+              <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start">
+                 <div className="bg-bg-elevated/40 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-xl w-full h-full">
+                    <GasPredictionVisualizer />
+                 </div>
+                 <div className="bg-bg-elevated/40 border border-white/5 rounded-3xl overflow-hidden backdrop-blur-xl w-full h-full">
+                    <RealTimeMerchantDashboard />
+                 </div>
+              </div>
+           </div>
+        </section>
+
+        {/* ========================================================= */}
+        {/* SEC 7: MINIMAL FOOTER */}
+        {/* ========================================================= */}
+        <footer className="py-16 md:py-24 lg:py-32 border-t border-white/[0.02] relative z-10 bg-bg-void text-center">
+          <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12 flex flex-col items-center justify-center gap-8 md:gap-12">
+            <h2 className="text-4xl md:text-5xl font-black tracking-tighter text-white mb-6 md:mb-8 bg-clip-text text-transparent bg-gradient-to-br from-white to-white/30 max-w-4xl">
+               Build With Vessel.
+            </h2>
+            <div className="flex items-center gap-4 md:gap-6">
+              <span className="text-sm flex items-center gap-2 text-white/40 uppercase tracking-widest font-mono">
+                 <span className="w-2 h-2 rounded-full bg-neon-green animate-pulse" /> 
+                 AWS Mainnet Operational
+              </span>
             </div>
-            <div className="flex flex-wrap items-center justify-center gap-6">
-              {['Documentation', 'GitHub', 'Twitter', 'Discord'].map((item) => (<a key={item} href="#" className="text-sm transition-colors hover:text-white" style={{ color: COLORS.textMuted }}>{item}</a>))}
-            </div>
+            <p className="text-xs text-white/30 font-mono tracking-wider mt-12 md:mt-16 mb-6 md:mb-8 max-w-2xl leading-relaxed">
+              © 2026 Vessel Labs.
+            </p>
           </div>
-          <div className="mt-8 pt-8 text-center text-sm" style={{ borderTop: '1px solid rgba(255, 255, 255, 0.05)', color: COLORS.textMuted }}>© 2025 Vessel. Built on ERC-4337.</div>
-        </div>
-      </footer>
-    </div>
+        </footer>
+
+      </main>
+    </SmoothScrollProvider>
   );
 }

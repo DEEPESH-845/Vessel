@@ -2,7 +2,7 @@
   "name": "contracts",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "type": "module",
   "scripts": {
     "compile": "hardhat compile",
     "clean": "hardhat clean",

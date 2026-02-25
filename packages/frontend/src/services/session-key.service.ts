@@ -101,7 +101,7 @@ export class SessionKeyService {
     
     return {
       encrypted: this.arrayBufferToBase64(encryptedBuffer),
-      iv: this.arrayBufferToBase64(iv)
+      iv: this.arrayBufferToBase64(iv.buffer as ArrayBuffer)
     };
   }
 
@@ -186,12 +186,12 @@ export class SessionKeyService {
     if (userPassword) {
       const salt = generateSecureRandomBytes(16);
       const encryptionKey = await this.deriveKey(userPassword, salt);
-      const { encrypted, iv } = await encrypt(keyPair.privateKey, encryptionKey);
+      const { encrypted, iv } = await this.encrypt(keyPair.privateKey, encryptionKey);
       
       // Store encrypted key with the public key as ID
       this.encryptedKeys.set(keyPair.publicKey, {
         encrypted,
-        iv: this.arrayBufferToBase64(salt.buffer) + ':' + iv
+        iv: this.arrayBufferToBase64(salt.buffer as ArrayBuffer) + ':' + iv
       });
     }
 
@@ -210,7 +210,7 @@ export class SessionKeyService {
       const salt = new Uint8Array(this.base64ToArrayBuffer(saltBase64));
       const encryptionKey = await this.deriveKey(userPassword, salt);
       
-      return await decrypt(stored.encrypted, iv, encryptionKey);
+      return await this.decrypt(stored.encrypted, iv, encryptionKey);
     } catch (error) {
       console.error('Failed to decrypt private key:', error);
       return null;

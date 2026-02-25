@@ -2,10 +2,10 @@
 
 /**
  * User Provider Component
- * Wraps the application with Auth0 UserProvider for session management
+ * Wraps the application with session context.
+ * Auth is handled by Amazon Cognito via the backend.
  */
 
-import { Auth0Provider } from '@auth0/nextjs-auth0/client';
 import { ReactNode } from 'react';
 
 interface UserProviderProps {
@@ -13,5 +13,5 @@ interface UserProviderProps {
 }
 
 export function UserProvider({ children }: UserProviderProps) {
-  return <Auth0Provider>{children}</Auth0Provider>;
+  return <>{children}</>;
 }

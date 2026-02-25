@@ -1,48 +1,62 @@
-"use client";
+'use client';
 
-import { motion } from "framer-motion";
-import { TrendingUp, TrendingDown } from "lucide-react";
-import { MiniLineChart } from "../shared/MiniLineChart";
+/**
+ * TVLCard - TVL display with sparkline
+ * Bottom-left card showing Uniswap TVL
+ */
+
+import { ArrowUpRight } from 'lucide-react';
 
 interface TVLCardProps {
-  label: string;
-  value: string;
-  change: number;
-  data?: number[];
   className?: string;
 }
 
-/**
- * TVLCard — Bottom-left card showing TVL/Volume metrics
- * 
- * Sparkline chart
- * Value with change percentage
- * Trend indicator
- */
-export function TVLCard({ label, value, change, data = [30, 45, 35, 50, 40, 60, 55, 70], className }: TVLCardProps) {
-  const isPositive = change >= 0;
-
+export function TVLCard({ className = '' }: TVLCardProps) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: 0.2 }}
-      className={`p-4 rounded-xl border border-[var(--color-border-subtle)] bg-[var(--color-bg-surface)] ${className}`}
+    <div
+      className={`absolute bottom-8 left-8 z-10 ${className}`}
+      style={{
+        width: '220px',
+        background: 'rgba(11, 20, 34, 0.82)',
+        backdropFilter: 'blur(16px)',
+        border: '1px solid rgba(59, 130, 246, 0.12)',
+        borderRadius: '20px',
+        padding: '16px',
+      }}
     >
-      <div className="flex items-start justify-between mb-3">
-        <span className="text-xs text-[var(--color-text-secondary)]">{label}</span>
-        <div className={`flex items-center gap-1 text-xs ${isPositive ? 'text-[var(--color-green-pos)]' : 'text-[var(--color-red-neg)]'}`}>
-          {isPositive ? <TrendingUp className="w-3 h-3" /> : <TrendingDown className="w-3 h-3" />}
-          <span>{isPositive ? '+' : ''}{change.toFixed(2)}%</span>
-        </div>
+      {/* Header */}
+      <div className="flex justify-between items-center mb-2">
+        <span className="text-xs text-[#6b7fa3] uppercase tracking-wider">Uniswap TVL</span>
+        <button
+          className="w-9 h-9 rounded-full flex items-center justify-center"
+          style={{ background: '#3b82f6' }}
+        >
+          <ArrowUpRight className="w-4 h-4 text-white" />
+        </button>
       </div>
-      
-      <div className="flex items-end justify-between">
-        <div>
-          <span className="text-xl font-mono font-bold text-[var(--color-text-value)]">{value}</span>
-        </div>
-        <MiniLineChart data={data} width={80} height={32} />
-      </div>
-    </motion.div>
+
+      {/* Value */}
+      <div className="text-2xl font-mono font-bold text-white mb-3">$3.08B</div>
+
+      {/* Sparkline SVG */}
+      <svg viewBox="0 0 180 50" className="w-full h-12">
+        <defs>
+          <linearGradient id="sparklineGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="rgba(59, 130, 246, 0.3)" />
+            <stop offset="100%" stopColor="transparent" />
+          </linearGradient>
+        </defs>
+        <path
+          d="M0,40 Q20,35 40,30 T80,20 T120,25 T160,15 T180,10"
+          fill="none"
+          stroke="#3b82f6"
+          strokeWidth="1.5"
+        />
+        <path
+          d="M0,40 Q20,35 40,30 T80,20 T120,25 T160,15 T180,10 V50 H0 Z"
+          fill="url(#sparklineGradient)"
+        />
+      </svg>
+    </div>
   );
 }

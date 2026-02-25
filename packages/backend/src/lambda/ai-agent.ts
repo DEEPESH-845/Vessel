@@ -359,15 +359,20 @@ async function parseTransactionIntent(userInput: string): Promise<TransactionInt
           agentId: AGENT_ID,
           agentAliasId: AGENT_ALIAS_ID,
           sessionId: `tx-parser-${Date.now()}`,
-          prompt: `Parse this transaction request and extract the intent: "${userInput}". 
+          inputText: `Parse this transaction request and extract the intent: "${userInput}".
           Return JSON with: action, amount, token, recipient, chainId.
           If any field is not specified, use null.`,
         })
       );
 
-      const responseText = response.completion
-        ?.map(chunk => chunk.text)
-        .join('') || '';
+      let responseText = '';
+      if (response.completion) {
+        for await (const chunk of response.completion) {
+          if (chunk.chunk?.bytes) {
+            responseText += new TextDecoder().decode(chunk.chunk.bytes);
+          }
+        }
+      }
 
       return JSON.parse(responseText) as TransactionIntent;
     } catch (error) {
@@ -462,19 +467,24 @@ export const handler = async (event: any) => {
         }
 
         const { message, sessionId } = body;
-        
+
         const response = await bedrockClient.send(
           new InvokeAgentCommand({
             agentId: AGENT_ID,
             agentAliasId: AGENT_ALIAS_ID,
             sessionId: sessionId || `chat-${Date.now()}`,
-            prompt: message,
+            inputText: message,
           })
         );
 
-        const responseText = response.completion
-          ?.map(chunk => chunk.text)
-          .join('') || '';
+        let responseText = '';
+        if (response.completion) {
+          for await (const chunk of response.completion) {
+            if (chunk.chunk?.bytes) {
+              responseText += new TextDecoder().decode(chunk.chunk.bytes);
+            }
+          }
+        }
 
         return {
           statusCode: 200,
