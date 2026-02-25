@@ -38,7 +38,11 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
     // Amplification coefficient (A * N_COINS)
     // Higher A = tighter peg (more like constant sum)
     // Lower A = more like constant product
-    uint256 public A;
+    uint256 public initialA;
+    uint256 public futureA;
+    uint256 public initialATime;
+    uint256 public futureATime;
+
     uint256 public constant A_PRECISION = 100;
 
     uint256 public fee;
@@ -78,6 +82,7 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
     event StopRampA(uint256 currentA);
     event FeeUpdated(uint256 newFee);
     event AdminFeeUpdated(uint256 newAdminFee);
+    event RateMultiplierUpdated(uint256 indexed index, uint256 newMultiplier);
 
     modifier whenNotPaused() {
         require(!isPaused, "StableSwapAMM: paused");
@@ -90,17 +95,20 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
         address[N_COINS] memory _coins,
         string memory _lpTokenName,
         string memory _lpTokenSymbol,
-        uint256 _A,
+        uint256 A_,
         uint256 _fee
     ) Ownable(msg.sender) {
         require(_coins[0] != address(0), "StableSwapAMM: invalid coin 0");
-        require(_A > 0 && _A < 1e6, "StableSwapAMM: invalid A");
+        require(A_ > 0 && A_ < 1e6, "StableSwapAMM: invalid A");
         require(_fee < MAX_FEE, "StableSwapAMM: fee too high");
 
         coins = _coins;
         lpTokenName = _lpTokenName;
         lpTokenSymbol = _lpTokenSymbol;
-        A = _A;
+        initialA = A_;
+        futureA = A_;
+        initialATime = block.timestamp;
+        futureATime = block.timestamp;
         fee = _fee;
         adminFee = ADMIN_FEE;
 
@@ -177,8 +185,9 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
         require(i != j, "StableSwapAMM: same index");
         require(j < N_COINS, "StableSwapAMM: j above N_COINS");
 
-        uint256 D = _get_D(xp, A);
-        uint256 Ann = A * N_COINS;
+        uint256 currentA = _A();
+        uint256 D = _get_D(xp, currentA);
+        uint256 Ann = currentA * N_COINS;
 
         uint256 c = D;
         uint256 S_ = 0;
@@ -277,9 +286,11 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
 
         uint256[N_COINS] memory rates_ = _currentRates();
 
+        uint256 currentA = _A();
+
         uint256 D0 = 0;
         if (totalSupply > 0) {
-            D0 = _get_D(_xp_mem(rates_), A);
+            D0 = _get_D(_xp_mem(rates_), currentA);
         }
 
         uint256[N_COINS] memory newBalances = balances;
@@ -296,7 +307,7 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
             }
         }
 
-        uint256 D1 = _get_D(_xp_mem_rates(newBalances, rates_), A);
+        uint256 D1 = _get_D(_xp_mem_rates(newBalances, rates_), currentA);
         require(D1 > D0, "StableSwapAMM: D1 <= D0");
 
         if (totalSupply == 0) {
@@ -383,9 +394,11 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
     function calcTokenAmount(uint256[N_COINS] calldata amounts, bool deposit) external view returns (uint256) {
         uint256[N_COINS] memory rates_ = _currentRates();
 
+        uint256 currentA = _A();
+
         uint256 D0 = 0;
         if (totalSupply > 0) {
-            D0 = _get_D(_xp_mem(rates_), A);
+            D0 = _get_D(_xp_mem(rates_), currentA);
         }
 
         uint256[N_COINS] memory newBalances = balances;
@@ -398,7 +411,7 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
             }
         }
 
-        uint256 D1 = _get_D(_xp_mem_rates(newBalances, rates_), A);
+        uint256 D1 = _get_D(_xp_mem_rates(newBalances, rates_), currentA);
 
         if (totalSupply == 0) {
             return D1;
@@ -411,7 +424,7 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
         if (totalSupply == 0) return PRECISION;
 
         uint256[N_COINS] memory rates_ = _currentRates();
-        uint256 D = _get_D(_xp_mem(rates_), A);
+        uint256 D = _get_D(_xp_mem(rates_), _A());
         return (D * PRECISION) / totalSupply;
     }
 
@@ -421,19 +434,28 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
 
     // ============ Admin Functions ============
 
-    function rampA(uint256 futureA, uint256 futureTime) external onlyOwner {
-        require(futureA > 0 && futureA < 1e6, "StableSwapAMM: invalid futureA");
+    function rampA(uint256 _futureA, uint256 futureTime) external onlyOwner {
+        require(_futureA > 0 && _futureA < 1e6, "StableSwapAMM: invalid futureA");
         require(futureTime > block.timestamp, "StableSwapAMM: futureTime must be in future");
         require(futureTime <= block.timestamp + 864000, "StableSwapAMM: max ramp time");
 
-        uint256 currentA = A;
-        A = futureA;
+        uint256 currentA = _A();
+        initialA = currentA;
+        futureA = _futureA;
+        initialATime = block.timestamp;
+        futureATime = futureTime;
 
-        emit RampA(currentA, futureA, block.timestamp, futureTime);
+        emit RampA(currentA, _futureA, block.timestamp, futureTime);
     }
 
     function stopRampA() external onlyOwner {
-        emit StopRampA(A);
+        uint256 currentA = _A();
+        initialA = currentA;
+        futureA = currentA;
+        initialATime = block.timestamp;
+        futureATime = block.timestamp;
+
+        emit StopRampA(currentA);
     }
 
     function setFee(uint256 newFee) external onlyOwner {
@@ -451,6 +473,8 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
     function setRateMultiplier(uint256 i, uint256 multiplier) external onlyOwner {
         require(i < N_COINS, "StableSwapAMM: invalid coin index");
         rateMultipliers[i] = multiplier;
+        _updateRates();
+        emit RateMultiplierUpdated(i, multiplier);
     }
 
     function pause() external onlyOwner {
@@ -462,6 +486,27 @@ contract StableSwapAMM is Ownable, ReentrancyGuard {
     }
 
     // ============ Internal Functions ============
+
+    function A() public view returns (uint256) {
+        return _A();
+    }
+
+    function _A() internal view returns (uint256) {
+        uint256 t1 = futureATime;
+        uint256 A1 = futureA;
+
+        if (block.timestamp < t1) {
+            uint256 A0 = initialA;
+            uint256 t0 = initialATime;
+            
+            if (A1 > A0) {
+                return A0 + ((A1 - A0) * (block.timestamp - t0)) / (t1 - t0);
+            } else {
+                return A0 - ((A0 - A1) * (block.timestamp - t0)) / (t1 - t0);
+            }
+        }
+        return A1;
+    }
 
     function _currentRates() internal view returns (uint256[N_COINS] memory rates_) {
         for (uint256 k = 0; k < N_COINS; k++) {
