@@ -2,11 +2,15 @@
 
 import { useEffect, useRef } from "react";
 import { gsap } from "@/lib/gsap"; 
-import { ShieldAlert, Cpu, ArrowDown } from "lucide-react";
+import { ShieldAlert, Cpu, ArrowRight } from "lucide-react";
+import { useTiltEffect } from "@/hooks/useTiltEffect";
 
 export function ProblemSolution() {
-  const sectionRef = useRef<HTMLElement>(null);
+  const sectionRef = useRef<HTMLDivElement>(null);
   
+  // Attach cinematic 3D tilt tracking to the solution card
+  const solutionCardRef = useTiltEffect<HTMLDivElement>({ tiltIntensity: 12, scale: 1.02 });
+
   useEffect(() => {
     if (typeof window === "undefined" || !sectionRef.current) return;
     
@@ -54,67 +58,80 @@ export function ProblemSolution() {
   }, []);
 
   return (
-    <section 
+    <div 
       ref={sectionRef} 
-      className="py-32 relative z-10 w-full flex justify-center perspective-[1200px]"
+      className="relative z-10 w-full flex justify-center perspective-[1200px]"
     >
-      <div className="container-section max-w-5xl">
-        <h2 className="text-3xl md:text-4xl font-bold mb-16 text-center tracking-tight">
-          Abstracting <span className="text-white/40">the Friction</span>
-        </h2>
+      <div className="w-full max-w-7xl mx-auto px-6 md:px-8 lg:px-12">
         
-        <div className="grid md:grid-cols-2 gap-8 lg:gap-16 items-center">
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start mb-12 md:mb-16">
+          <div className="text-left">
+            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold tracking-tight mb-6 md:mb-8 text-white max-w-4xl">
+              Abstracting <span className="text-white/40">the Friction</span>
+            </h2>
+          </div>
+          <div className="text-left">
+            <p className="text-base md:text-lg text-white/60 font-light leading-relaxed mb-6 md:mb-8 max-w-2xl">
+              We've eliminated the legacy hurdles of crypto infrastructure, providing a frictionless, enterprise-grade experience.
+            </p>
+          </div>
+        </div>
+        
+        <div className="grid md:grid-cols-2 gap-8 md:gap-12 lg:gap-16 items-start relative">
           
           {/* Problem Card */}
-          <div className="problem-card card-cinematic p-8 relative grayscale-[80%] border-white/5 opacity-80 backdrop-blur-md">
+          <div className="problem-card card-cinematic p-8 md:p-10 relative grayscale-[80%] border-white/5 opacity-80 backdrop-blur-md w-full h-full flex flex-col justify-center">
             <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-red-500/20 to-transparent" />
             <ShieldAlert className="w-8 h-8 text-red-400 mb-6 drop-shadow-lg" />
-            <h3 className="text-xl font-bold mb-4 tracking-tight">Legacy UX is Broken</h3>
-            <ul className="space-y-4 text-sm font-mono text-white/50 tracking-wide">
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400/50" />
-                Seed phrase friction drops conversion 85%
+            <h3 className="text-xl md:text-2xl font-semibold mb-6 tracking-tight text-white/90 max-w-xl">Legacy UX is Broken</h3>
+            <ul className="space-y-4 text-sm md:text-base font-mono text-white/50 tracking-wide max-w-xl">
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 shrink-0 rounded-full bg-red-400/50 mt-2" />
+                <span>Seed phrase friction drops conversion 85%</span>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400/50" />
-                Gas tokens confuse mainstream users
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 shrink-0 rounded-full bg-red-400/50 mt-2" />
+                <span>Gas tokens confuse mainstream users</span>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-red-400/50" />
-                Opaque tx states cause support tickets
+              <li className="flex items-start gap-3">
+                <span className="w-1.5 h-1.5 shrink-0 rounded-full bg-red-400/50 mt-2" />
+                <span>Opaque tx states cause support tickets</span>
               </li>
             </ul>
           </div>
 
           <div className="hidden md:flex connector-arrow absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-20 items-center justify-center w-12 h-12 rounded-full border border-white/10 bg-void/80 backdrop-blur-xl">
-             <ArrowDown className="w-5 h-5 text-white/30 -rotate-90" />
+             <ArrowRight className="w-5 h-5 text-white/30" />
           </div>
 
-          {/* Solution Card */}
-          <div className="solution-card card-cinematic p-8 relative border-primary/20 shadow-[0_0_40px_rgba(59,130,246,0.1)] backdrop-blur-xl group hover:border-primary/40 transition-colors duration-500">
+          {/* Solution Card with Tilt tracking */}
+          <div 
+            ref={solutionCardRef}
+            className="solution-card card-cinematic p-8 md:p-10 relative border-primary/20 shadow-[0_0_40px_rgba(59,130,246,0.1)] backdrop-blur-xl group hover:border-primary/40 transition-colors duration-500 will-change-transform w-full h-full flex flex-col justify-center"
+          >
              <div className="absolute inset-x-0 -top-px h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent" />
              <div className="absolute -inset-10 bg-primary/5 blur-3xl rounded-full group-hover:bg-primary/10 transition-colors duration-700 pointer-events-none" />
              
-             <Cpu className="w-8 h-8 text-primary mb-6 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]" />
-             <h3 className="text-xl font-bold mb-4 tracking-tight text-white drop-shadow-md">Enterprise Infrastructure</h3>
-             <ul className="space-y-4 text-sm font-mono text-white/70 tracking-wide">
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                ERC-4337 Sponsored Gas limits
+             <Cpu className="w-8 h-8 text-primary mb-6 drop-shadow-[0_0_10px_rgba(59,130,246,0.5)] transition-transform group-hover:scale-110 duration-500" />
+             <h3 className="text-xl md:text-2xl font-semibold mb-6 tracking-tight text-white drop-shadow-md max-w-xl">Enterprise Infrastructure</h3>
+             <ul className="space-y-4 text-sm md:text-base font-mono text-white/70 tracking-wide max-w-xl">
+              <li className="flex items-start gap-3">
+                <span className="w-2 h-2 shrink-0 rounded-full bg-primary shadow-[0_0_8px_var(--color-primary)] mt-1.5" />
+                <span>ERC-4337 Sponsored Gas limits</span>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-accent-cyan" />
-                AWS Bedrock automated routing
+              <li className="flex items-start gap-3">
+                <span className="w-2 h-2 shrink-0 rounded-full bg-accent-cyan shadow-[0_0_8px_var(--color-accent-cyan)] mt-1.5" />
+                <span>AWS Bedrock automated routing</span>
               </li>
-              <li className="flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-neon-green" />
-                Auth secured by AWS KMS Enclaves
+              <li className="flex items-start gap-3">
+                <span className="w-2 h-2 shrink-0 rounded-full bg-neon-green shadow-[0_0_8px_var(--color-neon-green)] mt-1.5" />
+                <span>Auth secured by AWS KMS Enclaves</span>
               </li>
             </ul>
           </div>
 
         </div>
       </div>
-    </section>
+    </div>
   );
 }

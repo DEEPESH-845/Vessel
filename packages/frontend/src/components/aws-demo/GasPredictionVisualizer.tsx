@@ -4,10 +4,20 @@ import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useDemoStore } from "@/store/demo-store";
 import { LineChart, Activity } from "lucide-react";
+import { useSectionReveal } from "@/hooks/useSectionReveal";
+import { useRef } from "react";
 
 export function GasPredictionVisualizer() {
   const { currentStep, gasPredicted, gasActual } = useDemoStore();
   const [isActive, setIsActive] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useSectionReveal(containerRef, ".gas-anim", {
+    yOffset: 20,
+    stagger: 0.1,
+    duration: 0.8,
+    triggerHook: "top 90%"
+  });
 
   useEffect(() => {
     setIsActive(currentStep === "gas-prediction" || currentStep === "swap" || currentStep === "settlement" || currentStep === "complete");
@@ -30,8 +40,8 @@ export function GasPredictionVisualizer() {
   const predictedY = height - ((gasPredicted - min) / range) * height;
 
   return (
-    // SPACING FIX: Standardized core padding `p-6 md:p-8`
-    <div className="card-cinematic p-6 md:p-8 relative overflow-hidden group h-full flex flex-col justify-between min-h-[300px]">
+    // SPACING FIX: Standardized core padding `p-8 md:p-10`
+    <div ref={containerRef} className="card-cinematic p-8 md:p-10 relative overflow-hidden group h-full flex flex-col justify-between min-h-[300px]">
       {/* Background Glow */}
       <div 
         className={`absolute -inset-10 bg-accent-purple/10 blur-[80px] rounded-full transition-opacity duration-1000 ${
@@ -43,7 +53,7 @@ export function GasPredictionVisualizer() {
       <div className="relative z-10 flex items-center justify-between mb-6 md:mb-8">
         <div className="flex items-center gap-3">
           <Activity className="w-5 h-5 md:w-6 md:h-6 text-accent-purple" />
-          <h3 className="text-sm md:text-base font-medium tracking-tight text-white/90">Lisk Gas Prediction</h3>
+          <h3 className="text-lg md:text-xl font-semibold tracking-tight text-white">Lisk Gas Prediction</h3>
         </div>
         <div className="flex items-center gap-2">
            <div className="w-2 h-2 rounded-full bg-accent-purple animate-pulse" />
@@ -52,7 +62,7 @@ export function GasPredictionVisualizer() {
       </div>
 
       <div className="flex flex-col sm:flex-row justify-between sm:items-end gap-6 mb-6 md:mb-8 flex-1">
-        <div>
+        <div className="gas-anim">
           <p className="text-xs md:text-sm text-white/50 uppercase tracking-widest mb-2">Predicted Max</p>
           <div className="flex items-baseline gap-1.5">
             <span className="text-3xl md:text-4xl font-mono text-white/90 tracking-tighter">{gasPredicted.toFixed(4)}</span>

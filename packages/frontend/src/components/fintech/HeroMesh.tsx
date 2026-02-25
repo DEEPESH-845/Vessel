@@ -1,33 +1,36 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import gsap from "gsap";
+import { gsap, EASE } from "@/lib/animations/gsap-config";
+import { useCursorGlow } from "@/hooks/useCursorGlow";
 
 export function HeroMesh() {
   const meshRef = useRef<HTMLDivElement>(null);
+  const glowContainerRef = useCursorGlow<HTMLDivElement>({ size: 600 });
 
   useEffect(() => {
-    if (!meshRef.current) return;
+    if (!meshRef.current || typeof window === "undefined") return;
 
     // A subtle, slow-moving gradient mesh animation
     // Keeping it performant with CSS variables mapped through GSAP
     const ctx = gsap.context(() => {
+      // Background drifting
       gsap.to(".mesh-blob-1", {
         x: "20vw",
         y: "10vh",
         duration: 15,
         repeat: -1,
         yoyo: true,
-        ease: "sine.inOut"
+        ease: EASE.sineInOut
       });
 
       gsap.to(".mesh-blob-2", {
         x: "-15vw",
         y: "20vh",
-        duration: 12,
+        duration: 20,
         repeat: -1,
         yoyo: true,
-        ease: "sine.inOut",
+        ease: EASE.sineInOut,
         delay: 2
       });
 
@@ -37,7 +40,7 @@ export function HeroMesh() {
         duration: 18,
         repeat: -1,
         yoyo: true,
-        ease: "sine.inOut",
+        ease: EASE.sineInOut,
         delay: 5
       });
     }, meshRef);
@@ -48,11 +51,20 @@ export function HeroMesh() {
   return (
     <div 
       ref={meshRef} 
-      className="absolute inset-0 pointer-events-none overflow-hidden z-0 bg-[#0B0F17]"
+      className="absolute inset-0 overflow-hidden z-0 bg-[#0B0F17]"
     >
+      {/* Interactive cursor tracking glow container */}
+      <div 
+        ref={glowContainerRef}
+        className="absolute inset-0"
+        style={{
+          background: `radial-gradient(circle at var(--cursor-x, 50%) var(--cursor-y, 50%), rgba(59, 130, 246, 0.08) 0%, transparent 600px)`,
+        }}
+      />
+
       {/* Grid overlay for depth */}
       <div 
-        className="absolute inset-0 opacity-[0.03]"
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
           backgroundImage: `linear-gradient(rgba(255, 255, 255, 1) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 255, 255, 1) 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
@@ -62,12 +74,12 @@ export function HeroMesh() {
       />
       
       {/* Glowing orbs/blobs */}
-      <div className="mesh-blob-1 absolute top-[20%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-primary/10 blur-[130px] mix-blend-screen" />
-      <div className="mesh-blob-2 absolute top-[40%] right-[10%] w-[35vw] h-[35vw] rounded-full bg-accent-cyan/10 blur-[120px] mix-blend-screen" />
-      <div className="mesh-blob-3 absolute bottom-[10%] left-[30%] w-[45vw] h-[45vw] rounded-full bg-accent-purple/10 blur-[140px] mix-blend-screen" />
+      <div className="mesh-blob-1 absolute top-[20%] left-[20%] w-[40vw] h-[40vw] rounded-full bg-primary/10 blur-[130px] mix-blend-screen pointer-events-none" />
+      <div className="mesh-blob-2 absolute top-[40%] right-[10%] w-[35vw] h-[35vw] rounded-full bg-accent-cyan/10 blur-[120px] mix-blend-screen pointer-events-none" />
+      <div className="mesh-blob-3 absolute bottom-[10%] left-[30%] w-[45vw] h-[45vw] rounded-full bg-accent-purple/10 blur-[140px] mix-blend-screen pointer-events-none" />
       
       {/* Noise filter to prevent banding and add premium texture */}
-      <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')]" />
+      <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none" />
     </div>
   );
 }

@@ -1,15 +1,24 @@
 "use client";
 
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import { motion } from "framer-motion";
 import { useDemoStore, DemoStep } from "@/store/demo-store";
 import { Network, DatabaseZap, Cpu, Globe2, ArrowRight } from "lucide-react";
+import { useSectionReveal } from "@/hooks/useSectionReveal";
 
 const STEPS: DemoStep[] = ['idle', 'auth', 'ai-risk', 'gas-prediction', 'swap', 'settlement', 'complete'];
 
 export function AIAgentFlowVisualizer() {
   const { currentStep } = useDemoStore();
   const stepIndex = STEPS.indexOf(currentStep);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useSectionReveal(containerRef, ".flow-node", {
+    yOffset: 20,
+    stagger: 0.1,
+    duration: 0.8,
+    triggerHook: "top 90%"
+  });
 
   const nodes = useMemo(() => [
     { id: "sdk", label: "Client SDK", icon: Cpu, stepThreshold: 1 },
@@ -21,8 +30,8 @@ export function AIAgentFlowVisualizer() {
   ], []);
 
   return (
-    // SPACING FIX: standardized `p-6` card padding ensuring grid items align, fixed internal heights
-    <div className="card-cinematic p-6 md:p-8 relative overflow-hidden group w-full h-full flex flex-col justify-between min-h-[300px]">
+    // SPACING FIX: standardized `p-8 md:p-10` card padding ensuring grid items align, fixed internal heights
+    <div ref={containerRef} className="card-cinematic p-8 md:p-10 relative overflow-hidden group w-full h-full flex flex-col justify-between min-h-[300px]">
       {/* Background Glow */}
       <div 
         className={`absolute -inset-10 bg-primary/10 blur-[100px] rounded-full transition-opacity duration-1000 ${
@@ -30,11 +39,11 @@ export function AIAgentFlowVisualizer() {
         } pointer-events-none`}
       />
 
-      {/* SPACING FIX: Standardization header `mb-8` */}
-      <div className="relative z-10 flex items-center justify-between mb-8">
+      {/* SPACING FIX: Standardization header `mb-6 md:mb-8` */}
+      <div className="relative z-10 flex items-center justify-between mb-6 md:mb-8">
         <div className="flex items-center gap-3">
           <Network className="w-5 h-5 md:w-6 md:h-6 text-primary" />
-          <h3 className="text-base md:text-lg font-medium tracking-tight text-white/90">Autonomous Tx Router</h3>
+          <h3 className="text-lg md:text-xl font-semibold tracking-tight text-white">Autonomous Tx Router</h3>
         </div>
       </div>
 
@@ -44,7 +53,7 @@ export function AIAgentFlowVisualizer() {
         
         {/* Animated Progress Line */}
         <motion.div 
-          className="absolute top-1/2 left-8 h-px bg-gradient-to-r from-primary via-accent-cyan to-neon-green -translate-y-1/2 z-0 origin-left"
+          className="flow-line absolute top-1/2 left-8 h-px bg-gradient-to-r from-primary via-accent-cyan to-neon-green -translate-y-1/2 z-0 origin-left"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: stepIndex > 0 ? (stepIndex - 1) / 4 : 0 }}
           transition={{ duration: 0.8, ease: "easeInOut" }}
@@ -56,7 +65,7 @@ export function AIAgentFlowVisualizer() {
           
           return (
             // SPACING FIX: Component internal gap spacing `gap-4`
-            <div key={node.id} className="relative z-10 flex flex-col items-center gap-4">
+            <div key={node.id} className="flow-node relative z-10 flex flex-col items-center gap-4">
               <motion.div 
                 className={`w-10 h-10 md:w-14 md:h-14 rounded-xl flex items-center justify-center border backdrop-blur-md transition-colors duration-500 relative ${
                   isActive ? "bg-white/10 border-white/30 text-white shadow-lg" : "bg-void border-white/5 text-white/30"

@@ -4,10 +4,20 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShieldCheck, ShieldAlert, BrainCircuit, Activity } from "lucide-react";
 import { useDemoStore } from "@/store/demo-store";
+import { useSectionReveal } from "@/hooks/useSectionReveal";
+import { useRef } from "react";
 
 export function AIFraudInsightPanel() {
   const { currentStep, fraudScore, confidence } = useDemoStore();
   const [isActive, setIsActive] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useSectionReveal(containerRef, ".insight-anim", {
+    yOffset: 20,
+    stagger: 0.1,
+    duration: 0.8,
+    triggerHook: "top 90%"
+  });
 
   useEffect(() => {
     setIsActive(currentStep === "ai-risk" || currentStep === "swap" || currentStep === "settlement" || currentStep === "complete");
@@ -21,8 +31,8 @@ export function AIFraudInsightPanel() {
   ];
 
   return (
-    // SPACING FIX: Standardized `p-6 md:p-8`
-    <div className="card-cinematic p-6 md:p-8 relative overflow-hidden group h-full flex flex-col justify-between min-h-[300px]">
+    // SPACING FIX: Standardized `p-8 md:p-10`
+    <div ref={containerRef} className="card-cinematic p-8 md:p-10 relative overflow-hidden group h-full flex flex-col justify-between min-h-[300px]">
       {/* Background Glow */}
       <div 
         className={`absolute -inset-10 bg-primary/20 blur-3xl rounded-full transition-opacity duration-1000 ${
@@ -33,8 +43,8 @@ export function AIFraudInsightPanel() {
       {/* SPACING FIX: Standardized header `mb-6 md:mb-8` */}
       <div className="relative z-10 flex items-center justify-between mb-6 md:mb-8">
         <div className="flex items-center gap-3">
-          <BrainCircuit className="w-5 h-5 text-accent-cyan" />
-          <h3 className="text-sm md:text-base font-medium tracking-tight text-white/90">AWS Bedrock Risk</h3>
+          <BrainCircuit className="w-5 h-5 md:w-6 md:h-6 text-accent-cyan" />
+          <h3 className="text-lg md:text-xl font-semibold tracking-tight text-white">AWS Bedrock Risk</h3>
         </div>
         <div className="px-2 py-1 rounded border border-white/10 bg-white/5 text-[10px] md:text-xs font-mono text-white/50">
           claude-3-sonnet
@@ -42,7 +52,7 @@ export function AIFraudInsightPanel() {
       </div>
 
       <div className="grid grid-cols-2 gap-4 md:gap-6 mb-6 md:mb-8">
-        <div className="flex flex-col gap-2">
+        <div className="insight-anim flex flex-col gap-2">
           <span className="text-[10px] md:text-xs text-white/50 uppercase tracking-widest">Fraud Score</span>
           <div className="flex items-end gap-2">
             <motion.span 
@@ -59,7 +69,7 @@ export function AIFraudInsightPanel() {
           </div>
         </div>
 
-        <div className="flex flex-col gap-2">
+        <div className="insight-anim flex flex-col gap-2">
           <span className="text-[10px] md:text-xs text-white/50 uppercase tracking-widest">Confidence</span>
           <div className="flex items-end gap-2">
             <motion.span 
@@ -74,7 +84,7 @@ export function AIFraudInsightPanel() {
         </div>
       </div>
 
-      <div className="space-y-4">
+      <div className="insight-anim space-y-4">
         <span className="text-[10px] md:text-xs text-white/50 uppercase tracking-widest">Feature Importance</span>
         <div className="space-y-3">
           {featureWeights.map((fw, i) => (

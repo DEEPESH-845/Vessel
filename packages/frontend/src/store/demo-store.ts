@@ -42,15 +42,15 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
         // Auth step (KMS/Paymaster)
         setStep('auth');
-        await new Promise((r) => setTimeout(r, 1200));
+        await new Promise((r) => setTimeout(r, 1500));
 
         // AI Risk calculation (Bedrock)
         setStep('ai-risk');
-        // Animate score changes
+        // Animate score changes rapidly for effect
         set({ fraudScore: 45, confidence: 80 });
-        await new Promise((r) => setTimeout(r, 600));
+        await new Promise((r) => setTimeout(r, 400));
         set({ fraudScore: 12, confidence: 99.1 });
-        await new Promise((r) => setTimeout(r, 1000));
+        await new Promise((r) => setTimeout(r, 1200));
 
         // Gas Prediction
         setStep('gas-prediction');
@@ -58,11 +58,11 @@ export const useDemoStore = create<DemoState>((set, get) => ({
 
         // Swap Selection
         setStep('swap');
-        await new Promise((r) => setTimeout(r, 1200));
+        await new Promise((r) => setTimeout(r, 1000));
 
         // Settlement
         setStep('settlement');
-        set({ latencyNs: Math.floor(Math.random() * 100) + 400 });
+        set({ latencyNs: Math.floor(Math.random() * 50) + 120 });
         await new Promise((r) => setTimeout(r, 2000));
 
         // Complete

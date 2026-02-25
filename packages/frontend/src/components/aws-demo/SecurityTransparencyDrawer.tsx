@@ -37,8 +37,8 @@ export function SecurityTransparencyDrawer() {
   ];
 
   return (
-    // SPACING FIX: Standardized `p-6 md:p-8`
-    <div className="card-cinematic p-6 md:p-8 relative overflow-hidden group">
+    // SPACING FIX: Standardized `p-8 md:p-10`
+    <div className="card-cinematic p-8 md:p-10 relative overflow-hidden group">
       {/* Background Glow */}
       <div 
         className={`absolute -inset-10 bg-accent-cyan/10 blur-[80px] rounded-full transition-opacity duration-1000 ${
@@ -49,7 +49,7 @@ export function SecurityTransparencyDrawer() {
       <div className="relative z-10 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <Lock className="w-5 h-5 md:w-6 md:h-6 text-accent-cyan" />
-          <h3 className="text-base md:text-lg font-medium tracking-tight text-white/90">Zero-Trust Perimeter Executions</h3>
+          <h3 className="text-lg md:text-xl font-semibold tracking-tight text-white">Zero-Trust Perimeter Executions</h3>
         </div>
         <button 
           onClick={() => setIsOpen(!isOpen)}
@@ -72,7 +72,7 @@ export function SecurityTransparencyDrawer() {
             <div className="space-y-6 md:space-y-8 mt-6 md:mt-8 pt-6 md:pt-8 border-t border-white/5">
               {steps.map((step, idx) => (
                 // SPACING FIX: Gap adjustment `gap-4 md:gap-6`
-                <div key={step.id} className="relative flex items-center gap-4 md:gap-6">
+                <div key={step.id} className="log-entry relative flex items-center gap-4 md:gap-6">
                   {/* Connecting Line */}
                   {idx < steps.length - 1 && (
                     <div className="absolute top-10 md:top-12 left-5 md:left-6 w-px h-8 md:h-12 bg-white/10" />
@@ -96,7 +96,7 @@ export function SecurityTransparencyDrawer() {
                         initial={{ opacity: 0 }}
                         animate={{ opacity: 1 }}
                         // SPACING FIX: Top padding `mt-2`
-                        className="text-[10px] md:text-xs text-white/50 mt-2 uppercase tracking-widest break-all font-mono"
+                        className="sig-output text-[10px] md:text-xs text-white/50 mt-2 uppercase tracking-widest break-all font-mono"
                       >
                         SIG: 0x{Math.random().toString(16).slice(2, 10)}...{Math.random().toString(16).slice(2, 10)}
                       </motion.p>
