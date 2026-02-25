@@ -18,7 +18,7 @@ npm workspaces monorepo with four packages:
 ## Commands
 
 ### Root-level (run from repo root)
-```
+```bash
 npm run dev                    # Start frontend dev server
 npm run build                  # Build backend then frontend
 npm run lint                   # Lint all workspaces
@@ -29,7 +29,7 @@ npm run deploy:contracts:local # Deploy contracts to local Hardhat node
 ```
 
 ### Frontend (`packages/frontend`)
-```
+```bash
 npm run dev                    # next dev
 npm run build                  # next build
 npm run test                   # vitest run
@@ -39,7 +39,7 @@ npm run typecheck              # tsc --noEmit
 ```
 
 ### Contracts (`packages/contracts`)
-```
+```bash
 npm run compile                # hardhat compile
 npm run test                   # hardhat test
 npm run test:coverage          # hardhat coverage
@@ -49,13 +49,13 @@ npm run deploy:testnet         # Deploy to Lisk Sepolia
 ```
 
 ### Backend (`packages/backend`)
-```
+```bash
 npm run build                  # tsc (outputs to dist/)
 npm run typecheck              # tsc --noEmit
 ```
 
 ### Infra (`packages/infra`)
-```
+```bash
 npm run build                  # tsc
 npm run synth                  # cdk synth
 npm run deploy                 # cdk deploy --all

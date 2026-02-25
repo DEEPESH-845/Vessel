@@ -23,8 +23,7 @@ import { Sparkles, TerminalSquare, ShieldCheck, DatabaseZap, Network, Shield } f
 
 // Dynamically import smooth scroll
 const SmoothScrollProvider = dynamic(
-  () => import("@/components/smooth-scroll-provider").then((mod) => mod.SmoothScrollProvider),
-  { ssr: false }
+  () => import("@/components/smooth-scroll-provider").then((mod) => mod.SmoothScrollProvider)
 );
 import { useInteractiveFlow } from "@/hooks/useInteractiveFlow";
 
@@ -76,7 +75,7 @@ export default function LandingPage() {
               </h1>
 
               <p className="hero-anim text-base md:text-lg text-white/50 max-w-xl font-light mb-8 md:mb-10 leading-relaxed tracking-wide">
-                Vessel abstracts the friction of crypto via <span className="text-white/80 font-medium">ERC-4337</span> and <span className="text-80 font-medium">AWS Bedrock</span>. Zero gas limits. Instant deterministic settlement. Enterprise security.
+                Vessel abstracts the friction of crypto via <span className="text-white/80 font-medium">ERC-4337</span> and <span className="text-white/80 font-medium">AWS Bedrock</span>. Zero gas limits. Instant deterministic settlement. Enterprise security.
               </p>
 
               <div className="hero-anim flex flex-col sm:flex-row items-start sm:items-center gap-4 md:gap-6 w-full justify-start">

@@ -91,7 +91,7 @@ export function RealTimeMerchantDashboard() {
         </div>
         
         {/* SPACING FIX: Consistent gap spacing for list items */}
-        <div className="space-y-3">
+        <div className="space-y-3" role="status" aria-live="polite">
           <AnimatePresence initial={false}>
             {transactions.map((tx, idx) => (
               <motion.div 
@@ -99,6 +99,7 @@ export function RealTimeMerchantDashboard() {
                 initial={{ opacity: 0, x: -10, height: 0 }}
                 animate={{ opacity: 1, x: 0, height: "auto" }}
                 exit={{ opacity: 0, height: 0 }}
+                aria-atomic="true"
                 // SPACING FIX: Inner row padding standardized
                 className="flex items-center justify-between p-3 md:p-4 rounded-xl bg-white/5 border border-white/5 text-xs font-mono"
               >

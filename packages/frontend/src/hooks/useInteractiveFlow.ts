@@ -66,9 +66,7 @@ export function useInteractiveFlow() {
 
                     tl.current.to(".flow-node:nth-child(3)", { scale: 1, boxShadow: "none", duration: 0.3 })
                         .to(".flow-node:nth-child(4)", { scale: 1.1, boxShadow: "0 0 30px rgba(168, 85, 247, 0.4)", duration: 0.4 })
-                        .to(".flow-line", { scaleX: 0.6, duration: 0.5 }, "-=0.2")
-                        // Reveal gas panel SVG line
-                        .fromTo(".card-cinematic:has(.lucide-activity) polyline", { pathLength: 0 }, { pathLength: 1, duration: 1.2, ease: "power2.inOut" }, "-=0.2");
+                        .to(".flow-line", { scaleX: 0.6, duration: 0.5 }, "-=0.2");
                     break;
 
                 case 'swap':
@@ -101,7 +99,7 @@ export function useInteractiveFlow() {
                 case 'idle':
                     // Reset all visual states
                     if (tl.current) tl.current.kill();
-                    gsap.set([".flow-node", ".log-entry", ".flow-line", ".engine-glow", ".card-cinematic"], { clearProps: "all" });
+                    gsap.set([".flow-node", ".log-entry", ".flow-line", ".engine-glow", ".card-cinematic"], { clearProps: "opacity,scale,boxShadow,scaleX,x,borderColor" });
                     break;
             }
         });

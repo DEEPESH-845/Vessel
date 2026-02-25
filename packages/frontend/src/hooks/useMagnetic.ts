@@ -37,9 +37,12 @@ export function useMagnetic<T extends HTMLElement>(options: MagneticOptions = {}
             const centerX = left + width / 2;
             const centerY = top + height / 2;
 
-            // Calculate distance normalized from center
-            const distanceX = (clientX - centerX) / (width / 2);
-            const distanceY = (clientY - centerY) / (height / 2);
+            // Calculate distance normalized from center (guarded against division by zero)
+            const safeWidth = Math.max(width / 2, 1);
+            const safeHeight = Math.max(height / 2, 1);
+
+            const distanceX = (clientX - centerX) / safeWidth;
+            const distanceY = (clientY - centerY) / safeHeight;
 
             xTo(distanceX * strength);
             yTo(distanceY * strength);

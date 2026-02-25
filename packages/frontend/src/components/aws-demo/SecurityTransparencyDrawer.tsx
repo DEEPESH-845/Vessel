@@ -53,6 +53,8 @@ export function SecurityTransparencyDrawer() {
         </div>
         <button 
           onClick={() => setIsOpen(!isOpen)}
+          aria-expanded={isOpen}
+          aria-controls="security-transparency-panel"
           // SPACING FIX: Consistent button padding scale
           className="text-white/40 hover:text-white/80 transition-colors bg-white/5 hover:bg-white/10 px-4 py-2 rounded-lg text-xs md:text-sm uppercase font-mono tracking-widest border border-white/5 hover:border-white/10"
         >
@@ -63,6 +65,8 @@ export function SecurityTransparencyDrawer() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="security-transparency-panel"
+            role="region"
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}

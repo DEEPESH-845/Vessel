@@ -455,9 +455,15 @@ function Starfield({ count = 2500 }) {
 
   const uniforms = useMemo(() => ({
     uTime: { value: 0 },
-    uPixelRatio: { value: Math.min(window.devicePixelRatio, 1.5) },
+    uPixelRatio: { value: 1 },
     uColor: { value: COLORS.star },
   }), []);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      uniforms.uPixelRatio.value = Math.min(window.devicePixelRatio, 1.5);
+    }
+  }, [uniforms]);
 
   useFrame((state) => {
     if (materialRef.current) {

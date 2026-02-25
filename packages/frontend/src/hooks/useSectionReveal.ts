@@ -19,7 +19,7 @@ interface RevealConfig {
  */
 export function useSectionReveal(
     currentRef: RefObject<HTMLElement | null>,
-    selectors: string[] | string = [],
+    selectors: string[] | string = "",
     config: RevealConfig = {}
 ) {
     const {
@@ -31,6 +31,9 @@ export function useSectionReveal(
         triggerHook = "top 85%"
     } = config;
 
+    // Compute stable key for array selectors to prevent infinite re-renders
+    const selectorsKey = Array.isArray(selectors) ? selectors.join('|') : String(selectors);
+
     // Use layout effect to ensure DOM is ready before GSAP calculates geometry
     useLayoutEffect(() => {
         if (!currentRef.current || typeof window === "undefined") return;
@@ -39,8 +42,8 @@ export function useSectionReveal(
         // This is CRITICAL for React 18+ strict mode and cleanup
         const ctx = gsap.context(() => {
             const targets = Array.isArray(selectors)
-                ? selectors.map(s => gsap.utils.toArray(s)).flat()
-                : selectors === "" ? [currentRef.current] : gsap.utils.toArray(selectors);
+                ? selectors.map(s => ctx.selector ? ctx.selector(s) : gsap.utils.toArray(s, currentRef.current)).flat()
+                : selectors === "" ? [currentRef.current] : (ctx.selector ? ctx.selector(selectors) : gsap.utils.toArray(selectors, currentRef.current));
 
             if (!targets || targets.length === 0 || targets[0] === null) return;
 
@@ -62,5 +65,5 @@ export function useSectionReveal(
         }, currentRef);
 
         return () => ctx.revert(); // Flawless cleanup
-    }, [currentRef, selectors, yOffset, duration, delay, stagger, ease, triggerHook]);
+    }, [currentRef, selectorsKey, yOffset, duration, delay, stagger, ease, triggerHook]);
 }

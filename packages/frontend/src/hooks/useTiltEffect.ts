@@ -5,7 +5,6 @@ import { gsap, EASE } from '@/lib/animations/gsap-config';
 
 interface TiltOptions {
     tiltIntensity?: number; // How much it tilts (default 10)
-    glareIntensity?: number; // Scale of glare effect (default 0.2)
     scale?: number; // Scale on hover (default 1.02)
 }
 
@@ -15,7 +14,7 @@ interface TiltOptions {
  */
 export function useTiltEffect<T extends HTMLElement = HTMLDivElement>(options: TiltOptions = {}): RefObject<T | null> {
     const ref = useRef<T>(null);
-    const { tiltIntensity = 10, glareIntensity = 0.2, scale = 1.02 } = options;
+    const { tiltIntensity = 10, scale = 1.02 } = options;
 
     useEffect(() => {
         const el = ref.current;
@@ -71,7 +70,7 @@ export function useTiltEffect<T extends HTMLElement = HTMLDivElement>(options: T
             el.removeEventListener("mouseleave", onMouseLeave);
             ctx.revert();
         };
-    }, [tiltIntensity, glareIntensity, scale]);
+    }, [tiltIntensity, scale]);
 
     return ref;
 }
