@@ -38,3 +38,4 @@ packages/backend/packages/
 # Frontend compiled (next.js outputs to .next)
 packages/frontend/src/app/*.js
 !packages/frontend/src/app/*.tsx
+.worktrees/
