@@ -8,6 +8,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
 import { BracketLabel } from './BracketLabel';
+import { Container } from '../layout/Container';
+import { Section } from '../layout/Section';
 
 const steps = [
   {
@@ -144,13 +146,13 @@ export function HowItWorksSection() {
   }, [mounted]);
 
   return (
-    <section
+    <Section
       id="how-it-works"
       ref={sectionRef}
-      className="relative section-vertical section-bg-dark overflow-hidden"
+      className="relative section-bg-dark overflow-hidden"
     >
       {/* Subtle Grid Background */}
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none opacity-[0.03]"
         style={{
           backgroundImage: `
@@ -161,21 +163,21 @@ export function HowItWorksSection() {
         }}
       />
 
-      <div className="relative z-10 container-section">
+      <Container className="relative z-10">
         {/* Section Label */}
-        <div className="flex justify-center mb-[var(--space-6)]">
+        <div className="flex justify-center mb-8">
           <BracketLabel>How It Works</BracketLabel>
         </div>
 
         {/* Section Heading - Unified typography */}
-        <div ref={headingRef} className="text-center mb-[var(--space-12)]">
-          <h2 className="heading-section mb-4">
+        <div ref={headingRef} className="text-center mb-16 md:mb-24">
+          <h2 className="heading-section mb-6">
             One Click.{' '}
             <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">
               Zero Complexity.
             </span>
           </h2>
-          <p className="text-white/50 max-w-2xl mx-auto text-lg">
+          <p className="text-white/60 max-w-[60ch] mx-auto text-lg leading-relaxed">
             From scan to settlement in under 15 seconds. Here's how Vessel makes crypto payments as easy as card payments.
           </p>
         </div>
@@ -183,81 +185,66 @@ export function HowItWorksSection() {
         {/* Steps Grid - Unified grid system */}
         <div ref={stepsRef} className="relative">
           {/* Connection Line - Desktop only */}
-          <div 
-            className="absolute top-1/2 left-0 right-0 h-px hidden lg:block"
+          <div
+            className="absolute top-[88px] left-[12.5%] right-[12.5%] h-px hidden lg:block z-0 opacity-30"
             style={{
-              background: 'linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent)',
-              transform: 'translateY(-50%)',
+              background: 'linear-gradient(90deg, transparent, rgba(168, 85, 247, 0.8), transparent)',
             }}
           />
 
-          <div className="grid-cards-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 relative z-10">
             {steps.map((step, index) => (
               <div
                 key={step.number}
-                className="step-card relative"
+                className="step-card relative flex flex-col items-center text-center"
               >
-                {/* Card */}
-                <div className="card-unified text-center">
-                  {/* Step Number */}
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-blue-500/20 border border-blue-500/30">
-                    <span className="text-xs font-mono text-blue-400">{step.number}</span>
+                {/* Icon Container with glowing effect */}
+                <div className="w-20 h-20 mb-6 rounded-2xl flex items-center justify-center bg-[#0B0F17] border border-white/10 relative group-hover:border-purple-500/30 transition-colors shadow-lg shadow-black/50">
+                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 opacity-50" />
+
+                  {/* Step Number Badge */}
+                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-blue-500 border-2 border-[#0B0F17] flex items-center justify-center shadow-lg">
+                    <span className="text-xs font-bold text-white tracking-tighter">{step.number}</span>
                   </div>
 
-                  {/* Icon */}
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-2xl flex items-center justify-center bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-white/5">
-                    <div className="text-blue-400">{step.icon}</div>
-                  </div>
-
-                  {/* Content */}
-                  <h3 className="heading-card mb-2">
-                    {step.title}
-                  </h3>
-                  <p className="text-sm text-white/50 leading-relaxed">
-                    {step.description}
-                  </p>
+                  <div className="text-purple-400 relative z-10">{step.icon}</div>
                 </div>
 
-                {/* Arrow for desktop */}
-                {index < steps.length - 1 && (
-                  <div className="hidden lg:block absolute top-1/2 -right-3 transform translate-x-1/2 -translate-y-1/2 z-10">
-                    <svg className="w-6 h-6 text-blue-500/50" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                    </svg>
-                  </div>
-                )}
+                {/* Content */}
+                <h3 className="heading-card mb-3 text-lg">
+                  {step.title}
+                </h3>
+                <p className="text-base text-white/50 leading-relaxed max-w-[260px]">
+                  {step.description}
+                </p>
               </div>
             ))}
           </div>
         </div>
 
         {/* Bottom Stats - Unified grid */}
-        <div ref={statsRef} className="mt-[var(--space-12)] grid-cards-4">
+        <div ref={statsRef} className="mt-20 md:mt-32 grid grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             { value: '<15s', label: 'Settlement Time' },
             { value: '0%', label: 'Gas for Users' },
             { value: '98%+', label: 'Success Rate' },
             { value: '$0.01', label: 'Min Transaction' },
           ].map((stat) => (
-            <div 
+            <div
               key={stat.label}
-              className="stat-card text-center p-4 rounded-xl"
-              style={{
-                background: 'rgba(255, 255, 255, 0.02)',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-              }}
+              className="stat-card text-center p-6 rounded-2xl bg-white/[0.02] border border-white/5 backdrop-blur-sm"
             >
-              <div className="text-2xl md:text-3xl font-bold text-white mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+              <div className="text-3xl md:text-4xl font-bold text-white mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                 {stat.value}
               </div>
-              <div className="text-xs text-white/40 uppercase tracking-wider">
+              <div className="text-xs text-white/50 uppercase tracking-wider font-medium">
                 {stat.label}
               </div>
             </div>
           ))}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }
 

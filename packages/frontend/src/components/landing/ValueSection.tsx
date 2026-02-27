@@ -9,6 +9,8 @@ import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
 import { BracketLabel } from './BracketLabel';
 import { StarField } from './StarField';
+import { Container } from '../layout/Container';
+import { Section } from '../layout/Section';
 
 // Word-by-word text component
 function WordRevealText({
@@ -87,46 +89,46 @@ const values = [
 
 export function ValueSection() {
   return (
-    <section
+    <Section
       id="value"
-      className="relative min-h-screen py-24 px-6 md:px-12 overflow-hidden bg-black"
+      className="relative min-h-screen overflow-hidden bg-black"
     >
       {/* Star Field Background */}
       <StarField starCount={100} />
 
-      <div className="relative z-10 max-w-7xl mx-auto">
+      <Container className="relative z-10">
         {/* Section Label */}
         <div className="flex justify-center mb-8">
           <BracketLabel>Our Value</BracketLabel>
         </div>
 
         {/* Section Heading */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 md:mb-24">
           <WordRevealText
             text="Why Choose Vessel for Your Gasless Payment Journey"
-            className="text-white font-bold leading-[1.15] max-w-3xl mx-auto text-[clamp(28px,4vw,54px)]"
+            className="text-white font-bold leading-tight max-w-4xl mx-auto text-3xl md:text-5xl"
           />
         </div>
 
         {/* Values Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
           {values.map((value, index) => (
             <div
               key={index}
-              className="relative p-6 rounded-2xl"
+              className="relative p-8 rounded-2xl flex flex-col items-start"
               style={{
                 background: 'rgba(8, 8, 26, 0.6)',
                 border: '1px solid rgba(255, 255, 255, 0.06)',
                 backdropFilter: 'blur(10px)',
               }}
             >
-              <div className="text-4xl mb-4">{value.icon}</div>
-              <h3 className="text-lg font-semibold text-white mb-2">{value.title}</h3>
-              <p className="text-sm text-white/60 leading-relaxed">{value.description}</p>
+              <div className="text-4xl mb-6">{value.icon}</div>
+              <h3 className="text-xl font-semibold text-white mb-3">{value.title}</h3>
+              <p className="text-base text-white/60 leading-relaxed">{value.description}</p>
             </div>
           ))}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

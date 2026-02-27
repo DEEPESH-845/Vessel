@@ -8,6 +8,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
 import { BracketLabel } from './BracketLabel';
+import { Container } from '../layout/Container';
+import { Section } from '../layout/Section';
 
 const features = [
   {
@@ -147,70 +149,70 @@ export function FeaturesSection() {
   }, [mounted]);
 
   return (
-    <section
+    <Section
       id="features"
       ref={sectionRef}
-      className="relative section-vertical section-bg-primary overflow-hidden"
+      className="relative section-bg-primary overflow-hidden"
     >
       {/* Background Gradient - Subtle continuation from hero */}
-      <div 
+      <div
         className="absolute inset-0 pointer-events-none"
         style={{
           background: 'radial-gradient(circle at 50% 0%, rgba(59, 130, 246, 0.08) 0%, transparent 50%)',
         }}
       />
 
-      <div className="relative z-10 container-section">
+      <Container className="relative z-10">
         {/* Section Label */}
-        <div className="flex justify-center mb-[var(--space-6)]">
+        <div className="flex justify-center mb-8">
           <BracketLabel>Features</BracketLabel>
         </div>
 
         {/* Section Heading - Unified typography */}
-        <div ref={headingRef} className="text-center mb-[var(--space-12)]">
-          <h2 className="heading-section mb-4">
+        <div ref={headingRef} className="text-center mb-16 md:mb-24">
+          <h2 className="heading-section mb-6">
             Everything You Need for{' '}
             <span className="bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">
               Gasless Payments
             </span>
           </h2>
-          <p className="text-white/50 max-w-2xl mx-auto text-lg">
+          <p className="text-white/60 max-w-[60ch] mx-auto text-lg leading-relaxed">
             Built on Lisk with ERC-4337 Account Abstraction, StableSwap AMM, and AWS AI services.
           </p>
         </div>
 
         {/* Features Grid - Unified grid system */}
-        <div ref={cardsRef} className="grid-cards-3">
+        <div ref={cardsRef} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature) => (
             <div
               key={feature.title}
-              className="feature-card group card-unified"
+              className="feature-card group card-unified relative overflow-hidden flex flex-col items-start"
             >
               {/* Icon */}
-              <div className={`inline-flex p-3 rounded-xl bg-gradient-to-r ${feature.gradient} bg-opacity-10 mb-4`}>
+              <div className={`inline-flex p-4 rounded-xl bg-gradient-to-br ${feature.gradient} bg-opacity-10 mb-6`}>
                 <div className="text-white">{feature.icon}</div>
               </div>
 
               {/* Content */}
-              <h3 className="heading-card mb-2 group-hover:text-blue-400 transition-colors">
+              <h3 className="heading-card mb-3 group-hover:text-blue-400 transition-colors">
                 {feature.title}
               </h3>
-              <p className="text-sm text-white/50 leading-relaxed">
+              <p className="text-base text-white/60 leading-relaxed">
                 {feature.description}
               </p>
 
               {/* Hover glow effect */}
-              <div 
+              <div
                 className="absolute inset-0 rounded-[var(--radius-2xl)] opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"
                 style={{
-                  background: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.1) 0%, transparent 70%)',
+                  background: 'radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.08) 0%, transparent 70%)',
                 }}
               />
             </div>
           ))}
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }
 

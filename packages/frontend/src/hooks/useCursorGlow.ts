@@ -21,6 +21,9 @@ export function useCursorGlow<T extends HTMLElement>(options: GlowOptions = {}):
         const el = ref.current;
         if (!el || typeof window === "undefined") return;
 
+        // Respect reduced motion preference
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
         // Inject the CSS vars initially
         el.style.setProperty("--cursor-x", "50%");
         el.style.setProperty("--cursor-y", "50%");

@@ -20,6 +20,9 @@ export function useMagnetic<T extends HTMLElement>(options: MagneticOptions = {}
         const el = ref.current;
         if (!el || typeof window === "undefined") return;
 
+        // Respect reduced motion preference
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
         let xTo: gsap.QuickToFunc;
         let yTo: gsap.QuickToFunc;
 

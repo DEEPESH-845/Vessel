@@ -1,10 +1,11 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Space_Grotesk } from "next/font/google";
+import { Inter, JetBrains_Mono, Syne } from "next/font/google";
 import "./globals.css";
 import { AppProvider } from "@/lib/store";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 import PerformanceMonitor from "@/components/performance-monitor";
 import { UserProvider } from "@/components/user-provider";
+import { LenisProvider } from "@/components/providers/LenisProvider";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,11 +21,11 @@ const jetbrainsMono = JetBrains_Mono({
   weight: ["400", "500"],
 });
 
-const spaceGrotesk = Space_Grotesk({
+const syne = Syne({
   subsets: ["latin"],
-  variable: "--font-space-grotesk",
+  variable: "--font-display",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -93,46 +94,20 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${spaceGrotesk.variable} font-sans antialiased bg-[#060b14] text-white selection:bg-primary/30 selection:text-white`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${syne.variable} font-sans antialiased bg-black text-white selection:bg-[#00ff41] selection:text-black`}
         suppressHydrationWarning
       >
-        {/* Background Effects - Fixed to viewport */}
-        <div
-          className="fixed inset-0 z-[-1] overflow-hidden pointer-events-none"
-          aria-hidden="true"
-        >
-          {/* Top left purple glow */}
-          <div
-            className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] rounded-full blur-[120px] opacity-[0.12]"
-            style={{
-              background: "radial-gradient(circle, #6366f1 0%, transparent 70%)",
-            }}
-          />
-          {/* Bottom right teal glow */}
-          <div
-            className="absolute bottom-[-10%] right-[-10%] w-[400px] h-[400px] rounded-full blur-[100px] opacity-[0.08]"
-            style={{
-              background: "radial-gradient(circle, #14b8a6 0%, transparent 70%)",
-            }}
-          />
-          {/* Center subtle blue glow */}
-          <div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[150px] opacity-[0.05]"
-            style={{
-              background: "radial-gradient(circle, #3b82f6 0%, transparent 70%)",
-            }}
-          />
-        </div>
-
-        {/* Main Content */}
-        <UserProvider>
-          <AppProvider>
-            <SmoothScrollProvider>
-              {children}
-              <PerformanceMonitor />
-            </SmoothScrollProvider>
-          </AppProvider>
-        </UserProvider>
+        <LenisProvider>
+          {/* Main Content */}
+          <UserProvider>
+            <AppProvider>
+              <SmoothScrollProvider>
+                {children}
+                <PerformanceMonitor />
+              </SmoothScrollProvider>
+            </AppProvider>
+          </UserProvider>
+        </LenisProvider>
       </body>
     </html>
   );

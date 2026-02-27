@@ -10,6 +10,8 @@ import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { gsap } from '@/lib/gsap';
+import { Container } from '../layout/Container';
+import { Section } from '../layout/Section';
 
 // Dynamically import CinematicPlanet to avoid SSR issues
 const CinematicPlanet = dynamic(
@@ -163,10 +165,10 @@ export function HeroSection() {
   }, [mounted]);
 
   return (
-    <section
+    <Section
       id="intro"
       ref={sectionRef}
-      className="relative min-h-screen w-full overflow-hidden section-bg-primary"
+      className="relative min-h-screen w-full overflow-hidden section-bg-primary pt-0 pb-0"
     >
       {/* 3D Cinematic Planet System */}
       <CinematicPlanet />
@@ -175,24 +177,16 @@ export function HeroSection() {
       <div className="noise-overlay" />
 
       {/* Text Content - ALIGNED: Same container width as navbar */}
-      <div
+      <Container
         ref={contentRef}
-        className="hero-content relative flex flex-col items-center justify-center min-h-screen text-center"
-        style={{
-          maxWidth: '1280px',
-          marginLeft: 'auto',
-          marginRight: 'auto',
-          paddingLeft: 'var(--space-3)',
-          paddingRight: 'var(--space-3)',
-        }}
+        className="hero-content relative flex flex-col items-center justify-center min-h-screen text-center z-10"
       >
         {/* Badge */}
-        <div ref={badgeRef} className="mb-[var(--space-4)]">
-          <span 
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium text-white/80"
+        <div ref={badgeRef} className="mb-8">
+          <span
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-medium text-white/80 border border-white/10"
             style={{
               background: 'rgba(59, 130, 246, 0.12)',
-              border: '1px solid rgba(59, 130, 246, 0.2)',
               backdropFilter: 'blur(8px)',
             }}
           >
@@ -204,7 +198,7 @@ export function HeroSection() {
         {/* Main Heading - Unified Typography */}
         <h1
           ref={headingRef}
-          className="text-hero font-extrabold text-white mb-[var(--space-5)] max-w-[900px] text-center"
+          className="text-hero font-extrabold text-white mb-10 max-w-4xl text-center leading-tight"
         >
           Gasless Payments for the{' '}
           <span className="text-gradient-animate inline-block">
@@ -215,9 +209,9 @@ export function HeroSection() {
         {/* Subtext - Unified styling */}
         <p
           ref={subheadingRef}
-          className="text-white/55 max-w-xl leading-relaxed mb-[var(--space-8)] text-lg md:text-xl"
+          className="text-white/60 max-w-[60ch] leading-relaxed mb-12 text-lg md:text-xl"
         >
-          Zero gas. One tap. Instant. Accept any stablecoin, settle in your preferred currency. 
+          Zero gas. One tap. Instant. Accept any stablecoin, settle in your preferred currency.
           Built for global commerce with Account Abstraction.
         </p>
 
@@ -228,10 +222,10 @@ export function HeroSection() {
             className="btn-primary-unified group"
           >
             Launch Wallet
-            <svg 
-              className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" 
-              fill="none" 
-              viewBox="0 0 24 24" 
+            <svg
+              className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform"
+              fill="none"
+              viewBox="0 0 24 24"
               stroke="currentColor"
             >
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
@@ -247,31 +241,31 @@ export function HeroSection() {
         </div>
 
         {/* Stats - Unified spacing */}
-        <div ref={statsRef} className="mt-[var(--space-16)] flex items-center gap-8 md:gap-12">
+        <div ref={statsRef} className="mt-20 flex items-center justify-center gap-12 md:gap-16">
           {[
             { value: '<15s', label: 'Settlement' },
             { value: '0%', label: 'Gas Fees' },
             { value: '98%+', label: 'Success Rate' },
           ].map((stat) => (
             <div key={stat.label} className="text-center">
-              <div 
-                className="text-xl md:text-2xl font-bold text-white" 
+              <div
+                className="text-xl md:text-2xl font-bold text-white mb-1"
                 style={{ fontFamily: "'Space Grotesk', sans-serif" }}
               >
                 {stat.value}
               </div>
-              <div className="text-xs text-white/40 uppercase tracking-wider mt-1">
+              <div className="text-xs text-white/50 uppercase tracking-wider font-medium">
                 {stat.label}
               </div>
             </div>
           ))}
         </div>
-      </div>
+      </Container>
 
       {/* Scroll indicator */}
-      <div 
+      <div
         ref={scrollIndicatorRef}
-        className="absolute bottom-8 left-1/2 -translate-x-1/2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20"
       >
         <div className="w-6 h-10 rounded-full border-2 border-white/25 flex items-start justify-center p-2 scroll-indicator">
           <div className="w-1 h-2 bg-white/50 rounded-full" />
@@ -279,13 +273,13 @@ export function HeroSection() {
       </div>
 
       {/* STABILIZED: Extended bottom gradient fade for smoother transition */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-64 pointer-events-none"
+      <div
+        className="absolute bottom-0 left-0 right-0 h-64 pointer-events-none z-10"
         style={{
           background: 'linear-gradient(to top, #060b14 0%, rgba(6,11,20,0.9) 30%, rgba(6,11,20,0.5) 60%, transparent 100%)',
         }}
       />
-    </section>
+    </Section>
   );
 }
 

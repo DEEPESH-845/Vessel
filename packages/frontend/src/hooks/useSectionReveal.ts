@@ -38,6 +38,9 @@ export function useSectionReveal(
     useLayoutEffect(() => {
         if (!currentRef.current || typeof window === "undefined") return;
 
+        // Respect reduced motion preference
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
         // Create a gsap context bound to this component's DOM scope 
         // This is CRITICAL for React 18+ strict mode and cleanup
         const ctx = gsap.context((self) => {

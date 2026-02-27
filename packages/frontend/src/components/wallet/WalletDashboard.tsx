@@ -288,45 +288,39 @@ export function WalletDashboard() {
   }, [swapFrom.amount, getSwapQuote]);
 
   return (
-    <div className="min-h-screen bg-[#060b14] text-white">
+    <div className="min-h-screen bg-black text-white selection:bg-[#00ff41] selection:text-black">
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-[#060b14]/90 backdrop-blur-xl border-b border-white/[0.05]">
-        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-          {/* Left - Back + Logo */}
+      <header className="sticky top-0 z-50 bg-black border-b border-white/20">
+        <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between font-mono">
+          {/* Left - Brutalist Logo */}
           <div className="flex items-center gap-4">
-            <Link
-              href="/"
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors"
-            >
+            <Link href="/" className="flex items-center justify-center w-10 h-10 border border-white/20 text-white hover:text-[#00ff41] hover:border-[#00ff41] transition-colors">
               <ArrowLeftIcon />
             </Link>
             <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center">
-                <svg viewBox="0 0 24 24" className="w-4 h-4 text-white" fill="currentColor">
+              <div className="w-8 h-8 border border-[#00ff41] bg-black flex items-center justify-center">
+                <svg viewBox="0 0 24 24" className="w-4 h-4 text-[#00ff41]" fill="currentColor">
                   <path d="M12 2L8 8H4L12 22L20 8H16L12 2Z" />
                 </svg>
               </div>
-              <span className="font-semibold text-white hidden sm:block">Vessel</span>
+              <span className="font-bold text-white tracking-widest uppercase hidden sm:block">VESSEL_OS</span>
             </Link>
           </div>
 
-          {/* Center - Status */}
-          <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-xs text-green-400 font-medium">
-              {isAuthenticated ? 'Connected' : 'Guest Mode'}
+          {/* Center - Status Terminal Style */}
+          <div className="hidden md:flex items-center gap-3 px-4 py-1.5 border border-[#00ff41]/50 bg-[#00ff41]/5">
+            <span className="w-2 h-2 bg-[#00ff41] animate-pulse" />
+            <span className="text-xs text-[#00ff41] font-bold tracking-widest uppercase">
+              {isAuthenticated ? 'UPLINK_SECURE' : 'GUEST_PROTO'}
             </span>
           </div>
 
           {/* Right - Actions */}
           <div className="flex items-center gap-2">
-            <Link
-              href="/activity"
-              className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors"
-            >
+            <Link href="/activity" className="flex items-center justify-center w-10 h-10 border border-white/20 text-white/60 hover:text-[#00f0ff] hover:border-[#00f0ff] transition-colors">
               <HistoryIcon />
             </Link>
-            <button className="flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 text-white/60 hover:text-white hover:bg-white/10 transition-colors">
+            <button className="flex items-center justify-center w-10 h-10 border border-white/20 text-white/60 hover:text-[#ff00ff] hover:border-[#ff00ff] transition-colors">
               <SettingsIcon />
             </button>
           </div>
@@ -338,56 +332,53 @@ export function WalletDashboard() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Main Content */}
           <div className="lg:col-span-2 space-y-6">
-            {/* Balance Card */}
+            {/* Balance Terminal */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="p-6 rounded-2xl"
-              style={{
-                background: 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(6, 182, 212, 0.05) 100%)',
-                border: '1px solid rgba(59, 130, 246, 0.15)',
-              }}
+              className="p-6 border border-white/20 bg-black cyber-border font-mono relative overflow-hidden"
             >
-              <div className="flex justify-between items-start mb-4">
+              <div className="absolute inset-0 scanlines pointer-events-none opacity-20" />
+              <div className="relative z-10 flex justify-between items-start mb-4">
                 <div>
-                  <p className="text-sm text-white/50 mb-1">Total Balance</p>
-                  <h2 className="text-3xl font-bold text-white" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  <p className="text-xs text-[#00f0ff] mb-2 uppercase tracking-widest">{'> TOTAL_ASSETS'}</p>
+                  <h2 className="text-4xl font-bold text-white tracking-tight">
                     ${totalBalance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </h2>
                   {ensName && (
-                    <p className="text-sm text-blue-400 mt-1">{ensName}</p>
+                    <p className="text-sm text-[#00ff41] mt-2">{'>'} {ensName}</p>
                   )}
                 </div>
                 <div className="text-right">
-                  <p className="text-xs text-white/40">{displayAddress}</p>
-                  <div className="flex items-center gap-1 text-sm text-green-400 mt-1">
-                    <span>+$0.00</span>
-                    <span className="text-white/30">•</span>
-                    <span className="text-white/50">Today</span>
+                  <p className="text-xs text-white/40 uppercase">ID: {displayAddress}</p>
+                  <div className="flex items-center gap-2 text-sm text-[#00ff41] mt-2 justify-end">
+                    <span className="font-bold">+ $0.00</span>
+                    <span className="text-white/30">|</span>
+                    <span className="text-xs uppercase">T_0</span>
                   </div>
                 </div>
               </div>
             </motion.div>
 
             {/* Tab Navigation - Mobile */}
-            <div className="flex lg:hidden overflow-x-auto gap-2 pb-2">
+            <div className="flex lg:hidden overflow-x-auto gap-2 pb-2 font-mono">
               {[
-                { id: 'swap' as TabType, label: 'Swap', icon: <SwapIcon /> },
-                { id: 'wallet' as TabType, label: 'Wallet', icon: <WalletIcon /> },
-                { id: 'history' as TabType, label: 'History', icon: <HistoryIcon /> },
-                { id: 'keys' as TabType, label: 'Keys', icon: <KeyIcon /> },
+                { id: 'swap' as TabType, label: 'SWAP', icon: <SwapIcon /> },
+                { id: 'wallet' as TabType, label: 'ASSETS', icon: <WalletIcon /> },
+                { id: 'history' as TabType, label: 'LOGS', icon: <HistoryIcon /> },
+                { id: 'keys' as TabType, label: 'KEYS', icon: <KeyIcon /> },
               ].map((tab) => (
                 <button
                   key={tab.id}
                   onClick={() => setActiveTab(tab.id)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-xl whitespace-nowrap transition-colors ${
+                  className={`flex items-center gap-2 px-4 py-2 whitespace-nowrap transition-colors border ${
                     activeTab === tab.id
-                      ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30'
-                      : 'bg-white/5 text-white/60 border border-white/5 hover:bg-white/10'
+                      ? 'bg-[#00ff41]/10 text-[#00ff41] border-[#00ff41]'
+                      : 'bg-black text-white/50 border-white/10 hover:border-white/30'
                   }`}
                 >
                   {tab.icon}
-                  <span className="text-sm font-medium">{tab.label}</span>
+                  <span className="text-xs font-bold tracking-widest">{tab.label}</span>
                 </button>
               ))}
             </div>
@@ -402,97 +393,98 @@ export function WalletDashboard() {
                 exit={{ opacity: 0, y: -20 }}
                 className={`${activeTab !== 'swap' ? 'hidden lg:block' : ''}`}
               >
-                  <div className="p-6 rounded-2xl bg-[#0b1422] border border-white/[0.05]">
-                    <h3 className="text-lg font-semibold text-white mb-4">Quick Swap</h3>
-                    
-                    {/* From */}
-                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] mb-3">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs text-white/40 uppercase tracking-wider">From</span>
-                        <select
-                          value={swapFrom.symbol}
-                          onChange={(e) => setSwapFrom(prev => ({ ...prev, symbol: e.target.value }))}
-                          className="bg-transparent text-sm text-white border-none outline-none cursor-pointer"
-                        >
-                          {TOKENS.map(token => (
-                            <option key={token.symbol} value={token.symbol} className="bg-[#0b1422]">
-                              {token.symbol}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="0.00"
-                        value={swapFrom.amount}
-                        onChange={(e) => setSwapFrom({ ...swapFrom, amount: e.target.value })}
-                        className="w-full bg-transparent text-2xl font-bold text-white outline-none placeholder:text-white/20"
-                      />
-                    </div>
+                {/* Swap Terminal */}
+                <div className="p-6 bg-black border border-white/20 cyber-border font-mono">
+                  <h3 className="text-sm font-bold text-white mb-6 uppercase tracking-widest">{'>'} EXECUTE_SWAP</h3>
 
-                    {/* Swap Direction Button */}
-                    <div className="flex justify-center -my-1 relative z-10">
-                      <button
-                        onClick={handleSwapDirection}
-                        className="w-10 h-10 rounded-xl bg-blue-500 flex items-center justify-center text-white hover:bg-blue-600 transition-colors"
+                  {/* From */}
+                  <div className="p-4 border border-white/10 bg-white/[0.02] mb-3 hover:border-white/30 transition-colors">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-xs text-white/40 uppercase tracking-widest">INPUT_TOKEN</span>
+                      <select
+                        value={swapFrom.symbol}
+                        onChange={(e) => setSwapFrom(prev => ({ ...prev, symbol: e.target.value }))}
+                        className="bg-black text-sm text-[#00f0ff] border border-[#00f0ff]/30 px-2 py-1 outline-none cursor-pointer"
                       >
-                        <SwapIcon />
-                      </button>
+                        {TOKENS.map(token => (
+                          <option key={token.symbol} value={token.symbol}>
+                            {token.symbol}
+                          </option>
+                        ))}
+                      </select>
                     </div>
+                    <input
+                      type="text"
+                      placeholder="0.00"
+                      value={swapFrom.amount}
+                      onChange={(e) => setSwapFrom({ ...swapFrom, amount: e.target.value })}
+                      className="w-full bg-transparent text-3xl font-bold text-white outline-none placeholder:text-white/10"
+                    />
+                  </div>
 
-                    {/* To */}
-                    <div className="p-4 rounded-xl bg-white/[0.02] border border-white/[0.05] mt-3">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="text-xs text-white/40 uppercase tracking-wider">To</span>
-                        <select
-                          value={swapTo.symbol}
-                          onChange={(e) => setSwapTo(prev => ({ ...prev, symbol: e.target.value }))}
-                          className="bg-transparent text-sm text-white border-none outline-none cursor-pointer"
-                        >
-                          {TOKENS.map(token => (
-                            <option key={token.symbol} value={token.symbol} className="bg-[#0b1422]">
-                              {token.symbol}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      <input
-                        type="text"
-                        placeholder="0.00"
-                        value={swapTo.amount}
-                        readOnly
-                        className="w-full bg-transparent text-2xl font-bold text-white outline-none placeholder:text-white/20"
-                      />
-                    </div>
-
-                    {/* Quote Info */}
-                    {swapQuote && (
-                      <div className="mt-4 p-3 rounded-lg bg-white/[0.02] border border-white/[0.05]">
-                        <div className="flex justify-between text-sm">
-                          <span className="text-white/50">Rate</span>
-                          <span className="text-white">1 {swapFrom.symbol} ≈ {swapQuote.rate} {swapTo.symbol}</span>
-                        </div>
-                        <div className="flex justify-between text-sm mt-1">
-                          <span className="text-white/50">Fee</span>
-                          <span className="text-white">{swapQuote.fee}</span>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Swap Button */}
+                  {/* Swap Direction Button */}
+                  <div className="flex justify-center -my-3 relative z-10">
                     <button
-                      onClick={handleSwap}
-                      disabled={!swapFrom.amount || isLoading || !isAuthenticated}
-                      className={`w-full mt-4 py-3 rounded-xl font-semibold transition-all ${
-                        isLoading || !swapFrom.amount || !isAuthenticated
-                          ? 'bg-white/10 text-white/40 cursor-not-allowed'
-                          : 'bg-blue-500 text-white hover:bg-blue-600'
-                      }`}
+                      onClick={handleSwapDirection}
+                      className="w-12 h-12 bg-black border border-white/20 flex items-center justify-center text-white hover:text-[#ff00ff] hover:border-[#ff00ff] transition-colors shadow-[0_0_15px_rgba(0,0,0,1)]"
                     >
-                      {isLoading ? 'Processing...' : isAuthenticated ? 'Swap Now' : 'Login to Swap'}
+                      <SwapIcon />
                     </button>
                   </div>
-                </motion.div>
+
+                  {/* To */}
+                  <div className="p-4 border border-white/10 bg-white/[0.02] mt-3 hover:border-white/30 transition-colors">
+                    <div className="flex justify-between items-center mb-4">
+                      <span className="text-xs text-white/40 uppercase tracking-widest">OUTPUT_TOKEN</span>
+                      <select
+                        value={swapTo.symbol}
+                        onChange={(e) => setSwapTo(prev => ({ ...prev, symbol: e.target.value }))}
+                        className="bg-black text-sm text-[#00ff41] border border-[#00ff41]/30 px-2 py-1 outline-none cursor-pointer"
+                      >
+                        {TOKENS.map(token => (
+                          <option key={token.symbol} value={token.symbol}>
+                            {token.symbol}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="0.00"
+                      value={swapTo.amount}
+                      readOnly
+                      className="w-full bg-transparent text-3xl font-bold text-white outline-none placeholder:text-white/10"
+                    />
+                  </div>
+
+                  {/* Quote Info */}
+                  {swapQuote && (
+                    <div className="mt-4 p-3 border border-white/10 bg-white/[0.02] text-xs uppercase tracking-widest">
+                      <div className="flex justify-between text-white/50 mb-1">
+                        <span>RATE:</span>
+                        <span className="text-white">1 {swapFrom.symbol} ≈ {swapQuote.rate} {swapTo.symbol}</span>
+                      </div>
+                      <div className="flex justify-between text-white/50">
+                        <span>EST_FEE:</span>
+                        <span className="text-[#00ff41]">{swapQuote.fee}</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Swap Button */}
+                  <button
+                    onClick={handleSwap}
+                    disabled={!swapFrom.amount || isLoading || !isAuthenticated}
+                    className={`w-full mt-6 py-4 font-bold tracking-widest uppercase transition-all border ${
+                      isLoading || !swapFrom.amount || !isAuthenticated
+                        ? 'bg-white/5 text-white/20 border-white/10 cursor-not-allowed'
+                        : 'bg-[#00ff41]/10 text-[#00ff41] border-[#00ff41] hover:bg-[#00ff41] hover:text-black hover:shadow-[0_0_20px_rgba(0,255,65,0.4)]'
+                    }`}
+                  >
+                    {isLoading ? '> PROCESSING...' : isAuthenticated ? '> INITIALIZE_SWAP' : '> AUTH_REQUIRED'}
+                  </button>
+                </div>
+              </motion.div>
 
               {/* Wallet / Assets Panel */}
               <motion.div
@@ -688,84 +680,84 @@ export function WalletDashboard() {
           </div>
 
           {/* Right Column - Quick Actions */}
-          <div className="hidden lg:block space-y-6">
+          <div className="hidden lg:block space-y-6 font-mono">
             {/* Quick Actions */}
-            <div className="p-6 rounded-2xl bg-[#0b1422] border border-white/[0.05]">
-              <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+            <div className="p-6 bg-black border border-white/20 cyber-border">
+              <h3 className="text-sm font-bold text-[#00f0ff] mb-6 uppercase tracking-widest">{'>'} OPERATIONS</h3>
               <div className="grid grid-cols-2 gap-3">
                 <Link
                   href="/pay"
-                  className="p-4 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 hover:bg-blue-500/20 transition-colors"
+                  className="p-4 border border-white/10 bg-white/[0.02] text-white hover:text-[#00f0ff] hover:border-[#00f0ff] transition-colors flex flex-col items-center justify-center group"
                 >
-                  <svg className="w-6 h-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-6 h-6 mb-2 group-hover:-translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
                   </svg>
-                  <span className="text-xs font-medium">Send</span>
+                  <span className="text-xs font-bold tracking-widest uppercase">TRANSMIT</span>
                 </Link>
-                <button className="p-4 rounded-xl bg-green-500/10 border border-green-500/20 text-green-400 hover:bg-green-500/20 transition-colors">
-                  <svg className="w-6 h-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <button className="p-4 border border-white/10 bg-white/[0.02] text-white hover:text-[#00ff41] hover:border-[#00ff41] transition-colors flex flex-col items-center justify-center group">
+                  <svg className="w-6 h-6 mb-2 group-hover:translate-y-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 4v16m8-8H4" />
                   </svg>
-                  <span className="text-xs font-medium">Receive</span>
+                  <span className="text-xs font-bold tracking-widest uppercase">RECEIVE</span>
                 </button>
                 <Link
                   href="/scan"
-                  className="p-4 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 transition-colors"
+                  className="p-4 border border-white/10 bg-white/[0.02] text-white hover:text-[#ff00ff] hover:border-[#ff00ff] transition-colors flex flex-col items-center justify-center group"
                 >
-                  <svg className="w-6 h-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-6 h-6 mb-2 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
-                  <span className="text-xs font-medium">QR Pay</span>
+                  <span className="text-xs font-bold tracking-widest uppercase">SCAN_QR</span>
                 </Link>
-                <button 
+                <button
                   onClick={() => setActiveTab('swap')}
-                  className="p-4 rounded-xl bg-orange-500/10 border border-orange-500/20 text-orange-400 hover:bg-orange-500/20 transition-colors"
+                  className="p-4 border border-white/10 bg-white/[0.02] text-white hover:text-[#fcee0a] hover:border-[#fcee0a] transition-colors flex flex-col items-center justify-center group"
                 >
-                  <svg className="w-6 h-6 mx-auto mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-6 h-6 mb-2 group-hover:rotate-180 transition-transform duration-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
                   </svg>
-                  <span className="text-xs font-medium">Swap</span>
+                  <span className="text-xs font-bold tracking-widest uppercase">EXCHANGE</span>
                 </button>
               </div>
             </div>
 
             {/* Network Info */}
-            <div className="p-6 rounded-2xl bg-[#0b1422] border border-white/[0.05]">
-              <h3 className="text-lg font-semibold text-white mb-4">Network</h3>
-              <div className="space-y-3">
-                <div className="flex justify-between">
-                  <span className="text-sm text-white/50">Network</span>
-                  <span className="text-sm text-white">Lisk</span>
+            <div className="p-6 bg-black border border-white/20 cyber-border">
+              <h3 className="text-sm font-bold text-[#00f0ff] mb-6 uppercase tracking-widest">{'>'} SYS_STATUS</h3>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                  <span className="text-xs text-white/50 uppercase tracking-widest">NETWORK</span>
+                  <span className="text-sm text-white font-bold">LISK_L2</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-white/50">Gas Price</span>
-                  <span className="text-sm text-green-400">Sponsored</span>
+                <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                  <span className="text-xs text-white/50 uppercase tracking-widest">GAS_PROTO</span>
+                  <span className="text-sm text-[#00ff41] font-bold">SPONSORED (ERC-4337)</span>
                 </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-white/50">Status</span>
-                  <span className="flex items-center gap-1 text-sm text-green-400">
-                    <span className="w-2 h-2 rounded-full bg-green-400" />
-                    Healthy
+                <div className="flex justify-between items-center">
+                  <span className="text-xs text-white/50 uppercase tracking-widest">UPLINK</span>
+                  <span className="flex items-center gap-2 text-sm text-[#00ff41] font-bold">
+                    <span className="w-2 h-2 bg-[#00ff41] animate-pulse" />
+                    ONLINE
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Session Keys Summary */}
-            <div className="p-6 rounded-2xl bg-[#0b1422] border border-white/[0.05]">
-              <div className="flex justify-between items-center mb-4">
-                <h3 className="text-lg font-semibold text-white">Session Keys</h3>
+            <div className="p-6 bg-black border border-white/20 cyber-border">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-sm font-bold text-[#00f0ff] uppercase tracking-widest">{'>'} SEC_KEYS</h3>
                 <button
                   onClick={() => setActiveTab('keys')}
-                  className="text-xs text-blue-400 hover:text-blue-300"
+                  className="text-xs text-white/50 hover:text-[#00f0ff] uppercase tracking-widest transition-colors"
                 >
-                  Manage
+                  [MANAGE]
                 </button>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-white/50">Active Keys</span>
-                <span className="text-sm text-white">
-                  {sessionKeys.filter(k => !sessionKeyService.isExpired(k)).length}
+                <span className="text-xs text-white/50 uppercase tracking-widest">ACTIVE_TOKENS</span>
+                <span className="text-sm text-[#00ff41] font-bold">
+                  0x0{sessionKeys.filter(k => !sessionKeyService.isExpired(k)).length}
                 </span>
               </div>
             </div>
@@ -774,23 +766,23 @@ export function WalletDashboard() {
       </main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 lg:hidden bg-[#060b14]/95 backdrop-blur-xl border-t border-white/[0.05] z-50">
+      <nav className="fixed bottom-0 left-0 right-0 lg:hidden bg-black border-t border-white/20 z-50 font-mono">
         <div className="flex items-center justify-around h-16">
           {[
-            { id: 'swap' as TabType, label: 'Swap', icon: <SwapIcon /> },
-            { id: 'wallet' as TabType, label: 'Wallet', icon: <WalletIcon /> },
-            { id: 'history' as TabType, label: 'History', icon: <HistoryIcon /> },
-            { id: 'keys' as TabType, label: 'Keys', icon: <KeyIcon /> },
+            { id: 'swap' as TabType, label: 'SWAP', icon: <SwapIcon /> },
+            { id: 'wallet' as TabType, label: 'ASSETS', icon: <WalletIcon /> },
+            { id: 'history' as TabType, label: 'LOGS', icon: <HistoryIcon /> },
+            { id: 'keys' as TabType, label: 'KEYS', icon: <KeyIcon /> },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex flex-col items-center justify-center gap-1 px-4 py-2 ${
-                activeTab === tab.id ? 'text-blue-400' : 'text-white/40'
+              className={`flex flex-col items-center justify-center gap-1 px-4 py-2 w-full h-full transition-colors ${
+                activeTab === tab.id ? 'border-t-2 border-[#00ff41] text-[#00ff41] bg-[#00ff41]/5' : 'text-white/40 hover:text-white/80'
               }`}
             >
               {tab.icon}
-              <span className="text-xs">{tab.label}</span>
+              <span className="text-[10px] font-bold tracking-widest">{tab.label}</span>
             </button>
           ))}
         </div>

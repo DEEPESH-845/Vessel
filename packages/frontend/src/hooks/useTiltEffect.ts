@@ -20,6 +20,9 @@ export function useTiltEffect<T extends HTMLElement = HTMLDivElement>(options: T
         const el = ref.current;
         if (!el || typeof window === "undefined") return;
 
+        // Respect reduced motion preference
+        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
         // Apply necessary 3D perspective to parent if not present
         gsap.set(el.parentElement, { perspective: 1000 });
         // Ensure element has transformStyle to preserve 3D children

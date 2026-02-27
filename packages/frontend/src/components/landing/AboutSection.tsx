@@ -8,6 +8,8 @@
 import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
 import { BracketLabel } from './BracketLabel';
+import { Container } from '../layout/Container';
+import { Section } from '../layout/Section';
 
 // Word-by-word text component
 function WordRevealText({
@@ -102,40 +104,40 @@ function SpacecraftModel() {
 
 export function AboutSection() {
   return (
-    <section
+    <Section
       id="about"
-      className="relative min-h-screen py-24 px-6 md:px-12 bg-black"
+      className="relative min-h-screen bg-black"
     >
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+      <Container>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-center">
           {/* Left Column - Text */}
-          <div className="space-y-8">
+          <div className="space-y-8 flex flex-col items-start">
             {/* Bracket Label */}
-            <BracketLabel>What We</BracketLabel>
+            <BracketLabel>What We Do</BracketLabel>
 
             {/* Main Heading */}
             <WordRevealText
               text="Shaping the Future of Web3 and Crypto with Innovative Marketing and Strategic Expertise"
-              className="text-white font-bold leading-[1.15] text-[clamp(32px,4vw,54px)]"
+              className="text-white font-bold leading-tight text-3xl md:text-5xl"
             />
 
             {/* Subheading */}
-            <h3 className="text-lg font-bold text-white">
+            <h3 className="text-xl md:text-2xl font-bold text-white mt-4">
               Comprehensive Marketing & Advertising
             </h3>
 
             {/* Body Text */}
-            <p className="text-white/65 text-[15px] leading-relaxed max-w-lg">
+            <p className="text-white/60 text-lg leading-relaxed max-w-[60ch]">
               We specialize in designing integrated marketing experiences that connect all key stakeholders, from early investors to project execution and post-launch marketing. Our innovative strategies help bring cutting-edge technologies to the Arab community through content that drives foresighted investments.
             </p>
           </div>
 
           {/* Right Column - 3D Model */}
-          <div className="relative">
+          <div className="relative w-full">
             <SpacecraftModel />
           </div>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }

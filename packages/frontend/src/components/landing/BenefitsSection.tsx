@@ -8,6 +8,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
 import { BracketLabel } from './BracketLabel';
+import { Container } from '../layout/Container';
+import { Section } from '../layout/Section';
 
 const merchantBenefits = [
   {
@@ -207,21 +209,21 @@ export function BenefitsSection() {
   }, [mounted]);
 
   return (
-    <section
+    <Section
       id="benefits"
       ref={sectionRef}
-      className="relative section-vertical section-bg-primary overflow-hidden"
+      className="relative section-bg-primary overflow-hidden"
     >
       {/* Background Gradients */}
       <div className="absolute inset-0 pointer-events-none">
-        <div 
+        <div
           className="absolute top-0 left-1/4 w-96 h-96 rounded-full"
           style={{
             background: 'radial-gradient(circle, rgba(59, 130, 246, 0.06) 0%, transparent 70%)',
             filter: 'blur(60px)',
           }}
         />
-        <div 
+        <div
           className="absolute bottom-0 right-1/4 w-96 h-96 rounded-full"
           style={{
             background: 'radial-gradient(circle, rgba(20, 184, 166, 0.05) 0%, transparent 70%)',
@@ -230,50 +232,50 @@ export function BenefitsSection() {
         />
       </div>
 
-      <div className="relative z-10 container-section">
+      <Container className="relative z-10">
         {/* Section Label */}
-        <div className="flex justify-center mb-[var(--space-6)]">
+        <div className="flex justify-center mb-8">
           <BracketLabel>Benefits</BracketLabel>
         </div>
 
         {/* Section Heading - Unified typography */}
-        <div ref={headingRef} className="text-center mb-[var(--space-12)]">
-          <h2 className="heading-section mb-4">
+        <div ref={headingRef} className="text-center mb-16 md:mb-24">
+          <h2 className="heading-section mb-6">
             Built for{' '}
             <span className="bg-gradient-to-r from-teal-400 to-emerald-400 bg-clip-text text-transparent">
               Everyone
             </span>
           </h2>
-          <p className="text-white/50 max-w-2xl mx-auto text-lg">
+          <p className="text-white/60 max-w-[60ch] mx-auto text-lg leading-relaxed">
             Whether you're a merchant accepting payments or a consumer making them, Vessel works for you.
           </p>
         </div>
 
         {/* Two Column Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
           {/* Merchant Benefits */}
           <div ref={merchantRef}>
-            <div className="mb-[var(--space-6)]">
-              <span className="text-sm text-blue-400 font-semibold uppercase tracking-wider">For Merchants</span>
-              <h3 className="text-2xl font-bold text-white mt-2">Accept Crypto, Get Paid in Your Currency</h3>
+            <div className="mb-10">
+              <span className="text-sm text-blue-400 font-bold uppercase tracking-widest bg-blue-500/10 px-3 py-1 rounded-full border border-blue-500/20">For Merchants</span>
+              <h3 className="text-3xl font-bold text-white mt-6 mb-4">Accept Crypto, Get Paid in Your Currency</h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               {merchantBenefits.map((benefit) => (
                 <div
                   key={benefit.title}
-                  className="benefit-card card-unified"
+                  className="benefit-card card-unified p-6 flex flex-col items-start"
                 >
-                  <div className="text-2xl font-bold text-blue-400 mb-1" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
+                  <div className="text-3xl font-bold text-blue-400 mb-2" style={{ fontFamily: "'Space Grotesk', sans-serif" }}>
                     {benefit.stat}
                   </div>
-                  <div className="text-xs text-white/40 uppercase tracking-wider mb-2">
+                  <div className="text-xs text-white/50 uppercase tracking-widest font-medium mb-4">
                     {benefit.statLabel}
                   </div>
-                  <h4 className="text-sm font-semibold text-white mb-1">
+                  <h4 className="text-base font-semibold text-white mb-2">
                     {benefit.title}
                   </h4>
-                  <p className="text-xs text-white/50 leading-relaxed">
+                  <p className="text-sm text-white/60 leading-relaxed">
                     {benefit.description}
                   </p>
                 </div>
@@ -283,25 +285,25 @@ export function BenefitsSection() {
 
           {/* Consumer Benefits */}
           <div ref={consumerRef}>
-            <div className="mb-[var(--space-6)]">
-              <span className="text-sm text-teal-400 font-semibold uppercase tracking-wider">For Consumers</span>
-              <h3 className="text-2xl font-bold text-white mt-2">Pay Without the Complexity</h3>
+            <div className="mb-10">
+              <span className="text-sm text-teal-400 font-bold uppercase tracking-widest bg-teal-500/10 px-3 py-1 rounded-full border border-teal-500/20">For Consumers</span>
+              <h3 className="text-3xl font-bold text-white mt-6 mb-4">Pay Without the Complexity</h3>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
               {consumerBenefits.map((benefit) => (
                 <div
                   key={benefit.title}
-                  className="consumer-card flex items-start gap-4 p-4 rounded-xl group card-unified"
+                  className="consumer-card flex items-start gap-6 p-6 rounded-2xl group card-unified"
                 >
-                  <div className="flex-shrink-0 w-10 h-10 rounded-lg flex items-center justify-center bg-teal-500/10 text-teal-400 group-hover:bg-teal-500/20 transition-colors">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center bg-teal-500/10 text-teal-400 group-hover:bg-teal-500/20 transition-colors border border-teal-500/20">
                     {benefit.icon}
                   </div>
                   <div>
-                    <h4 className="text-sm font-semibold text-white mb-1 group-hover:text-teal-400 transition-colors">
+                    <h4 className="text-base font-semibold text-white mb-2 group-hover:text-teal-400 transition-colors">
                       {benefit.title}
                     </h4>
-                    <p className="text-xs text-white/50 leading-relaxed">
+                    <p className="text-sm text-white/60 leading-relaxed">
                       {benefit.description}
                     </p>
                   </div>
@@ -314,35 +316,53 @@ export function BenefitsSection() {
         {/* Bottom Comparison */}
         <div
           ref={comparisonRef}
-          className="mt-[var(--space-12)] p-6 rounded-2xl card-unified"
+          className="mt-20 md:mt-32 p-8 md:p-12 rounded-3xl card-unified relative overflow-hidden"
         >
-          <h4 className="text-center text-sm font-semibold text-white mb-6">
+          {/* Subtle glow behind table */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-blue-500/5 filter blur-[100px] rounded-full pointer-events-none" />
+
+          <h4 className="text-center text-xl font-bold text-white mb-10 relative z-10">
             Vessel vs. Traditional Crypto Payments
           </h4>
-          <div className="grid grid-cols-3 gap-4 text-center">
-            <div className="text-white/40 text-xs uppercase tracking-wider">Metric</div>
-            <div className="text-white/40 text-xs uppercase tracking-wider">Traditional</div>
-            <div className="text-white/40 text-xs uppercase tracking-wider">Vessel</div>
-            
-            <div className="text-white/60 text-sm">Checkout Abandonment</div>
-            <div className="text-red-400 text-sm font-medium">67%</div>
-            <div className="text-green-400 text-sm font-medium">37%</div>
-            
-            <div className="text-white/60 text-sm">Settlement Failures</div>
-            <div className="text-red-400 text-sm font-medium">8-12%</div>
-            <div className="text-green-400 text-sm font-medium">{'<2%'}</div>
-            
-            <div className="text-white/60 text-sm">Payment Latency</div>
-            <div className="text-red-400 text-sm font-medium">2-5 min</div>
-            <div className="text-green-400 text-sm font-medium">{'<15s'}</div>
-            
-            <div className="text-white/60 text-sm">Fraud Rate</div>
-            <div className="text-red-400 text-sm font-medium">3.2%</div>
-            <div className="text-green-400 text-sm font-medium">0.2%</div>
+
+          <div className="max-w-4xl mx-auto overflow-x-auto relative z-10">
+            <div className="min-w-[600px]">
+              <div className="grid grid-cols-3 gap-6 text-center border-b border-white/10 pb-6 mb-6">
+                <div className="text-white/50 text-sm font-semibold uppercase tracking-widest">Metric</div>
+                <div className="text-white/50 text-sm font-semibold uppercase tracking-widest">Traditional</div>
+                <div className="text-blue-400 text-sm font-semibold uppercase tracking-widest">Vessel</div>
+              </div>
+
+              <div className="space-y-6">
+                <div className="grid grid-cols-3 gap-6 text-center items-center">
+                  <div className="text-white/80 text-base font-medium">Checkout Abandonment</div>
+                  <div className="text-white/40 text-base font-medium">67%</div>
+                  <div className="text-teal-400 text-lg font-bold">37%</div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-6 text-center items-center">
+                  <div className="text-white/80 text-base font-medium">Settlement Failures</div>
+                  <div className="text-white/40 text-base font-medium">8-12%</div>
+                  <div className="text-teal-400 text-lg font-bold">{'<2%'}</div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-6 text-center items-center">
+                  <div className="text-white/80 text-base font-medium">Payment Latency</div>
+                  <div className="text-white/40 text-base font-medium">2-5 min</div>
+                  <div className="text-teal-400 text-lg font-bold">{'<15s'}</div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-6 text-center items-center">
+                  <div className="text-white/80 text-base font-medium">Fraud Rate</div>
+                  <div className="text-white/40 text-base font-medium">3.2%</div>
+                  <div className="text-teal-400 text-lg font-bold">0.2%</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }
 

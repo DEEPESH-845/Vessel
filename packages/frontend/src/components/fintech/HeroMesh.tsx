@@ -79,7 +79,12 @@ export function HeroMesh() {
       <div className="mesh-blob-3 absolute bottom-[10%] left-[30%] w-[45vw] h-[45vw] rounded-full bg-accent-purple/10 blur-[140px] mix-blend-screen pointer-events-none" />
       
       {/* Noise filter to prevent banding and add premium texture */}
-      <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay bg-[url('https://grainy-gradients.vercel.app/noise.svg')] pointer-events-none" />
+      <div className="absolute inset-0 opacity-[0.15] mix-blend-overlay pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: 'repeat',
+        }}
+      />
     </div>
   );
 }

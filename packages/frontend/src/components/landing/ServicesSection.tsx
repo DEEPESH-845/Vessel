@@ -10,6 +10,8 @@ import { gsap } from '@/lib/gsap';
 import { BracketLabel } from './BracketLabel';
 import { ServicesCarousel } from './ServicesCarousel';
 import { StarField } from './StarField';
+import { Container } from '../layout/Container';
+import { Section } from '../layout/Section';
 
 // Word-by-word text component
 function WordRevealText({
@@ -69,9 +71,9 @@ export function ServicesSection() {
   const [activeIndex, setActiveIndex] = useState(0);
 
   return (
-    <section
+    <Section
       id="services"
-      className="relative min-h-screen py-24 px-6 md:px-12 overflow-hidden"
+      className="relative min-h-screen overflow-hidden"
       style={{ background: '#070718' }}
     >
       {/* Star Field Background */}
@@ -90,17 +92,17 @@ export function ServicesSection() {
         }}
       />
 
-      <div className="relative z-10 max-w-7xl mx-auto">
+      <Container className="relative z-10">
         {/* Section Label */}
         <div className="flex justify-center mb-8">
           <BracketLabel>Our Services</BracketLabel>
         </div>
 
         {/* Section Heading */}
-        <div className="text-center mb-16">
+        <div className="text-center mb-16 md:mb-24">
           <WordRevealText
             text="Tailored Solutions for Crypto and Web3 Projects to Drive Growth and Innovation"
-            className="text-white font-bold leading-[1.15] max-w-3xl mx-auto text-[clamp(28px,4vw,54px)]"
+            className="text-white font-bold leading-tight max-w-4xl mx-auto text-3xl md:text-5xl"
           />
         </div>
 
@@ -111,7 +113,7 @@ export function ServicesSection() {
             setActiveIndex={setActiveIndex}
           />
         </div>
-      </div>
-    </section>
+      </Container>
+    </Section>
   );
 }
