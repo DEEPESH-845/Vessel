@@ -2,8 +2,7 @@
 
 import { useEffect } from 'react';
 import { ReactLenis, useLenis } from '@studio-freight/react-lenis';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { gsap, ScrollTrigger } from '@/lib/animations/gsap-config';
 
 export function LenisProvider({ children }: { children: any }) {
   // Sync Lenis scroll with GSAP ScrollTrigger

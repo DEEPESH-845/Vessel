@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { gsap, ScrollTrigger } from '@/lib/animations/gsap-config';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { animate, stagger } from 'animejs';
 
@@ -12,16 +12,12 @@ export function CyberHero() {
   const titleVesselRef = useRef<HTMLHeadingElement>(null);
   const titleProtocolRef = useRef<HTMLHeadingElement>(null);
   const titleProtocolShadowRef = useRef<HTMLHeadingElement>(null);
-  // Move the component definition higher up and create the glowing cursor logic directly in the Hero
-  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
     if (prefersReducedMotion) {
       // Set static accessible states for reduced-motion users
-      gsap.set('.hero-glow', { opacity: 0.6, scale: 1, x: '50vw', y: '50vh' });
-      gsap.set('.hero-glow-core', { opacity: 0.3, scale: 1, x: '50vw', y: '50vh' });
       gsap.set('.bg-grid', { opacity: 0.4, scale: 1 });
       gsap.set('.hero-text-container', { opacity: 1, scale: 1, filter: 'blur(0px)' });
       gsap.set('.hero-text-secondary', { opacity: 1, y: 0, filter: 'blur(0px)' });
@@ -63,27 +59,6 @@ export function CyberHero() {
       // Small timeout to let the DOM settle before measuring heights for pinning
       // This is crucial for fixing reload glitches where heights are measured before rendering
       const timeout = setTimeout(() => {
-        // Reset glow state explicitly to prevent stacking
-        gsap.set('.hero-glow', { opacity: 0, scale: 0.5 });
-        gsap.set('.hero-glow-core', { opacity: 0, scale: 0 });
-
-        // Fade in majestic premium glow and core
-        gsap.to('.hero-glow', {
-          opacity: 1,
-          scale: 1,
-          duration: 2.5,
-          ease: 'power2.out',
-          delay: 0.5
-        });
-
-        gsap.to('.hero-glow-core', {
-          opacity: 0.6,
-          scale: 1,
-          duration: 2.5,
-          ease: 'power2.out',
-          delay: 0.7
-        });
-
         // Clean Sci-Fi Blur In for other elements
         gsap.fromTo('.hero-text-secondary',
           { y: 30, opacity: 0, filter: 'blur(15px)' },
@@ -141,14 +116,6 @@ export function CyberHero() {
           ease: 'power1.inOut',
         }, 0);
 
-        // Delay the fade-out of the cursor glow to the very end of the scrub timeline
-        // so it persists during the entire pinning scroll phase
-        tl.to('.hero-glow, .hero-glow-core', {
-          scale: 4,
-          opacity: 0,
-          ease: 'power1.inOut',
-        }, 0);
-
         ScrollTrigger.refresh();
       }, 150);
 
@@ -160,24 +127,6 @@ export function CyberHero() {
       // when the user scrolls down, `position: fixed` keeps it attached to the screen
       const clientX = e.clientX;
       const clientY = e.clientY;
-
-      if (glowRef.current) {
-        // Premium, snappy animation that tracks the mouse precisely within the Hero container
-        gsap.to(glowRef.current, {
-          x: clientX,
-          y: clientY,
-          duration: 0.8,
-          ease: 'power3.out',
-        });
-
-        // Make the intense core follow even faster
-        gsap.to('.hero-glow-core', {
-          x: clientX,
-          y: clientY,
-          duration: 0.3,
-          ease: 'power4.out',
-        });
-      }
 
       // Parallax calculations
       const pX = (clientX / window.innerWidth) * 2 - 1;
@@ -220,19 +169,7 @@ export function CyberHero() {
 
   return (
     <section ref={containerRef} className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#020202] z-10 font-sans">
-      {/* Majestic Premium Cursor Glow - Fixed to screen but disappears securely when scrolled past */}
-      <div
-        ref={glowRef}
-        className="hero-glow fixed top-0 left-0 w-[600px] h-[600px] -ml-[300px] -mt-[300px] bg-gradient-to-tr from-[#00ff41]/20 via-[#00f0ff]/10 to-transparent rounded-full blur-[120px] mix-blend-screen pointer-events-none z-0"
-        style={{ opacity: 0, willChange: 'transform, opacity' }}
-      />
-
-      {/* Intense Core Highlight - Creates a premium "flashlight" core */}
-      <div
-        className="hero-glow-core fixed top-0 left-0 w-[150px] h-[150px] -ml-[75px] -mt-[75px] bg-[#00ff41] rounded-full blur-[60px] opacity-0 mix-blend-screen pointer-events-none z-0"
-        style={{ willChange: 'transform, opacity' }}
-      />
-
+      {/* Majestic Premium Cursor Glow - Localized instance removed for global glow */}
       {/* Subtle scanline overlay */}
       <div className="absolute inset-0 scanlines opacity-[0.2] z-10 pointer-events-none mix-blend-overlay" />
 

@@ -1,10 +1,100 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { gsap, ScrollTrigger } from '@/lib/animations/gsap-config';
 import { Globe2, Zap, ShieldCheck } from 'lucide-react';
 import { animate, stagger } from 'animejs';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { Sphere, Torus, Html } from '@react-three/drei';
+import * as THREE from 'three';
 
+// ----------------------------------------------------------------------
+// R3F Scene Component
+// ----------------------------------------------------------------------
+function GlobeScene({ reducedMotion }: { reducedMotion: boolean }) {
+  const groupRef = useRef<THREE.Group>(null);
+  const ringHRef = useRef<THREE.Mesh>(null);
+  const ringVRef = useRef<THREE.Mesh>(null);
+  const ringD1Ref = useRef<THREE.Mesh>(null);
+  const ringD2Ref = useRef<THREE.Mesh>(null);
+
+  // Use the same rotation speeds as the original GSAP animation
+  useFrame((state, delta) => {
+    if (!groupRef.current || reducedMotion) return;
+
+    // Horizontal Ring (30s = 360deg -> 12deg/s)
+    if (ringHRef.current) ringHRef.current.rotation.y -= delta * (Math.PI * 2 / 30);
+    // Vertical Ring (35s = 360deg)
+    if (ringVRef.current) ringVRef.current.rotation.x -= delta * (Math.PI * 2 / 35);
+    // Diagonal Ring 1 (40s = 360deg)
+    if (ringD1Ref.current) ringD1Ref.current.rotation.z -= delta * (Math.PI * 2 / 40);
+    // Diagonal Ring 2 (-360deg / 45s)
+    if (ringD2Ref.current) ringD2Ref.current.rotation.z += delta * (Math.PI * 2 / 45);
+  });
+
+  return (
+    <group ref={groupRef}>
+      <ambientLight intensity={1.5} />
+
+      {/* Horizontal Ring */}
+      <Torus ref={ringHRef} args={[2.5, 0.015, 16, 100]} rotation={[Math.PI / 2.4, 0, 0]}>
+        <meshBasicMaterial color="#00ff41" transparent opacity={0.3} />
+        {/* Orbiting particle */}
+        <mesh position={[0, 2.5, 0]}>
+          <sphereGeometry args={[0.08, 16, 16]} />
+          <meshBasicMaterial color="#ffffff" />
+        </mesh>
+      </Torus>
+
+      {/* Vertical Ring */}
+      <Torus ref={ringVRef} args={[2.5, 0.015, 16, 100]} rotation={[0, Math.PI / 2.4, 0]}>
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.15} />
+      </Torus>
+
+      {/* Diagonal Ring 1 */}
+      <Torus ref={ringD1Ref} args={[2.5, 0.02, 16, 100]} rotation={[Math.PI / 4, Math.PI / 4, 0]}>
+        <meshBasicMaterial color="#00ff41" transparent opacity={0.4} />
+        {/* Orbiting particle */}
+        <mesh position={[0, -2.5, 0]}>
+          <sphereGeometry args={[0.1, 16, 16]} />
+          <meshBasicMaterial color="#00ff41" />
+        </mesh>
+      </Torus>
+
+      {/* Diagonal Ring 2 (Dashed/Dotted equivalent) */}
+      <Torus ref={ringD2Ref} args={[2.5, 0.01, 16, 100]} rotation={[-Math.PI / 4, Math.PI / 4, 0]}>
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.1} wireframe />
+      </Torus>
+
+      {/* Static Outer Rings */}
+      <Torus args={[3.2, 0.01, 16, 100]} rotation={[0, 0, 0]}>
+        <meshBasicMaterial color="#ffffff" transparent opacity={0.03} />
+      </Torus>
+      <Torus args={[2.9, 0.01, 16, 100]} rotation={[0, 0, 0]}>
+        <meshBasicMaterial color="#00ff41" transparent opacity={0.1} wireframe />
+      </Torus>
+
+      {/* Core Sphere */}
+      <Sphere args={[1.5, 64, 64]}>
+        <meshPhysicalMaterial
+          color="#000000"
+          emissive="#00ff41"
+          emissiveIntensity={0.1}
+          transmission={0.9}
+          opacity={1}
+          transparent
+          roughness={0.1}
+          ior={1.5}
+          thickness={2}
+        />
+      </Sphere>
+    </group>
+  );
+}
+
+// ----------------------------------------------------------------------
+// Main Component
+// ----------------------------------------------------------------------
 export function CyberGlobe() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const globeContainerRef = useRef<HTMLDivElement>(null);
@@ -12,6 +102,8 @@ export function CyberGlobe() {
 
   useEffect(() => {
     let ctx = gsap.context(() => {
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
       // Small timeout to allow the previous pinned section to render its spacer
       const timeout = setTimeout(() => {
         // 1. Text Content Fade In with Anime.js for smoother, staggered reveals
@@ -24,15 +116,15 @@ export function CyberGlobe() {
           trigger: sectionRef.current,
           start: 'top 75%',
           onEnter: () => {
-             // Let Anime handle the actual styling overrides
-             animate(textElements, {
-                translateY: [40, 0],
-                opacity: [0, 1],
-                filter: ['blur(15px)', 'blur(0px)'],
-                duration: 1200,
-                delay: stagger(150),
-                ease: 'outQuint'
-             });
+            // Let Anime handle the actual styling overrides
+            animate(textElements, {
+              translateY: reducedMotion ? [10, 0] : [40, 0],
+              opacity: [0, 1],
+              filter: reducedMotion ? ['blur(0px)', 'blur(0px)'] : ['blur(15px)', 'blur(0px)'],
+              duration: reducedMotion ? 200 : 1200,
+              delay: reducedMotion ? 50 : stagger(150),
+              ease: 'outQuint'
+            });
           }
         });
 
@@ -51,7 +143,7 @@ export function CyberGlobe() {
                 toggleActions: 'play none none reverse',
               },
               innerHTML: target,
-              duration: 2.5,
+              duration: reducedMotion ? 0.01 : 2.5,
               ease: 'power3.out',
               snap: { innerHTML: 0.1 },
               onUpdate: function () {
@@ -61,53 +153,34 @@ export function CyberGlobe() {
           );
         });
 
-        // 3. 3D CSS Globe Animation
-        // Continual slow rotation
-        gsap.to('.globe-ring-h', {
-          rotationY: 360,
-          duration: 30,
-          repeat: -1,
-          ease: 'none',
-        });
-        gsap.to('.globe-ring-v', {
-          rotationX: 360,
-          duration: 35,
-          repeat: -1,
-          ease: 'none',
-        });
-        gsap.to('.globe-ring-d1', {
-          rotationZ: 360,
-          duration: 40,
-          repeat: -1,
-          ease: 'none',
-        });
-        gsap.to('.globe-ring-d2', {
-          rotationZ: -360,
-          duration: 45,
-          repeat: -1,
-          ease: 'none',
-        });
-
         // Pulse glow effect - Restored to intense state
-        gsap.to('.globe-glow-center', {
-          scale: 1.15,
-          opacity: 0.6,
-          duration: 4,
-          yoyo: true,
-          repeat: -1,
-          ease: 'sine.inOut'
-        });
+        if (reducedMotion) {
+          gsap.set('.globe-glow-center', { scale: 1.15, opacity: 0.6 });
+        } else {
+          gsap.to('.globe-glow-center', {
+            scale: 1.15,
+            opacity: 0.6,
+            duration: 4,
+            yoyo: true,
+            repeat: -1,
+            ease: 'sine.inOut'
+          });
+        }
 
         // Float animation for globe container
-        gsap.to(globeContainerRef.current, {
-          y: -15,
-          rotationX: 2,
-          rotationY: -2,
-          duration: 6,
-          yoyo: true,
-          repeat: -1,
-          ease: 'sine.inOut'
-        });
+        if (reducedMotion) {
+          gsap.set(globeContainerRef.current, { y: 0, rotationX: 0, rotationY: 0 });
+        } else {
+          gsap.to(globeContainerRef.current, {
+            y: -15,
+            rotationX: 2,
+            rotationY: -2,
+            duration: 6,
+            yoyo: true,
+            repeat: -1,
+            ease: 'sine.inOut'
+          });
+        }
 
         ScrollTrigger.refresh();
       }, 200);
@@ -158,11 +231,11 @@ export function CyberGlobe() {
             </div>
 
             <div className="p-8 rounded-3xl bg-white/[0.02] border border-white/5 hover:bg-white/[0.04] hover:border-white/10 transition-all duration-700 ease-out group relative overflow-hidden backdrop-blur-xl">
-               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none" />
               <div className="flex items-center gap-3 mb-4 relative z-10">
-                 <div className="p-2 rounded-xl bg-white/5 group-hover:bg-white/10 transition-colors duration-500">
-                    <ShieldCheck className="w-4 h-4 text-white/60 group-hover:text-white transition-colors duration-500" />
-                 </div>
+                <div className="p-2 rounded-xl bg-white/5 group-hover:bg-white/10 transition-colors duration-500">
+                  <ShieldCheck className="w-4 h-4 text-white/60 group-hover:text-white transition-colors duration-500" />
+                </div>
                 <div className="text-white/60 font-semibold text-xs tracking-[0.15em] uppercase group-hover:text-white/80 transition-colors duration-500">Uptime</div>
               </div>
               <div className="text-white text-4xl lg:text-5xl font-black tracking-tighter relative z-10">
@@ -172,46 +245,19 @@ export function CyberGlobe() {
           </div>
         </div>
 
-        {/* Right 3D CSS Globe */}
+        {/* Right 3D R3F Globe */}
         <div ref={globeContainerRef} className="lg:w-[45%] w-full aspect-square max-w-[600px] relative flex items-center justify-center">
 
-          {/* Intense center glow */}
-          <div className="globe-glow-center absolute w-[60%] h-[60%] bg-[#00ff41] rounded-full blur-[120px] opacity-30 mix-blend-screen" />
+          {/* Intense center glow (HTML layer behind canvas) */}
+          <div className="globe-glow-center absolute w-[60%] h-[60%] bg-[#00ff41] rounded-full blur-[120px] opacity-30 mix-blend-screen pointer-events-none" />
 
-          {/* CSS 3D Structure */}
-          <div className="relative w-full h-full" style={{ perspective: '1200px', transformStyle: 'preserve-3d' }}>
-            {/* Outer static rings */}
-            <div className="absolute inset-[5%] border border-white/[0.03] rounded-full shadow-[inset_0_0_40px_rgba(255,255,255,0.01)]" />
-            <div className="absolute inset-[12%] border border-[#00ff41]/10 rounded-full border-dashed opacity-50" />
-
-            {/* Inner rotating rings forming a sphere */}
-            <div className="absolute inset-[20%]">
-              <div className="relative w-full h-full" style={{ transformStyle: 'preserve-3d' }}>
-
-                {/* Horizontal Ring */}
-                <div className="globe-ring-h absolute inset-0 border border-[#00ff41]/20 rounded-full shadow-[0_0_20px_rgba(0,255,65,0.1)_inset]" style={{ transform: 'rotateX(75deg)', transformStyle: 'preserve-3d' }}>
-                  {/* Orbiting particle */}
-                  <div className="absolute top-0 left-1/2 w-1.5 h-1.5 bg-white rounded-full shadow-[0_0_15px_white] -translate-x-1/2 -translate-y-1/2" />
-                </div>
-
-                {/* Vertical Ring */}
-                <div className="globe-ring-v absolute inset-0 border border-white/[0.15] rounded-full shadow-[inset_0_0_15px_rgba(255,255,255,0.05)]" style={{ transform: 'rotateY(75deg)', transformStyle: 'preserve-3d' }} />
-
-                {/* Diagonal Ring 1 */}
-                <div className="globe-ring-d1 absolute inset-0 border border-[#00ff41]/30 rounded-full shadow-[0_0_30px_rgba(0,255,65,0.15)]" style={{ transform: 'rotateX(45deg) rotateY(45deg)', transformStyle: 'preserve-3d' }}>
-                   {/* Orbiting particle */}
-                   <div className="absolute bottom-0 left-1/2 w-2 h-2 bg-[#00ff41] rounded-full shadow-[0_0_20px_#00ff41] -translate-x-1/2 translate-y-1/2" />
-                </div>
-
-                {/* Diagonal Ring 2 */}
-                <div className="globe-ring-d2 absolute inset-0 border border-white/[0.08] rounded-full border-dotted" style={{ transform: 'rotateX(-45deg) rotateY(45deg)', transformStyle: 'preserve-3d' }} />
-
-                {/* Core Sphere */}
-                <div className="absolute inset-[30%] bg-gradient-to-br from-[#00ff41]/10 to-black rounded-full backdrop-blur-xl border border-[#00ff41]/20 shadow-[0_0_60px_rgba(0,255,65,0.15),inset_0_0_20px_rgba(0,255,65,0.1)]" />
-
-              </div>
-            </div>
+          {/* WebGL Canvas */}
+          <div className="absolute inset-0 z-10 pointer-events-none">
+            <Canvas camera={{ position: [0, 0, 7], fov: 45 }}>
+              <GlobeScene reducedMotion={typeof window !== 'undefined' ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false} />
+            </Canvas>
           </div>
+
 
         </div>
       </div>

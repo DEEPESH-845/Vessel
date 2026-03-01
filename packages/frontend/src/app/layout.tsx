@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, JetBrains_Mono, Syne } from "next/font/google";
+import { GlobalCursorGlow } from "@/components/global-cursor-glow";
 import "./globals.css";
 import { AppProvider } from "@/lib/store";
 import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
@@ -94,9 +95,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${syne.variable} font-sans antialiased bg-black text-white selection:bg-[#00ff41] selection:text-black`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${syne.variable} font-sans antialiased bg-black text-white selection:bg-[#00ff41] selection:text-black cursor-none`}
         suppressHydrationWarning
       >
+        <GlobalCursorGlow />
         <LenisProvider>
           {/* Main Content */}
           <UserProvider>

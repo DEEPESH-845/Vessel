@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { gsap, ScrollTrigger } from '@/lib/animations/gsap-config';
 
 export function CyberNav() {
   const [scrolled, setScrolled] = useState(false);

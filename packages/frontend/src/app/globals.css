@@ -769,6 +769,26 @@ body {
 
 /* NO: Neon glow effects - removed for luxury aesthetic */
 
+/* Cinematic cursor override for custom cursor */
+.cursor-none,
+.cursor-none * {
+  cursor: none !important;
+}
+
+/* Specific elements where we might want the regular cursor back */
+.cursor-none iframe,
+.cursor-none textarea {
+  cursor: auto !important;
+}
+
+/* Fallback for native cursors when custom cursor is disabled */
+@media (prefers-reduced-motion: reduce) {
+  .cursor-none,
+  .cursor-none * {
+    cursor: auto !important;
+  }
+}
+
 /* Cinematic glow effects */
 .glow-sphere {
   position: absolute;

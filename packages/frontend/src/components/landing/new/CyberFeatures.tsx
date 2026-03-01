@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { BrainCircuit, Fingerprint, Zap, Globe2, QrCode, Lock } from 'lucide-react';
-import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { gsap, ScrollTrigger } from '@/lib/animations/gsap-config';
 import { animate, stagger } from 'animejs';
 
 interface FeatureItem {

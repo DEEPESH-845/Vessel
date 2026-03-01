@@ -2,7 +2,7 @@
 
 import { useEffect, useRef } from 'react';
 import { Scan, BrainCircuit, PenTool, ArrowRightLeft } from 'lucide-react';
-import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { gsap, ScrollTrigger } from '@/lib/animations/gsap-config';
 import { cn } from '@/lib/utils';
 import { animate } from 'animejs';
 
