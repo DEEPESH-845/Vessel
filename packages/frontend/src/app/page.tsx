@@ -6,7 +6,7 @@ import { CyberFeatures } from '@/components/landing/new/CyberFeatures';
 
 export default function Home() {
   return (
-    <main className="bg-black min-h-screen text-white selection:bg-[#00ff41] selection:text-black overflow-x-hidden">
+    <main className="bg-black min-h-screen text-white selection:bg-[#00ff41] selection:text-black">
       <CyberNav />
 
       {/* Wrapping the content to contain the pinning context and tracing beam effects */}

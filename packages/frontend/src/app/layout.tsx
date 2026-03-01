@@ -101,10 +101,8 @@ export default function RootLayout({
           {/* Main Content */}
           <UserProvider>
             <AppProvider>
-              <SmoothScrollProvider>
-                {children}
-                <PerformanceMonitor />
-              </SmoothScrollProvider>
+              {children}
+              <PerformanceMonitor />
             </AppProvider>
           </UserProvider>
         </LenisProvider>

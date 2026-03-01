@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef, useState } from 'react';
-import { gsap } from '@/lib/gsap';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { Sparkles, ArrowRight } from 'lucide-react';
 import { animate, stagger } from 'animejs';
 
@@ -53,72 +53,83 @@ export function CyberHero() {
 
     // Ensure GSAP context for proper cleanup
     let ctx = gsap.context(() => {
-      // Clean Sci-Fi Blur In for other elements
-      gsap.fromTo('.hero-text-secondary',
-        { y: 30, opacity: 0, filter: 'blur(15px)' },
-        { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.5, stagger: 0.2, ease: 'power3.out', delay: 1.2 }
-      );
+      // Small timeout to let the DOM settle before measuring heights for pinning
+      // This is crucial for fixing reload glitches where heights are measured before rendering
+      const timeout = setTimeout(() => {
+        // Clean Sci-Fi Blur In for other elements
+        gsap.fromTo('.hero-text-secondary',
+          { y: 30, opacity: 0, filter: 'blur(15px)' },
+          { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.5, stagger: 0.2, ease: 'power3.out', delay: 1.2 }
+        );
 
-      gsap.fromTo('.hero-glow',
-        { opacity: 0, scale: 0.5 },
-        { opacity: 1, scale: 1, duration: 2.5, ease: 'power2.out', delay: 0.5 }
-      );
+        // Reset glow state explicitly to prevent stacking
+        gsap.set('.hero-glow', { opacity: 0, scale: 0.5 });
+        gsap.fromTo('.hero-glow',
+          { opacity: 0, scale: 0.5 },
+          { opacity: 1, scale: 1, duration: 2.5, ease: 'power2.out', delay: 0.5 }
+        );
 
-      gsap.fromTo(ctaRef.current,
-        { opacity: 0, y: 30, filter: 'blur(10px)' },
-        { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.5, ease: 'power3.out', delay: 1.6 }
-      );
+        gsap.fromTo(ctaRef.current,
+          { opacity: 0, y: 30, filter: 'blur(10px)' },
+          { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.5, ease: 'power3.out', delay: 1.6 }
+        );
 
-      // Breathing animation for the background grid
-      gsap.to('.bg-grid', {
-        scale: 1.05,
-        opacity: 0.8,
-        duration: 5,
-        yoyo: true,
-        repeat: -1,
-        ease: 'sine.inOut'
-      });
+        // Breathing animation for the background grid
+        gsap.to('.bg-grid', {
+          scale: 1.05,
+          opacity: 0.8,
+          duration: 5,
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut'
+        });
 
-      // 2. ScrollTrigger Pinning and Reveal Logic
-      // Pins the hero section while breaking apart the text to reveal the next section
-      const tl = gsap.timeline({
-        scrollTrigger: {
-          trigger: containerRef.current,
-          start: 'top top',
-          end: '+=150%', // Pin for 150% of viewport height
-          pin: true,
-          scrub: 1.5, // Smooth scrubbing
-        }
-      });
+        // 2. ScrollTrigger Pinning and Reveal Logic
+        // Pins the hero section while breaking apart the text to reveal the next section
+        const tl = gsap.timeline({
+          scrollTrigger: {
+            trigger: containerRef.current,
+            start: 'top top',
+            end: '+=150%', // Pin for 150% of viewport height
+            pin: true,
+            scrub: 1.5, // Smooth scrubbing
+            invalidateOnRefresh: true, // Re-calculate on resize/reload
+          }
+        });
 
-      // Text scales up massively, blurs, and fades out, creating a "pass through" effect
-      tl.to('.hero-text-container', {
-        scale: 4.5,
-        opacity: 0,
-        filter: 'blur(20px)',
-        z: 500,
-        ease: 'power2.inOut',
-      }, 0);
+        // Text scales up massively, blurs, and fades out, creating a "pass through" effect
+        tl.to('.hero-text-container', {
+          scale: 4.5,
+          opacity: 0,
+          filter: 'blur(20px)',
+          z: 500,
+          ease: 'power2.inOut',
+        }, 0);
 
-      tl.to(ctaRef.current, {
-        opacity: 0,
-        y: -50,
-        scale: 0.8,
-        ease: 'power2.inOut',
-      }, 0);
+        tl.to(ctaRef.current, {
+          opacity: 0,
+          y: -50,
+          scale: 0.8,
+          ease: 'power2.inOut',
+        }, 0);
 
-      // Background grid zooms in and fades out
-      tl.to('.bg-grid', {
-        scale: 2.5,
-        opacity: 0,
-        ease: 'power1.inOut',
-      }, 0);
+        // Background grid zooms in and fades out
+        tl.to('.bg-grid', {
+          scale: 2.5,
+          opacity: 0,
+          ease: 'power1.inOut',
+        }, 0);
 
-      tl.to('.hero-glow', {
-        scale: 4,
-        opacity: 0,
-        ease: 'power1.inOut',
-      }, 0);
+        tl.to('.hero-glow', {
+          scale: 4,
+          opacity: 0,
+          ease: 'power1.inOut',
+        }, 0);
+
+        ScrollTrigger.refresh();
+      }, 150);
+
+      return () => clearTimeout(timeout);
     }, containerRef); // Scope to container
 
     const handleMouseMove = (e: MouseEvent) => {

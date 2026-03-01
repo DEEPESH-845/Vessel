@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useRef } from 'react';
-import { gsap } from '@/lib/gsap';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { Globe2, Zap, ShieldCheck } from 'lucide-react';
 import { animate, stagger } from 'animejs';
 
@@ -12,14 +12,19 @@ export function CyberGlobe() {
 
   useEffect(() => {
     let ctx = gsap.context(() => {
-      // 1. Text Content Fade In with Anime.js for smoother, staggered reveals
-      const textElements = document.querySelectorAll('.globe-text');
+      // Small timeout to allow the previous pinned section to render its spacer
+      const timeout = setTimeout(() => {
+        // 1. Text Content Fade In with Anime.js for smoother, staggered reveals
+        const textElements = document.querySelectorAll('.globe-text');
 
-      gsap.to(textElements, {
-        scrollTrigger: {
+        // Reset opacity manually before triggering just in case
+        gsap.set(textElements, { opacity: 0 });
+
+        ScrollTrigger.create({
           trigger: sectionRef.current,
           start: 'top 75%',
           onEnter: () => {
+             // Let Anime handle the actual styling overrides
              animate(textElements, {
                 translateY: [40, 0],
                 opacity: [0, 1],
@@ -29,82 +34,85 @@ export function CyberGlobe() {
                 ease: 'outQuint'
              });
           }
-        }
-      });
+        });
 
-      // 2. Stats Counters Animation (kept GSAP for text snapping)
-      const statNumbers = document.querySelectorAll('.stat-number');
-      statNumbers.forEach((stat: any) => {
-        const target = parseFloat(stat.getAttribute('data-target') || '0');
-        const suffix = stat.getAttribute('data-suffix') || '';
+        // 2. Stats Counters Animation (kept GSAP for text snapping)
+        const statNumbers = document.querySelectorAll('.stat-number');
+        statNumbers.forEach((stat: any) => {
+          const target = parseFloat(stat.getAttribute('data-target') || '0');
+          const suffix = stat.getAttribute('data-suffix') || '';
 
-        gsap.fromTo(stat,
-          { innerHTML: '0' },
-          {
-            scrollTrigger: {
-              trigger: statsRef.current,
-              start: 'top 85%',
-              toggleActions: 'play none none reverse',
-            },
-            innerHTML: target,
-            duration: 2.5,
-            ease: 'power3.out',
-            snap: { innerHTML: 0.1 },
-            onUpdate: function () {
-              stat.innerHTML = Number(this.targets()[0].innerHTML).toFixed(1) + suffix;
+          gsap.fromTo(stat,
+            { innerHTML: '0' },
+            {
+              scrollTrigger: {
+                trigger: statsRef.current,
+                start: 'top 85%',
+                toggleActions: 'play none none reverse',
+              },
+              innerHTML: target,
+              duration: 2.5,
+              ease: 'power3.out',
+              snap: { innerHTML: 0.1 },
+              onUpdate: function () {
+                stat.innerHTML = Number(this.targets()[0].innerHTML).toFixed(1) + suffix;
+              }
             }
-          }
-        );
-      });
+          );
+        });
 
-      // 3. 3D CSS Globe Animation
-      // Continual slow rotation
-      gsap.to('.globe-ring-h', {
-        rotationY: 360,
-        duration: 30,
-        repeat: -1,
-        ease: 'none',
-      });
-      gsap.to('.globe-ring-v', {
-        rotationX: 360,
-        duration: 35,
-        repeat: -1,
-        ease: 'none',
-      });
-      gsap.to('.globe-ring-d1', {
-        rotationZ: 360,
-        duration: 40,
-        repeat: -1,
-        ease: 'none',
-      });
-      gsap.to('.globe-ring-d2', {
-        rotationZ: -360,
-        duration: 45,
-        repeat: -1,
-        ease: 'none',
-      });
+        // 3. 3D CSS Globe Animation
+        // Continual slow rotation
+        gsap.to('.globe-ring-h', {
+          rotationY: 360,
+          duration: 30,
+          repeat: -1,
+          ease: 'none',
+        });
+        gsap.to('.globe-ring-v', {
+          rotationX: 360,
+          duration: 35,
+          repeat: -1,
+          ease: 'none',
+        });
+        gsap.to('.globe-ring-d1', {
+          rotationZ: 360,
+          duration: 40,
+          repeat: -1,
+          ease: 'none',
+        });
+        gsap.to('.globe-ring-d2', {
+          rotationZ: -360,
+          duration: 45,
+          repeat: -1,
+          ease: 'none',
+        });
 
-      // Pulse glow effect - Restored to intense state
-      gsap.to('.globe-glow-center', {
-        scale: 1.15,
-        opacity: 0.6,
-        duration: 4,
-        yoyo: true,
-        repeat: -1,
-        ease: 'sine.inOut'
-      });
+        // Pulse glow effect - Restored to intense state
+        gsap.to('.globe-glow-center', {
+          scale: 1.15,
+          opacity: 0.6,
+          duration: 4,
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut'
+        });
 
-      // Float animation for globe container
-      gsap.to(globeContainerRef.current, {
-        y: -15,
-        rotationX: 2,
-        rotationY: -2,
-        duration: 6,
-        yoyo: true,
-        repeat: -1,
-        ease: 'sine.inOut'
-      });
+        // Float animation for globe container
+        gsap.to(globeContainerRef.current, {
+          y: -15,
+          rotationX: 2,
+          rotationY: -2,
+          duration: 6,
+          yoyo: true,
+          repeat: -1,
+          ease: 'sine.inOut'
+        });
 
+        ScrollTrigger.refresh();
+      }, 200);
+
+      return () => clearTimeout(timeout);
     }, sectionRef);
 
     return () => ctx.revert();
