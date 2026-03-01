@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef } from 'react';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { animate, stagger } from 'animejs';
+import { gsap, ScrollTrigger } from '@/lib/gsap';
 
 export function CyberNav() {
   const [scrolled, setScrolled] = useState(false);
@@ -12,33 +12,38 @@ export function CyberNav() {
   const linksRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Entrance animation
-    if (navRef.current) {
-        animate(navRef.current, {
-          translateY: [-20, 0],
-          opacity: [0, 1],
-          duration: 1000,
-          ease: 'outExpo',
-          delay: 200
-        });
-    }
+    gsap.registerPlugin(ScrollTrigger);
+    let ctx = gsap.context(() => {
+      const tl = gsap.timeline();
 
-    if (logoRef.current && linksRef.current) {
-       animate([logoRef.current, ...Array.from(linksRef.current.children)], {
-        translateY: [-10, 0],
-        opacity: [0, 1],
-        duration: 800,
-        delay: stagger(100, { start: 400 }),
-        ease: 'outQuad'
-      });
-    }
+      // Entrance animation for the nav container
+      if (navRef.current) {
+        tl.fromTo(navRef.current,
+          { y: -20, opacity: 0 },
+          { y: 0, opacity: 1, duration: 1, ease: 'expo.out', delay: 0.2 }
+        );
+      }
+
+      // Entrance animation for logo and links
+      if (logoRef.current && linksRef.current) {
+        const elements = [logoRef.current, ...Array.from(linksRef.current.children)];
+        tl.fromTo(elements,
+          { y: -10, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'power2.out' },
+          "-=0.6" // Optional overlap
+        );
+      }
+    });
 
 
     const handleScroll = () => {
       setScrolled(window.scrollY > 50);
     };
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      ctx.revert(); // Cleanup GSAP animations
+    };
   }, []);
 
   return (
@@ -56,8 +61,8 @@ export function CyberNav() {
         {/* Logo Section */}
         <Link ref={logoRef} href="/" className="group flex items-center gap-4 relative opacity-0">
           <div className="relative w-8 h-8 flex items-center justify-center rounded-lg bg-white/5 border border-white/10 overflow-hidden transition-all duration-500 group-hover:border-[#00ff41]/50 group-hover:bg-[#00ff41]/5">
-             <div className="absolute inset-0 bg-[#00ff41] rounded-full opacity-20 group-hover:opacity-40 blur-xl transition-all duration-500 transform scale-150" />
-             <div className="relative w-2.5 h-2.5 bg-[#00ff41] rounded-full shadow-[0_0_15px_#00ff41] transition-transform duration-500 group-hover:scale-125" />
+            <div className="absolute inset-0 bg-[#00ff41] rounded-full opacity-20 group-hover:opacity-40 blur-xl transition-all duration-500 transform scale-150" />
+            <div className="relative w-2.5 h-2.5 bg-[#00ff41] rounded-full shadow-[0_0_15px_#00ff41] transition-transform duration-500 group-hover:scale-125" />
           </div>
           <span className="text-xl font-black text-white tracking-tighter uppercase leading-none mt-1 transition-colors duration-300 group-hover:text-white/90">
             VESSEL
@@ -66,7 +71,7 @@ export function CyberNav() {
 
         {/* Center decorative line (hidden on mobile) */}
         <div className={`hidden md:flex flex-1 max-w-lg mx-12 transition-all duration-700 ease-out origin-center ${scrolled ? 'opacity-100 scale-x-100' : 'opacity-0 scale-x-75'}`}>
-           <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
+          <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-white/10 to-transparent" />
         </div>
 
         {/* Right Actions */}
@@ -83,7 +88,7 @@ export function CyberNav() {
 
             <span className="relative z-10 text-xs font-bold tracking-widest uppercase text-white/90 group-hover:text-white transition-colors">Launch App</span>
             <div className="relative z-10 flex items-center justify-center w-5 h-5 rounded-full bg-white/10 group-hover:bg-[#00ff41] transition-colors duration-300">
-               <ArrowRight className="w-3 h-3 text-white group-hover:text-black transition-colors duration-300" />
+              <ArrowRight className="w-3 h-3 text-white group-hover:text-black transition-colors duration-300" />
             </div>
           </Link>
         </div>

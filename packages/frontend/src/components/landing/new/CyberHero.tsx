@@ -11,44 +11,51 @@ export function CyberHero() {
   const ctaRef = useRef<HTMLDivElement>(null);
   const titleVesselRef = useRef<HTMLHeadingElement>(null);
   const titleProtocolRef = useRef<HTMLHeadingElement>(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const titleProtocolShadowRef = useRef<HTMLHeadingElement>(null);
+  // Move the component definition higher up and create the glowing cursor logic directly in the Hero
+  const glowRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    if (prefersReducedMotion) {
+      // Set static accessible states for reduced-motion users
+      gsap.set('.hero-glow', { opacity: 0.6, scale: 1, x: '50vw', y: '50vh' });
+      gsap.set('.hero-glow-core', { opacity: 0.3, scale: 1, x: '50vw', y: '50vh' });
+      gsap.set('.bg-grid', { opacity: 0.4, scale: 1 });
+      gsap.set('.hero-text-container', { opacity: 1, scale: 1, filter: 'blur(0px)' });
+      gsap.set('.hero-text-secondary', { opacity: 1, y: 0, filter: 'blur(0px)' });
+      gsap.set(ctaRef.current, { opacity: 1, y: 0, filter: 'blur(0px)' });
+      // Ensure titles are in their neutral position
+      gsap.set([titleVesselRef.current, titleProtocolRef.current, titleProtocolShadowRef.current], { x: 0, y: 0 });
+
+      // Ensure the split characters are fully visible without animation
+      document.querySelectorAll('.hero-char').forEach((el) => {
+        (el as HTMLElement).style.opacity = '1';
+        (el as HTMLElement).style.transform = 'translateY(0px)';
+        (el as HTMLElement).style.filter = 'blur(0px)';
+      });
+      return;
+    }
+
     // 1. Anime.js Initial Text Reveal - Sophisticated staggered glitch/blur
     if (titleVesselRef.current && titleProtocolRef.current) {
-        // Split text manually for animejs
-        const splitText = (el: HTMLElement) => {
-            if (!el) return;
-            const text = el.innerText;
-            el.innerHTML = '';
-            text.split('').forEach(char => {
-                const span = document.createElement('span');
-                span.innerText = char;
-                span.style.opacity = '0';
-                span.style.display = 'inline-block';
-                span.style.transform = 'translateY(20px)';
-                span.style.filter = 'blur(10px)';
-                el.appendChild(span);
-            });
-        };
+      const allSpans = [
+        ...Array.from(titleVesselRef.current.children),
+        ...Array.from(titleProtocolRef.current.children)
+      ];
 
-        splitText(titleVesselRef.current);
-        splitText(titleProtocolRef.current);
-
-        const allSpans = [
-            ...Array.from(titleVesselRef.current.children),
-            ...Array.from(titleProtocolRef.current.children)
-        ];
-
+      if (allSpans.length > 0) {
         animate(allSpans, {
-            opacity: [0, 1],
-            translateY: [40, 0],
-            filter: ['blur(15px)', 'blur(0px)'],
-            scale: [0.8, 1],
-            duration: 1500,
-            delay: stagger(50, { start: 300 }),
-            ease: 'outElastic(1, .8)'
+          opacity: [0, 1],
+          translateY: [40, 0],
+          filter: ['blur(15px)', 'blur(0px)'],
+          scale: [0.8, 1],
+          duration: 1500,
+          delay: stagger(50, { start: 300 }),
+          ease: 'outElastic(1, .8)'
         });
+      }
     }
 
     // Ensure GSAP context for proper cleanup
@@ -56,6 +63,27 @@ export function CyberHero() {
       // Small timeout to let the DOM settle before measuring heights for pinning
       // This is crucial for fixing reload glitches where heights are measured before rendering
       const timeout = setTimeout(() => {
+        // Reset glow state explicitly to prevent stacking
+        gsap.set('.hero-glow', { opacity: 0, scale: 0.5 });
+        gsap.set('.hero-glow-core', { opacity: 0, scale: 0 });
+
+        // Fade in majestic premium glow and core
+        gsap.to('.hero-glow', {
+          opacity: 1,
+          scale: 1,
+          duration: 2.5,
+          ease: 'power2.out',
+          delay: 0.5
+        });
+
+        gsap.to('.hero-glow-core', {
+          opacity: 0.6,
+          scale: 1,
+          duration: 2.5,
+          ease: 'power2.out',
+          delay: 0.7
+        });
+
         // Clean Sci-Fi Blur In for other elements
         gsap.fromTo('.hero-text-secondary',
           { y: 30, opacity: 0, filter: 'blur(15px)' },
@@ -113,6 +141,14 @@ export function CyberHero() {
           ease: 'power1.inOut',
         }, 0);
 
+        // Delay the fade-out of the cursor glow to the very end of the scrub timeline
+        // so it persists during the entire pinning scroll phase
+        tl.to('.hero-glow, .hero-glow-core', {
+          scale: 4,
+          opacity: 0,
+          ease: 'power1.inOut',
+        }, 0);
+
         ScrollTrigger.refresh();
       }, 150);
 
@@ -120,10 +156,58 @@ export function CyberHero() {
     }, containerRef); // Scope to container
 
     const handleMouseMove = (e: MouseEvent) => {
-      // Calculate mouse position relative to center of screen (-1 to 1)
-      const x = (e.clientX / window.innerWidth) * 2 - 1;
-      const y = (e.clientY / window.innerHeight) * 2 - 1;
-      setMousePos({ x, y });
+      // Use standard window coordinates so it tracks regardless of scroll
+      // when the user scrolls down, `position: fixed` keeps it attached to the screen
+      const clientX = e.clientX;
+      const clientY = e.clientY;
+
+      if (glowRef.current) {
+        // Premium, snappy animation that tracks the mouse precisely within the Hero container
+        gsap.to(glowRef.current, {
+          x: clientX,
+          y: clientY,
+          duration: 0.8,
+          ease: 'power3.out',
+        });
+
+        // Make the intense core follow even faster
+        gsap.to('.hero-glow-core', {
+          x: clientX,
+          y: clientY,
+          duration: 0.3,
+          ease: 'power4.out',
+        });
+      }
+
+      // Parallax calculations
+      const pX = (clientX / window.innerWidth) * 2 - 1;
+      const pY = (clientY / window.innerHeight) * 2 - 1;
+
+      // Direct GSAP updates to refs (no re-renders)
+      if (titleVesselRef.current) {
+        gsap.to(titleVesselRef.current, {
+          x: pX * -12,
+          y: pY * -12,
+          duration: 0.5,
+          ease: 'power2.out'
+        });
+      }
+      if (titleProtocolRef.current) {
+        gsap.to(titleProtocolRef.current, {
+          x: pX * -20,
+          y: pY * -20,
+          duration: 0.5,
+          ease: 'power2.out'
+        });
+      }
+      if (titleProtocolShadowRef.current) {
+        gsap.to(titleProtocolShadowRef.current, {
+          x: pX * -6,
+          y: pY * -6,
+          duration: 0.5,
+          ease: 'power2.out'
+        });
+      }
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -136,12 +220,25 @@ export function CyberHero() {
 
   return (
     <section ref={containerRef} className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#020202] z-10 font-sans">
+      {/* Majestic Premium Cursor Glow - Fixed to screen but disappears securely when scrolled past */}
+      <div
+        ref={glowRef}
+        className="hero-glow fixed top-0 left-0 w-[600px] h-[600px] -ml-[300px] -mt-[300px] bg-gradient-to-tr from-[#00ff41]/20 via-[#00f0ff]/10 to-transparent rounded-full blur-[120px] mix-blend-screen pointer-events-none z-0"
+        style={{ opacity: 0, willChange: 'transform, opacity' }}
+      />
+
+      {/* Intense Core Highlight - Creates a premium "flashlight" core */}
+      <div
+        className="hero-glow-core fixed top-0 left-0 w-[150px] h-[150px] -ml-[75px] -mt-[75px] bg-[#00ff41] rounded-full blur-[60px] opacity-0 mix-blend-screen pointer-events-none z-0"
+        style={{ willChange: 'transform, opacity' }}
+      />
+
       {/* Subtle scanline overlay */}
       <div className="absolute inset-0 scanlines opacity-[0.2] z-10 pointer-events-none mix-blend-overlay" />
 
       {/* Breathing Background grid - slightly softer opacity */}
       <div className="bg-grid absolute inset-0 z-0 origin-center opacity-40"
-           style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '4vw 4vw' }}
+        style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)', backgroundSize: '4vw 4vw' }}
       />
 
       <div ref={textContainerRef} className="relative z-20 text-center flex flex-col items-center gap-8 origin-center w-full px-4" style={{ perspective: '1200px' }}>
@@ -154,19 +251,25 @@ export function CyberHero() {
 
         <div className="hero-text-container flex flex-col gap-0 items-center transform-gpu">
           <div className="overflow-visible">
-            <h1 ref={titleVesselRef} className="text-[14vw] sm:text-[11vw] font-black leading-[0.8] tracking-tighter text-white inline-block origin-center transform-gpu"
-                style={{ transform: `translate3d(${mousePos.x * -12}px, ${mousePos.y * -12}px, 0)` }}>
-              VESSEL
+            <h1 ref={titleVesselRef} className="text-[14vw] sm:text-[11vw] font-black leading-[0.8] tracking-tighter text-white inline-block origin-center transform-gpu">
+              {'VESSEL'.split('').map((char, i) => (
+                <span key={i} className="hero-char inline-block" style={{ opacity: 0, transform: 'translateY(20px)', filter: 'blur(10px)' }}>
+                  {char}
+                </span>
+              ))}
             </h1>
           </div>
           <div className="overflow-visible relative mt-2">
             <h1 ref={titleProtocolRef} className="text-[14vw] sm:text-[11vw] font-black leading-[0.8] tracking-tighter text-transparent inline-block origin-center transform-gpu relative z-10"
-                style={{ WebkitTextStroke: '2px rgba(255,255,255,0.8)', transform: `translate3d(${mousePos.x * -20}px, ${mousePos.y * -20}px, 0)` }}>
-              PROTOCOL
+              style={{ WebkitTextStroke: '2px rgba(255,255,255,0.8)' }}>
+              {'PROTOCOL'.split('').map((char, i) => (
+                <span key={i} className="hero-char inline-block" style={{ opacity: 0, transform: 'translateY(20px)', filter: 'blur(10px)' }}>
+                  {char}
+                </span>
+              ))}
             </h1>
             {/* Solid colored text layered behind the stroked text for a specific offset look, or just use solid */}
-            <h1 className="absolute top-0 left-0 text-[14vw] sm:text-[11vw] font-black leading-[0.8] tracking-tighter text-[#00ff41] inline-block origin-center transform-gpu blur-[8px] opacity-40 z-0 select-none pointer-events-none"
-                style={{ transform: `translate3d(${mousePos.x * -6}px, ${mousePos.y * -6}px, 0)` }}>
+            <h1 ref={titleProtocolShadowRef} className="absolute top-0 left-0 text-[14vw] sm:text-[11vw] font-black leading-[0.8] tracking-tighter text-[#00ff41] inline-block origin-center transform-gpu blur-[8px] opacity-40 z-0 select-none pointer-events-none">
               PROTOCOL
             </h1>
           </div>

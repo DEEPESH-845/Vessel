@@ -48,7 +48,7 @@ export function CyberTimeline() {
 
     const ctx = gsap.context(() => {
       if (prefersReducedMotion) {
-        gsap.set('.timeline-item, .timeline-dot, .tracing-beam', {
+        gsap.set('.timeline-item, .timeline-dot, .tracing-beam, .timeline-card, .timeline-number', {
           opacity: 1,
           scale: 1,
           x: 0,
@@ -87,43 +87,43 @@ export function CyberTimeline() {
         const number = item.querySelector('.timeline-number') as HTMLElement;
 
         ScrollTrigger.create({
-            trigger: item,
-            start: 'top 85%',
-            onEnter: () => {
-                // Card Entrance
-                if (card) {
-                    animate(card, {
-                        translateX: window.innerWidth >= 768 ? [desktopXOffset, 0] : [0, 0],
-                        translateY: window.innerWidth < 768 ? [40, 0] : [0, 0],
-                        opacity: [0, 1],
-                        scale: [0.95, 1],
-                        duration: 1200,
-                        ease: 'outQuint'
-                    });
-                }
-
-                // Dot Entrance
-                if (dot) {
-                     animate(dot, {
-                        scale: [0, 1],
-                        opacity: [0, 1],
-                        duration: 800,
-                        delay: 200,
-                        ease: 'outElastic(1, .6)'
-                    });
-                }
-
-                // Giant Number Entrance
-                if (number) {
-                     animate(number, {
-                        scale: [0.8, 1],
-                        opacity: [0, 0.03],
-                        translateY: [20, 0],
-                        duration: 1500,
-                        ease: 'outQuint'
-                    });
-                }
+          trigger: item,
+          start: 'top 85%',
+          onEnter: () => {
+            // Card Entrance
+            if (card) {
+              animate(card, {
+                translateX: window.innerWidth >= 768 ? [desktopXOffset, 0] : [0, 0],
+                translateY: window.innerWidth < 768 ? [40, 0] : [0, 0],
+                opacity: [0, 1],
+                scale: [0.95, 1],
+                duration: 1200,
+                ease: 'outQuint'
+              });
             }
+
+            // Dot Entrance
+            if (dot) {
+              animate(dot, {
+                scale: [0, 1],
+                opacity: [0, 1],
+                duration: 800,
+                delay: 200,
+                ease: 'outElastic(1, .6)'
+              });
+            }
+
+            // Giant Number Entrance
+            if (number) {
+              animate(number, {
+                scale: [0.8, 1],
+                opacity: [0, 0.03],
+                translateY: [20, 0],
+                duration: 1500,
+                ease: 'outQuint'
+              });
+            }
+          }
         });
       });
     }, containerRef);
@@ -221,8 +221,8 @@ export function CyberTimeline() {
                         isEven ? "md:flex-row-reverse md:text-right" : "text-left"
                       )}>
                         <div className="flex-shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-[1.25rem] bg-white/[0.03] border border-white/5 flex items-center justify-center group-hover:bg-[#00ff41]/10 group-hover:border-[#00ff41]/30 group-hover:shadow-[0_0_30px_rgba(0,255,65,0.15)] transition-all duration-500 relative overflow-hidden">
-                           <div className="absolute inset-0 bg-gradient-to-br from-[#00ff41]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
-                           <div className="relative z-10">{step.icon}</div>
+                          <div className="absolute inset-0 bg-gradient-to-br from-[#00ff41]/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                          <div className="relative z-10">{step.icon}</div>
                         </div>
                         <h3 className={cn(
                           "font-bold text-white text-xl sm:text-2xl lg:text-3xl tracking-tight group-hover:text-[#00ff41] transition-colors duration-500",

@@ -30,6 +30,7 @@ export function LenisProvider({ children }: { children: any }) {
   return (
     <ReactLenis
       root
+      autoRaf={false}
       options={{
         lerp: 0.05,
         duration: 1.5,
@@ -52,19 +53,21 @@ function LenisGsapSync() {
 
   useEffect(() => {
     if (lenis) {
-      // Connect GSAP ticker to Lenis requestAnimationFrame
-      gsap.ticker.add((time) => {
+      // Create a stable function reference to ensure correct removal in cleanup
+      const rafCallback = (time: number) => {
         lenis.raf(time * 1000);
-      });
+      };
+
+      // Connect GSAP ticker to Lenis requestAnimationFrame
+      gsap.ticker.add(rafCallback);
+
       // Important: prevent GSAP's default lag smoothing to avoid visual jumping when Lenis handles scroll
       gsap.ticker.lagSmoothing(0);
-    }
 
-    return () => {
-      if (lenis) {
-        gsap.ticker.remove(lenis.raf);
-      }
-    };
+      return () => {
+        gsap.ticker.remove(rafCallback);
+      };
+    }
   }, [lenis]);
 
   return null;
