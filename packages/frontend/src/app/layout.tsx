@@ -6,6 +6,7 @@ import { SmoothScrollProvider } from "@/components/smooth-scroll-provider";
 import PerformanceMonitor from "@/components/performance-monitor";
 import { UserProvider } from "@/components/user-provider";
 import { LenisProvider } from "@/components/providers/LenisProvider";
+import { GlobalCursorGlow } from "@/components/global-cursor-glow";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -94,9 +95,10 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </head>
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} ${syne.variable} font-sans antialiased bg-black text-white selection:bg-[#00ff41] selection:text-black`}
+        className={`${inter.variable} ${jetbrainsMono.variable} ${syne.variable} font-sans antialiased bg-black text-white selection:bg-[#00ff41] selection:text-black relative`}
         suppressHydrationWarning
       >
+        <GlobalCursorGlow />
         <LenisProvider>
           {/* Main Content */}
           <UserProvider>

@@ -62,13 +62,6 @@ export function CyberHero() {
           { y: 0, opacity: 1, filter: 'blur(0px)', duration: 1.5, stagger: 0.2, ease: 'power3.out', delay: 1.2 }
         );
 
-        // Reset glow state explicitly to prevent stacking
-        gsap.set('.hero-glow', { opacity: 0, scale: 0.5 });
-        gsap.fromTo('.hero-glow',
-          { opacity: 0, scale: 0.5 },
-          { opacity: 1, scale: 1, duration: 2.5, ease: 'power2.out', delay: 0.5 }
-        );
-
         gsap.fromTo(ctaRef.current,
           { opacity: 0, y: 30, filter: 'blur(10px)' },
           { opacity: 1, y: 0, filter: 'blur(0px)', duration: 1.5, ease: 'power3.out', delay: 1.6 }
@@ -120,12 +113,6 @@ export function CyberHero() {
           ease: 'power1.inOut',
         }, 0);
 
-        tl.to('.hero-glow', {
-          scale: 4,
-          opacity: 0,
-          ease: 'power1.inOut',
-        }, 0);
-
         ScrollTrigger.refresh();
       }, 150);
 
@@ -136,17 +123,7 @@ export function CyberHero() {
       // Calculate mouse position relative to center of screen (-1 to 1)
       const x = (e.clientX / window.innerWidth) * 2 - 1;
       const y = (e.clientY / window.innerHeight) * 2 - 1;
-
-      // Update state for direct inline style manipulation
       setMousePos({ x, y });
-
-      // Animate the glow to follow the mouse slightly
-      gsap.to('.dynamic-glow', {
-        x: x * 150, // Move max 150px from center
-        y: y * 150, // Move max 150px from center
-        duration: 1.5,
-        ease: 'power2.out'
-      });
     };
 
     window.addEventListener('mousemove', handleMouseMove);
@@ -161,9 +138,6 @@ export function CyberHero() {
     <section ref={containerRef} className="relative h-screen w-full flex items-center justify-center overflow-hidden bg-[#020202] z-10 font-sans">
       {/* Subtle scanline overlay */}
       <div className="absolute inset-0 scanlines opacity-[0.2] z-10 pointer-events-none mix-blend-overlay" />
-
-      {/* Dynamic Radial glow that follows cursor */}
-      <div className="hero-glow dynamic-glow absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70vw] h-[70vw] max-w-[900px] max-h-[900px] bg-[#00ff41] rounded-full blur-[150px] mix-blend-screen pointer-events-none z-0" style={{ opacity: 0.12 }} />
 
       {/* Breathing Background grid - slightly softer opacity */}
       <div className="bg-grid absolute inset-0 z-0 origin-center opacity-40"
