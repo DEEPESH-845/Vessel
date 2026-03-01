@@ -14,6 +14,10 @@ export default function Home() {
         <CyberHero />
         <CyberGlobe />
         <CyberTimeline />
+
+        {/* Spacer before next section to give the timeline room to breathe */}
+        <div className="h-24 md:h-32 lg:h-48 pointer-events-none" aria-hidden="true" />
+
         <CyberFeatures />
       </div>
     </main>
